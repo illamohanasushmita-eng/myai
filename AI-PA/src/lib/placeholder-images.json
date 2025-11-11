@@ -1,0 +1,10 @@
+{
+  "placeholderImages": [
+    {
+      "id": "ai-personalization",
+      "description": "An abstract image representing AI and personalization",
+      "imageUrl": "https://picsum.photos/seed/ai-1/1200/800",
+      "imageHint": "abstract technology"
+    }
+  ]
+}
