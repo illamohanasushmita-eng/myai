@@ -1,0 +1,142 @@
+import { supabase } from '@/lib/supabaseClient';
+import { User } from '@/lib/types/database';
+
+// Get user by ID
+export async function getUser(userId: string): Promise<User | null> {
+  try {
+    console.log('[USER-SERVICE] Fetching user with ID:', userId);
+
+    const { data, error } = await supabase
+      .from('users')
+      .select('*')
+      .eq('user_id', userId)
+      .single();
+
+    if (error) {
+      // If it's a "no rows found" error, return null instead of throwing
+      if (error.code === 'PGRST116') {
+        console.log('[USER-SERVICE] User profile not found (PGRST116)');
+        return null;
+      }
+
+      // Log detailed error information for other errors
+      const errorDetails = {
+        code: error.code,
+        message: error.message,
+        status: (error as any).status,
+        details: (error as any).details,
+      };
+      console.error('[USER-SERVICE] Error fetching user:', errorDetails);
+      throw error;
+    }
+
+    console.log('[USER-SERVICE] User fetched successfully');
+    return data;
+  } catch (error) {
+    const errorMsg = error instanceof Error ? error.message : JSON.stringify(error);
+    console.error('[USER-SERVICE] Exception in getUser:', errorMsg);
+    throw error;
+  }
+}
+
+// Get user by email
+export async function getUserByEmail(email: string): Promise<User | null> {
+  try {
+    const { data, error } = await supabase
+      .from('users')
+      .select('*')
+      .eq('email', email)
+      .single();
+
+    if (error && error.code !== 'PGRST116') throw error;
+    return data || null;
+  } catch (error) {
+    console.error('Error fetching user by email:', error);
+    throw error;
+  }
+}
+
+// Create a new user
+export async function createUser(
+  userData: Omit<User, 'user_id' | 'created_at'>
+): Promise<User> {
+  try {
+    console.log('[USER-SERVICE] Creating user with email:', userData.email);
+
+    const { data, error } = await supabase
+      .from('users')
+      .insert([userData])
+      .select()
+      .single();
+
+    if (error) {
+      const errorDetails = {
+        code: error.code,
+        message: error.message,
+        status: (error as any).status,
+        details: (error as any).details,
+      };
+      console.error('[USER-SERVICE] Error creating user:', errorDetails);
+      throw error;
+    }
+
+    console.log('[USER-SERVICE] User created successfully');
+    return data;
+  } catch (error) {
+    const errorMsg = error instanceof Error ? error.message : JSON.stringify(error);
+    console.error('[USER-SERVICE] Exception in createUser:', errorMsg);
+    throw error;
+  }
+}
+
+// Update user
+export async function updateUser(
+  userId: string,
+  updates: Partial<User>
+): Promise<User> {
+  try {
+    const { data, error } = await supabase
+      .from('users')
+      .update(updates)
+      .eq('user_id', userId)
+      .select()
+      .single();
+
+    if (error) throw error;
+    return data;
+  } catch (error) {
+    console.error('Error updating user:', error);
+    throw error;
+  }
+}
+
+// Update last login
+export async function updateLastLogin(userId: string): Promise<void> {
+  try {
+    const { error } = await supabase
+      .from('users')
+      .update({ last_login: new Date().toISOString() })
+      .eq('user_id', userId);
+
+    if (error) throw error;
+  } catch (error) {
+    console.error('Error updating last login:', error);
+    throw error;
+  }
+}
+
+// Delete user
+export async function deleteUser(userId: string): Promise<void> {
+  try {
+    const { error } = await supabase
+      .from('users')
+      .delete()
+      .eq('user_id', userId);
+
+    if (error) throw error;
+  } catch (error) {
+    console.error('Error deleting user:', error);
+    throw error;
+  }
+}
+
