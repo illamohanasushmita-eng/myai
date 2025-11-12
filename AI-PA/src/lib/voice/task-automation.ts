@@ -32,7 +32,18 @@ export async function addTaskVoice(
     // This ensures the task is in the database before the page tries to fetch it
     await createTaskInBackground(taskText, userId, category, actualDueDate);
 
-    console.log('📝 [TASK-VOICE] Task created successfully, now navigating to tasks page...');
+    console.log('📝 [TASK-VOICE] Task created successfully, now providing voice feedback...');
+
+    // Provide voice feedback before navigation
+    try {
+      const { speak } = await import('@/lib/voice/lara-assistant');
+      console.log('📝 [TASK-VOICE] Providing voice feedback: "Task added"');
+      speak('Task added', true).catch(err => console.log('📝 [TASK-VOICE] TTS error (non-critical):', err));
+    } catch (error) {
+      console.log('📝 [TASK-VOICE] Could not provide voice feedback:', error);
+    }
+
+    console.log('📝 [TASK-VOICE] Now navigating to tasks page...');
 
     // Navigate after task is created
     // Always navigate to /tasks page with refresh parameter, regardless of category

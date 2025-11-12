@@ -84,7 +84,15 @@ export function useLara({
         await addTaskVoice(text, userId, context.onNavigate);
       },
       onAddReminder: async (text: string, time?: string) => {
-        await addReminderVoice(text, userId, time, context.onNavigate);
+        // Try to get the optimistic add function from reminders page (stored on window)
+        let onReminderCreated: ((reminder: any) => void) | undefined = undefined;
+        if (typeof window !== 'undefined' && (window as any).__addReminderOptimistically) {
+          onReminderCreated = (window as any).__addReminderOptimistically;
+          console.log('📌 [LARA] Found optimistic add function on window');
+        } else {
+          console.log('📌 [LARA] Optimistic add function not available (reminders page may not be mounted)');
+        }
+        await addReminderVoice(text, userId, time, context.onNavigate, onReminderCreated);
       },
       onTaskStatusChange,
       onListeningStateChange,

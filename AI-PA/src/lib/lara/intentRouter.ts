@@ -3,8 +3,15 @@
  * Maps Wit.ai intents to actions
  */
 
-import { LaraContext } from '@/lib/voice/lara-assistant';
+import { LaraContext, speak } from '@/lib/voice/lara-assistant';
 import { automateSpotifyPlayback } from '@/lib/voice/spotify-automation';
+import {
+  playInSpotifyApp,
+  searchInSpotifyApp,
+  openSpotifyHome,
+  playTrackWithAutoPlay,
+  sanitizeMusicQuery
+} from '@/lib/spotify/redirect';
 
 export interface WitIntentResult {
   intent: string | null;
@@ -33,21 +40,93 @@ export async function routeIntent(
 
     // Music playback intents (handle both dot and underscore notation)
     if (intent === 'music.play' || intent === 'music_play' || intent === 'play_music') {
-      console.log('🎵 Playing music');
-      const songName = extractSongName(userText, entities);
-      console.log(`🎵 Extracted song name: ${songName}`);
+      console.log('🎵 [INTENT ROUTER] Music playback intent detected');
 
-      // Check if song name is valid (not just "a", "song", etc.)
-      const isValidSongName = songName &&
-        songName.trim().length > 1 &&
-        !['a', 'song', 'music', 'track', 'a song', 'a music', 'a track'].includes(songName.toLowerCase());
+      // Extract music query from entities or user text
+      let musicQuery = extractMusicQuery(userText, entities);
 
-      if (isValidSongName) {
-        console.log(`🎵 Calling Spotify automation with: ${songName}`);
-        await automateSpotifyPlayback(songName, context.userId);
-        return `Now playing ${songName}`;
+      // Sanitize the query (remove punctuation, normalize whitespace)
+      musicQuery = sanitizeMusicQuery(musicQuery);
+      console.log(`🎵 [INTENT ROUTER] Extracted and sanitized music query: "${musicQuery}"`);
+
+      // Check if we have a specific song/artist query
+      const isSpecificQuery = musicQuery &&
+        musicQuery.trim().length > 1 &&
+        !['a', 'song', 'music', 'track', 'a song', 'a music', 'a track', 'some music', 'some songs'].includes(musicQuery.toLowerCase());
+
+      if (isSpecificQuery) {
+        console.log(`🎵 [INTENT ROUTER] Specific query detected: "${musicQuery}"`);
+
+        // Try to search for the track first
+        try {
+          console.log(`🎵 [INTENT ROUTER] Searching Spotify for: "${musicQuery}"`);
+          const searchResponse = await fetch('/api/spotify/search?q=' + encodeURIComponent(musicQuery) + '&limit=1');
+
+          if (searchResponse.ok) {
+            const searchData = await searchResponse.json();
+            console.log(`🎵 [INTENT ROUTER] Search response:`, searchData);
+
+            if (searchData.tracks && searchData.tracks.length > 0) {
+              const trackId = searchData.tracks[0].id;
+              const trackName = searchData.tracks[0].name;
+              console.log(`🎵 [INTENT ROUTER] Found track: ${trackName} (ID: ${trackId})`);
+
+              // Priority 1: Try URI scheme first (direct app opening)
+              console.log(`🎵 [INTENT ROUTER] Attempting URI scheme redirect (Priority 1)`);
+              let appOpenFailed = false;
+              await playInSpotifyApp(trackId, (reason: string) => {
+                console.log(`🎵 [INTENT ROUTER] URI scheme fallback triggered: ${reason}`);
+                appOpenFailed = true;
+              });
+
+              // Priority 2: If userId available, also attempt auto-play as fallback
+              const userId = context?.userId;
+              if (userId && appOpenFailed) {
+                console.log(`🎵 [INTENT ROUTER] Setting up auto-play fallback with userId: ${userId}`);
+                // Schedule auto-play attempt after 2.5 seconds (after URI scheme timeout)
+                setTimeout(async () => {
+                  console.log(`🎵 [INTENT ROUTER] Attempting auto-play fallback (Priority 2)`);
+                  const autoPlaySuccess = await playTrackWithAutoPlay(trackId, userId, trackName);
+                  if (!autoPlaySuccess) {
+                    console.warn(`🎵 [INTENT ROUTER] Auto-play also failed, user will see web player`);
+                  }
+                }, 2500);
+              }
+
+              return `Opening ${trackName} in Spotify`;
+            } else {
+              console.log(`🎵 [INTENT ROUTER] No tracks found, falling back to search`);
+              // Fallback to search if no results
+              await searchInSpotifyApp(musicQuery, (reason: string) => {
+                console.log(`🎵 [INTENT ROUTER] Search fallback triggered: ${reason}`);
+              });
+              return `Searching for ${musicQuery} in Spotify`;
+            }
+          } else {
+            console.error(`🎵 [INTENT ROUTER] Search API error: ${searchResponse.status}`);
+            // Fallback to search if API fails
+            await searchInSpotifyApp(musicQuery, (reason: string) => {
+              console.log(`🎵 [INTENT ROUTER] Search fallback triggered: ${reason}`);
+            });
+            return `Searching for ${musicQuery} in Spotify`;
+          }
+        } catch (error) {
+          console.error(`🎵 [INTENT ROUTER] Error during music search:`, error);
+          // Fallback to search if error occurs
+          await searchInSpotifyApp(musicQuery, (reason: string) => {
+            console.log(`🎵 [INTENT ROUTER] Search fallback triggered: ${reason}`);
+          });
+          return `Searching for ${musicQuery} in Spotify`;
+        }
+      } else {
+        // Generic music request - use search instead of home
+        console.log(`🎵 [INTENT ROUTER] Generic music request, using search for: "${musicQuery || 'favorite songs'}"`);
+        const searchQuery = musicQuery || 'favorite songs';
+        await searchInSpotifyApp(searchQuery, (reason: string) => {
+          console.log(`🎵 [INTENT ROUTER] Search fallback triggered: ${reason}`);
+        });
+        return `Searching for ${searchQuery} in Spotify`;
       }
-      return 'Please specify a song name';
     }
 
     // Tasks intents (handle both dot and underscore notation)
@@ -59,6 +138,20 @@ export async function routeIntent(
         userId: context.userId
       });
 
+      // IMPORTANT: Provide voice feedback BEFORE navigation
+      // This ensures the user hears the feedback before the page changes
+      try {
+        console.log('📋 Providing voice feedback BEFORE navigation...');
+        const feedbackStartTime = performance.now();
+        await speak('Opening tasks', true);
+        const feedbackEndTime = performance.now();
+        console.log(`📋 Voice feedback completed (${(feedbackEndTime - feedbackStartTime).toFixed(0)}ms)`);
+      } catch (error) {
+        console.log('📋 Voice feedback error (non-critical):', error);
+        // Continue with navigation even if feedback fails
+      }
+
+      // NOW perform navigation after feedback is complete
       try {
         const navStartTime = performance.now();
         if (context.onNavigate) {
@@ -77,6 +170,7 @@ export async function routeIntent(
       } catch (error) {
         console.error('❌ Error during navigation:', error);
       }
+
       return 'Opening tasks page';
     }
 
@@ -121,6 +215,21 @@ export async function routeIntent(
 
     if (intent === 'reminders.open' || intent === 'reminders.show' || intent === 'reminders_open' || intent === 'show_reminders') {
       console.log('📌 Opening reminders page');
+
+      // IMPORTANT: Provide voice feedback BEFORE navigation
+      // This ensures the user hears the feedback before the page changes
+      try {
+        console.log('📌 Providing voice feedback BEFORE navigation...');
+        const feedbackStartTime = performance.now();
+        await speak('Opening reminders', true);
+        const feedbackEndTime = performance.now();
+        console.log(`📌 Voice feedback completed (${(feedbackEndTime - feedbackStartTime).toFixed(0)}ms)`);
+      } catch (error) {
+        console.log('📌 Voice feedback error (non-critical):', error);
+        // Continue with navigation even if feedback fails
+      }
+
+      // NOW perform navigation after feedback is complete
       try {
         const navStartTime = performance.now();
         if (context.onNavigate) {
@@ -135,12 +244,27 @@ export async function routeIntent(
       } catch (error) {
         console.error('❌ Error during navigation:', error);
       }
+
       return 'Opening reminders page';
     }
 
     // Handle Cohere's reminders_show intent
     if (intent === 'reminders_show') {
       console.log('📌 Opening reminders page (Cohere)');
+
+      // IMPORTANT: Provide voice feedback BEFORE navigation
+      try {
+        console.log('📌 Providing voice feedback BEFORE navigation...');
+        const feedbackStartTime = performance.now();
+        await speak('Opening reminders', true);
+        const feedbackEndTime = performance.now();
+        console.log(`📌 Voice feedback completed (${(feedbackEndTime - feedbackStartTime).toFixed(0)}ms)`);
+      } catch (error) {
+        console.log('📌 Voice feedback error (non-critical):', error);
+        // Continue with navigation even if feedback fails
+      }
+
+      // NOW perform navigation after feedback is complete
       try {
         if (context.onNavigate) {
           context.onNavigate('/reminders');
@@ -150,6 +274,7 @@ export async function routeIntent(
       } catch (error) {
         console.error('❌ Error during navigation:', error);
       }
+
       return 'Opening reminders page';
     }
 
@@ -267,6 +392,15 @@ export async function routeIntent(
         } catch (error) {
           console.error('❌ Error during navigation:', error);
         }
+
+        // Add voice feedback for navigation
+        try {
+          const feedbackText = `Opening ${page}`;
+          speak(feedbackText, true).catch(err => console.log('🗺️ TTS error (non-critical):', err));
+        } catch (error) {
+          console.log('🗺️ Could not speak navigation feedback:', error);
+        }
+
         return `Opening ${page} page`;
       }
       console.log('🗺️ Could not determine page from:', { page, userText, entities });
@@ -314,6 +448,15 @@ export async function routeIntent(
         } else if (context.router) {
           context.router.push(path);
         }
+
+        // Add voice feedback for navigation
+        try {
+          const feedbackText = `Opening ${page}`;
+          speak(feedbackText, true).catch(err => console.log('🗺️ TTS error (non-critical):', err));
+        } catch (error) {
+          console.log('🗺️ Could not speak navigation feedback:', error);
+        }
+
         return `Opening ${page} page`;
       }
       return 'Could not determine which page to open';
@@ -329,10 +472,43 @@ export async function routeIntent(
 }
 
 /**
- * Extract song name from user text and entities
+ * Extract music query from user text and entities
+ * Supports: song names, artist names, genres, languages, moods
  */
-function extractSongName(userText: string, entities: Record<string, any>): string | null {
-  // Try to extract from fallback entities first (songName from witai-fallback.ts)
+function extractMusicQuery(userText: string, entities: Record<string, any>): string | null {
+  // Try to extract from Cohere entities first
+  if (entities.query) {
+    const query = entities.query.trim();
+    if (query && query.length > 0) {
+      return query;
+    }
+  }
+
+  // Try to extract artist from entities
+  if (entities.artist) {
+    const artist = entities.artist.trim();
+    if (artist && artist.length > 0) {
+      return artist;
+    }
+  }
+
+  // Try to extract genre from entities
+  if (entities.genre) {
+    const genre = entities.genre.trim();
+    if (genre && genre.length > 0) {
+      return genre;
+    }
+  }
+
+  // Try to extract mood from entities
+  if (entities.mood) {
+    const mood = entities.mood.trim();
+    if (mood && mood.length > 0) {
+      return mood;
+    }
+  }
+
+  // Try to extract from fallback entities (songName from witai-fallback.ts)
   if (entities.songName) {
     const songName = entities.songName.trim();
     if (songName && songName.toLowerCase() !== 'song' && songName.toLowerCase() !== 'a song') {
@@ -356,19 +532,29 @@ function extractSongName(userText: string, entities: Record<string, any>): strin
     /play\s+(?:me\s+)?(.+?)\s+(?:song|music|track)/i,
     /play\s+(?:the\s+)?(?:song|music|track)\s+(.+?)(?:\s+by|$)/i,
     /play\s+(?:me\s+)?(.+?)(?:\s+by|$)/i,
+    /play\s+(.+?)\s+(?:songs?|music)/i,
+    /play\s+(.+?)$/i,
   ];
 
   for (const pattern of patterns) {
     const match = userText.match(pattern);
     if (match && match[1]) {
-      const songName = match[1].trim();
-      if (songName.toLowerCase() !== 'song' && songName.toLowerCase() !== 'a song') {
-        return songName;
+      const query = match[1].trim();
+      if (query.toLowerCase() !== 'song' && query.toLowerCase() !== 'a song' && query.length > 0) {
+        return query;
       }
     }
   }
 
   return null;
+}
+
+/**
+ * Extract song name from user text and entities
+ * @deprecated Use extractMusicQuery instead
+ */
+function extractSongName(userText: string, entities: Record<string, any>): string | null {
+  return extractMusicQuery(userText, entities);
 }
 
 /**

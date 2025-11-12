@@ -75,6 +75,34 @@ export default function RemindersPage() {
     fetchReminders();
   }, [fetchReminders]);
 
+  // Add reminder optimistically to the list
+  const addReminderOptimistically = useCallback((reminder: Reminder) => {
+    console.log('📌 [REMINDERS-PAGE] Adding reminder optimistically:', reminder);
+    setReminders(prevReminders => {
+      // Check if reminder already exists (avoid duplicates)
+      const exists = prevReminders.some(r => r.reminder_id === reminder.reminder_id);
+      if (exists) {
+        console.log('📌 [REMINDERS-PAGE] Reminder already exists, skipping');
+        return prevReminders;
+      }
+      // Add new reminder to the list
+      return [reminder, ...prevReminders];
+    });
+  }, []);
+
+  // Store the function on window so voice assistant can access it
+  useEffect(() => {
+    if (typeof window !== 'undefined') {
+      (window as any).__addReminderOptimistically = addReminderOptimistically;
+      console.log('📌 [REMINDERS-PAGE] Stored addReminderOptimistically on window');
+    }
+    return () => {
+      if (typeof window !== 'undefined') {
+        delete (window as any).__addReminderOptimistically;
+      }
+    };
+  }, [addReminderOptimistically]);
+
   // Refetch reminders when refresh query param is set (for voice-created reminders)
   useEffect(() => {
     if (searchParams) {

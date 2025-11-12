@@ -59,7 +59,22 @@ Input: "add task call my mom"
 Output: {"intent": "add_task", "entities": {"title": "call my mom"}, "confidence": 0.95}
 
 Input: "play some Telugu songs"
-Output: {"intent": "play_music", "entities": {"genre": "Telugu"}, "confidence": 0.9}
+Output: {"intent": "play_music", "entities": {"query": "Telugu songs"}, "confidence": 0.9}
+
+Input: "play a song"
+Output: {"intent": "play_music", "entities": {"query": null}, "confidence": 0.95}
+
+Input: "play music"
+Output: {"intent": "play_music", "entities": {"query": null}, "confidence": 0.95}
+
+Input: "play prabhas songs"
+Output: {"intent": "play_music", "entities": {"query": "prabhas songs"}, "confidence": 0.9}
+
+Input: "play telugu songs"
+Output: {"intent": "play_music", "entities": {"query": "telugu songs"}, "confidence": 0.9}
+
+Input: "play hindi music"
+Output: {"intent": "play_music", "entities": {"query": "hindi music"}, "confidence": 0.9}
 
 Input: "show my tasks"
 Output: {"intent": "show_tasks", "entities": {}, "confidence": 0.95}
@@ -185,17 +200,53 @@ export function detectIntentWithFallback(text: string): CohereIntentResult {
     };
   }
 
-  // Music playback intents
-  if (lowerText.match(/play\s+(?:me\s+)?(.+?)(?:\s+(?:song|music|track|songs))?s?$/i)) {
-    const match = lowerText.match(/play\s+(?:me\s+)?(.+?)(?:\s+(?:song|music|track|songs))?s?$/i);
-    let artist = match?.[1] || '';
-    // Remove trailing "s" if it's part of "songs"
-    artist = artist.replace(/\s+songs?$/i, '').trim();
+  // Music playback intents - comprehensive pattern matching
+  // Patterns: "play a song", "play music", "play telugu songs", "play prabhas songs", "play [song/artist]"
+
+  // Pattern 1: Generic music requests ("play a song", "play music", "play some music")
+  if (lowerText.match(/^play\s+(?:a\s+)?(?:song|music|some\s+music|some\s+songs?)$/i)) {
+    console.log('🎵 [COHERE] Generic music request detected');
     return {
       intent: 'play_music',
-      entities: { artist: artist },
-      confidence: 0.7,
+      entities: { query: null }, // No specific query
+      confidence: 0.85,
     };
+  }
+
+  // Pattern 2: Genre/Language/Mood based ("play telugu songs", "play hindi music", "play relaxing music")
+  if (lowerText.match(/^play\s+(?:some\s+)?(.+?)\s+(?:songs?|music)$/i)) {
+    const match = lowerText.match(/^play\s+(?:some\s+)?(.+?)\s+(?:songs?|music)$/i);
+    const query = match?.[1]?.trim() || '';
+
+    // Check if it's a language, genre, or mood
+    const musicKeywords = ['telugu', 'hindi', 'tamil', 'kannada', 'malayalam', 'punjabi', 'marathi', 'gujarati', 'bengali', 'urdu', 'english', 'spanish', 'french', 'german', 'italian', 'portuguese', 'russian', 'japanese', 'korean', 'chinese', 'arabic', 'relaxing', 'energetic', 'sad', 'happy', 'romantic', 'party', 'workout', 'sleep', 'focus', 'study', 'chill', 'upbeat', 'mellow', 'acoustic', 'electronic', 'rock', 'pop', 'jazz', 'classical', 'blues', 'country', 'reggae', 'hip-hop', 'rap', 'metal', 'indie', 'folk', 'soul', 'r&b', 'rnb', 'disco', 'funk', 'gospel', 'ambient', 'lo-fi', 'lofi'];
+
+    if (query && musicKeywords.some(keyword => query.toLowerCase().includes(keyword))) {
+      console.log(`🎵 [COHERE] Music genre/language/mood detected: ${query}`);
+      return {
+        intent: 'play_music',
+        entities: { query: query },
+        confidence: 0.85,
+      };
+    }
+  }
+
+  // Pattern 3: Specific song/artist ("play prabhas songs", "play [song name]", "play songs by [artist]")
+  if (lowerText.match(/^play\s+(?:me\s+)?(.+?)(?:\s+(?:song|music|track|songs|by))?s?$/i)) {
+    const match = lowerText.match(/^play\s+(?:me\s+)?(.+?)(?:\s+(?:song|music|track|songs|by))?s?$/i);
+    let query = match?.[1] || '';
+
+    // Clean up the query
+    query = query.replace(/\s+(?:song|music|track|songs|by)s?$/i, '').trim();
+
+    if (query && query.length > 1 && !['a', 'song', 'music', 'track', 'a song', 'a music', 'a track'].includes(query.toLowerCase())) {
+      console.log(`🎵 [COHERE] Specific music query detected: ${query}`);
+      return {
+        intent: 'play_music',
+        entities: { query: query },
+        confidence: 0.8,
+      };
+    }
   }
 
   // Task creation intents

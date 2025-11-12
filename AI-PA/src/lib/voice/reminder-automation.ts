@@ -12,8 +12,8 @@ const IST_OFFSET_MS = 5.5 * 60 * 60 * 1000; // 19800000 ms
 // Default times for relative date expressions (in IST)
 const DEFAULT_TIMES = {
   tomorrow: { hour: 9, minute: 0 },      // 9:00 AM
-  today: { hour: 9, minute: 0 },         // 9:00 AM
-  tonight: { hour: 20, minute: 0 },      // 8:00 PM
+  today: { hour: 21, minute: 0 },        // 9:00 PM (changed from 9:00 AM)
+  tonight: { hour: 21, minute: 0 },      // 9:00 PM
   evening: { hour: 19, minute: 0 },      // 7:00 PM
   afternoon: { hour: 15, minute: 0 },    // 3:00 PM
   dayAfterTomorrow: { hour: 9, minute: 0 }, // 9:00 AM
@@ -342,10 +342,10 @@ export function convertToISOTimestamp(text: string, timeStr?: string): string {
     console.log('📌 [CONVERT-TIMESTAMP] Using default time for day name: 09:00 (IST)');
     targetDateIST.setUTCHours(DEFAULT_TIMES.dayName.hour, DEFAULT_TIMES.dayName.minute, 0, 0);
   } else {
-    // No specific date or time found - use tomorrow at 9 AM IST
-    console.log('📌 [CONVERT-TIMESTAMP] No date/time found, defaulting to tomorrow at 09:00 (IST)');
-    targetDateIST = getTomorrowInIST();
-    targetDateIST.setUTCHours(DEFAULT_TIMES.tomorrow.hour, DEFAULT_TIMES.tomorrow.minute, 0, 0);
+    // No specific date or time found - use today at 9 PM IST
+    console.log('📌 [CONVERT-TIMESTAMP] No date/time found, defaulting to today at 21:00 (IST)');
+    targetDateIST = getTodayInIST();
+    targetDateIST.setUTCHours(DEFAULT_TIMES.today.hour, DEFAULT_TIMES.today.minute, 0, 0);
   }
 
   // Check if the calculated time is in the past and adjust if needed
@@ -381,6 +381,50 @@ export function convertToISOTimestamp(text: string, timeStr?: string): string {
 }
 
 // ============================================================================
+// TEXT TRANSFORMATION UTILITIES
+// ============================================================================
+
+/**
+ * Transform reminder text from first-person to second-person
+ * Removes command phrases and replaces pronouns
+ */
+function transformReminderText(text: string): string {
+  let transformed = text;
+
+  // Remove command phrases
+  const commandPhrases = [
+    /^add\s+reminder\s+to\s+/i,
+    /^remind\s+me\s+to\s+/i,
+    /^create\s+reminder\s+to\s+/i,
+    /^set\s+reminder\s+to\s+/i,
+    /^add\s+reminder\s+/i,
+    /^remind\s+me\s+/i,
+    /^create\s+reminder\s+/i,
+    /^set\s+reminder\s+/i,
+  ];
+
+  for (const phrase of commandPhrases) {
+    transformed = transformed.replace(phrase, '');
+  }
+
+  // Replace first-person pronouns with second-person
+  // Order matters: do longer patterns first to avoid partial replacements
+  transformed = transformed.replace(/\bI'm\b/gi, "you're");
+  transformed = transformed.replace(/\bI\b/gi, 'you');
+  transformed = transformed.replace(/\bme\b/gi, 'you');
+  transformed = transformed.replace(/\bmy\b/gi, 'your');
+  transformed = transformed.replace(/\bmyself\b/gi, 'yourself');
+
+  // Trim and capitalize first letter
+  transformed = transformed.trim();
+  if (transformed.length > 0) {
+    transformed = transformed.charAt(0).toUpperCase() + transformed.slice(1);
+  }
+
+  return transformed;
+}
+
+// ============================================================================
 // ADD REMINDER
 // ============================================================================
 
@@ -388,7 +432,8 @@ export async function addReminderVoice(
   reminderText: string,
   userId: string,
   time?: string,
-  onNavigate?: (path: string) => void
+  onNavigate?: (path: string) => void,
+  onReminderCreated?: (reminder: Reminder) => void
 ): Promise<ReminderCreationResult> {
   try {
     console.log('📌 [REMINDER-VOICE] Starting reminder creation');
@@ -412,12 +457,16 @@ export async function addReminderVoice(
       };
     }
 
+    // Transform reminder text from first-person to second-person
+    const transformedText = transformReminderText(reminderText);
+    console.log(`📌 [REMINDER-TRANSFORM] Original: "${reminderText}" → Transformed: "${transformedText}"`);
+
     // Convert to full ISO timestamp
     const reminderTime = convertToISOTimestamp(reminderText, time);
     console.log('📌 [REMINDER-VOICE] Converted timestamp:', reminderTime);
 
     console.log('📌 [REMINDER-VOICE] Creating reminder with data:', {
-      title: reminderText,
+      title: transformedText,
       reminder_time: reminderTime,
       userId: userId,
       status: 'pending',
@@ -429,7 +478,7 @@ export async function addReminderVoice(
         'Content-Type': 'application/json',
       },
       body: JSON.stringify({
-        title: reminderText,
+        title: transformedText,
         description: '',
         reminder_time: reminderTime,
         userId,
@@ -461,10 +510,25 @@ export async function addReminderVoice(
     console.log('📌 [REMINDER-VOICE] Reminder created successfully:', data.data?.reminder_id);
     console.log('📌 [REMINDER-VOICE] Created reminder data:', JSON.stringify(data.data));
 
-    // Navigate to reminders page to show the newly created reminder
+    // Optimistically update UI with the new reminder
+    if (onReminderCreated && data.data) {
+      console.log('📌 [REMINDER-VOICE] Calling onReminderCreated callback with reminder data');
+      onReminderCreated(data.data);
+    }
+
+    // Provide voice feedback before navigation
+    try {
+      const { speak } = await import('@/lib/voice/lara-assistant');
+      console.log('📌 [REMINDER-VOICE] Providing voice feedback: "Reminder added"');
+      speak('Reminder added', true).catch(err => console.log('📌 [REMINDER-VOICE] TTS error (non-critical):', err));
+    } catch (error) {
+      console.log('📌 [REMINDER-VOICE] Could not provide voice feedback:', error);
+    }
+
+    // Navigate to reminders page (without refresh parameter - UI already updated)
     if (onNavigate) {
-      console.log('📌 [REMINDER-VOICE] Navigating to reminders page with refresh...');
-      onNavigate('/reminders?refresh=true');
+      console.log('📌 [REMINDER-VOICE] Navigating to reminders page...');
+      onNavigate('/reminders');
       console.log('📌 [REMINDER-VOICE] Navigation callback executed');
     } else {
       console.warn('📌 [REMINDER-VOICE] No onNavigate callback provided - reminder created but not navigating');
@@ -473,7 +537,7 @@ export async function addReminderVoice(
     return {
       success: true,
       reminder: data.data,
-      message: `Reminder "${reminderText}" set${time ? ` for ${time}` : ''}`,
+      message: `Reminder "${transformedText}" set${time ? ` for ${time}` : ''}`,
     };
   } catch (error) {
     const errorMessage = error instanceof Error ? error.message : 'Unknown error';

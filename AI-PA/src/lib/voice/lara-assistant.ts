@@ -56,6 +56,8 @@ export async function wakeWordListener(): Promise<void> {
     let wakeWordDetected = false;
     let timeoutId: NodeJS.Timeout | null = null;
     let recognitionStarted = false;
+    let startAttempts = 0;
+    const maxStartAttempts = 3;
 
     // Set timeout for wake word detection (30 seconds total)
     timeoutId = setTimeout(() => {
@@ -68,6 +70,7 @@ export async function wakeWordListener(): Promise<void> {
 
     recognition.onstart = () => {
       recognitionStarted = true;
+      startAttempts = 0; // Reset attempts on successful start
       console.log('👂 Listening for wake word "Hey Lara"...');
     };
 
@@ -179,12 +182,22 @@ export async function wakeWordListener(): Promise<void> {
       }
 
       // In continuous mode, if recognition ends without detecting wake word, restart it
-      if (!wakeWordDetected && recognitionStarted) {
-        console.log('⏳ Recognition ended, restarting...');
+      if (!wakeWordDetected && recognitionStarted && startAttempts < maxStartAttempts) {
+        startAttempts++;
+        console.log(`⏳ Recognition ended, restarting... (attempt ${startAttempts}/${maxStartAttempts})`);
         try {
-          recognition.start();
+          // Add small delay before restarting to allow browser to reset
+          setTimeout(() => {
+            try {
+              recognition.start();
+            } catch (error) {
+              console.error('❌ Failed to restart listener:', error);
+              if (timeoutId) clearTimeout(timeoutId);
+              reject(new Error('Failed to restart wake word listener'));
+            }
+          }, 100);
         } catch (error) {
-          console.error('❌ Failed to restart listener:', error);
+          console.error('❌ Failed to schedule restart:', error);
           if (timeoutId) clearTimeout(timeoutId);
           reject(new Error('Failed to restart wake word listener'));
         }
@@ -192,8 +205,10 @@ export async function wakeWordListener(): Promise<void> {
     };
 
     try {
+      console.log('🎤 Starting wake word recognition...');
       recognition.start();
     } catch (error) {
+      console.error('❌ Failed to start wake word listener:', error);
       if (timeoutId) clearTimeout(timeoutId);
       reject(new Error('Failed to start wake word listener'));
     }
@@ -532,8 +547,11 @@ export async function startLaraAssistant(context: LaraContext): Promise<void> {
 
       // 2. Speak greeting (with female voice)
       console.log('🗣️ Speaking greeting...');
+      const greetingStartTime = performance.now();
       try {
         await speak('How can I help you?', true); // true = use female voice
+        const greetingEndTime = performance.now();
+        console.log(`✅ Greeting completed (${(greetingEndTime - greetingStartTime).toFixed(0)}ms)`);
       } catch (error) {
         console.error('❌ TTS error during greeting:', error);
         // Continue anyway
@@ -545,9 +563,10 @@ export async function startLaraAssistant(context: LaraContext): Promise<void> {
         break;
       }
 
-      // Add a small delay after greeting to give user time to prepare to speak
-      console.log('⏳ Waiting for user to speak command...');
-      await new Promise(resolve => setTimeout(resolve, 1000));
+      // REDUCED DELAY: Only 200ms instead of 1000ms to speed up response
+      // This gives user minimal time to prepare while keeping responsiveness high
+      console.log('⏳ Minimal delay before listening for command...');
+      await new Promise(resolve => setTimeout(resolve, 200));
 
       // Check if we should stop before listening for command
       if (shouldStop()) {
@@ -559,9 +578,11 @@ export async function startLaraAssistant(context: LaraContext): Promise<void> {
       console.log('👂 Listening for command...');
       context.onListeningStateChange?.('command');
       let command: string;
+      const commandStartTime = performance.now();
       try {
         command = await listenForCommand();
-        console.log('📝 Command received:', command);
+        const commandEndTime = performance.now();
+        console.log(`📝 Command received: "${command}" (${(commandEndTime - commandStartTime).toFixed(0)}ms)`);
       } catch (error) {
         console.warn('⚠️ Command listening error:', error);
         // Check if we're stopping

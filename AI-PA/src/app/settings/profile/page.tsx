@@ -19,7 +19,7 @@ import { useToast } from "@/hooks/use-toast";
 import { Textarea } from "@/components/ui/textarea";
 import { useRouter } from "next/navigation";
 import { supabase } from "@/lib/supabaseClient";
-import { getUser, createUser } from "@/lib/services/userService";
+import { getUser, createUser, updateUser } from "@/lib/services/userService";
 
 interface UserProfile {
   user_id: string;
@@ -31,16 +31,37 @@ interface UserProfile {
   language?: string;
 }
 
-// Default placeholder avatar
-const DEFAULT_AVATAR = 'https://via.placeholder.com/96?text=User';
+// Default avatar component - shows initials or icon
+const DefaultAvatar = ({ name }: { name?: string }) => {
+  const initials = name
+    ?.split(' ')
+    .map(n => n[0])
+    .join('')
+    .toUpperCase()
+    .slice(0, 2) || 'U';
+
+  return (
+    <div className="w-full h-full flex items-center justify-center bg-gradient-to-br from-primary/20 to-primary/10 rounded-full">
+      <span className="text-2xl font-bold text-primary">{initials}</span>
+    </div>
+  );
+};
 
 export default function ProfilePage() {
   const [profileImage, setProfileImage] = useState<string>("");
+  const [originalProfileImage, setOriginalProfileImage] = useState<string>("");
   const [profile, setProfile] = useState<UserProfile | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [showCamera, setShowCamera] = useState(false);
   const [hasCameraPermission, setHasCameraPermission] = useState<boolean | null>(null);
+  const [isSaving, setIsSaving] = useState(false);
+  const [formData, setFormData] = useState({
+    name: '',
+    phone: '',
+    theme: 'light',
+    language: 'en',
+  });
   const videoRef = useRef<HTMLVideoElement>(null);
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const fileInputRef = useRef<HTMLInputElement>(null);
@@ -71,8 +92,18 @@ export default function ProfilePage() {
 
           if (userProfile) {
             console.log('User profile found:', userProfile);
+            console.log('[PROFILE] avatar_url from database:', userProfile.avatar_url ? `${userProfile.avatar_url.substring(0, 50)}...` : 'empty');
             setProfile(userProfile);
-            setProfileImage(userProfile.avatar_url || '');
+            const avatarUrl = userProfile.avatar_url || '';
+            setProfileImage(avatarUrl);
+            setOriginalProfileImage(avatarUrl);
+            console.log('[PROFILE] Set profileImage and originalProfileImage to:', avatarUrl ? `${avatarUrl.substring(0, 50)}...` : 'empty');
+            setFormData({
+              name: userProfile.name || '',
+              phone: userProfile.phone || '',
+              theme: userProfile.theme || 'light',
+              language: userProfile.language || 'en',
+            });
           } else {
             // User profile doesn't exist, create a default one
             console.log('Creating default profile for user:', user.id);
@@ -90,7 +121,16 @@ export default function ProfilePage() {
               if (newProfile) {
                 console.log('Default profile created successfully:', newProfile);
                 setProfile(newProfile);
-                setProfileImage(newProfile.avatar_url || '');
+                const avatarUrl = newProfile.avatar_url || '';
+                setProfileImage(avatarUrl);
+                setOriginalProfileImage(avatarUrl);
+                console.log('[PROFILE] Set profileImage and originalProfileImage to:', avatarUrl ? `${avatarUrl.substring(0, 50)}...` : 'empty');
+                setFormData({
+                  name: newProfile.name || '',
+                  phone: newProfile.phone || '',
+                  theme: newProfile.theme || 'light',
+                  language: newProfile.language || 'en',
+                });
               }
             } catch (createError: any) {
               const createErrorMsg = createError?.message || 'Unknown error';
@@ -167,13 +207,119 @@ export default function ProfilePage() {
   const handleFileChange = (event: React.ChangeEvent<HTMLInputElement>) => {
     if (event.target.files && event.target.files[0]) {
       const file = event.target.files[0];
+      console.log('[PROFILE] File selected:', file.name, 'Size:', file.size, 'Type:', file.type);
+
       const reader = new FileReader();
       reader.onload = (e) => {
         if (e.target?.result) {
-          setProfileImage(e.target.result as string);
+          const dataUrl = e.target.result as string;
+          console.log('[PROFILE] File read as data URL, length:', dataUrl.length);
+          console.log('[PROFILE] Data URL preview:', dataUrl.substring(0, 100));
+          // Store the data URL temporarily for preview
+          setProfileImage(dataUrl);
+          console.log('[PROFILE] profileImage state updated');
         }
       };
+      reader.onerror = (error) => {
+        console.error('[PROFILE] FileReader error:', error);
+      };
       reader.readAsDataURL(file);
+    } else {
+      console.log('[PROFILE] No file selected');
+    }
+  };
+
+  const handleInputChange = (field: string, value: string) => {
+    setFormData(prev => ({
+      ...prev,
+      [field]: value,
+    }));
+  };
+
+  const handleSaveChanges = async () => {
+    if (!profile) {
+      console.error('[PROFILE] No profile found, cannot save');
+      return;
+    }
+
+    try {
+      setIsSaving(true);
+      setError(null);
+
+      console.log('[PROFILE] Starting save process for user:', profile.user_id);
+      console.log('[PROFILE] Current profileImage:', profileImage ? `${profileImage.substring(0, 50)}...` : 'empty');
+      console.log('[PROFILE] Original profileImage:', originalProfileImage ? `${originalProfileImage.substring(0, 50)}...` : 'empty');
+      console.log('[PROFILE] Image changed:', profileImage !== originalProfileImage);
+      console.log('[PROFILE] Form data:', formData);
+
+      // Prepare update data
+      const updateData: Partial<UserProfile> = {
+        name: formData.name,
+        phone: formData.phone,
+        theme: formData.theme,
+        language: formData.language,
+      };
+
+      console.log('[PROFILE] Initial updateData:', updateData);
+
+      // Check if image has changed
+      const imageChanged = profileImage !== originalProfileImage;
+      console.log('[PROFILE] Image changed:', imageChanged);
+
+      // If profile image was changed, update it
+      if (imageChanged) {
+        if (profileImage && profileImage.startsWith('data:')) {
+          console.log('[PROFILE] Profile image is data URL, adding to updateData');
+          // For now, we'll store the data URL directly
+          // In production, upload to Supabase Storage and get a public URL
+          updateData.avatar_url = profileImage;
+          console.log('[PROFILE] Updated avatar_url in updateData with data URL');
+        } else if (profileImage && !profileImage.startsWith('data:')) {
+          console.log('[PROFILE] Profile image is external URL, updating');
+          updateData.avatar_url = profileImage;
+          console.log('[PROFILE] Updated avatar_url in updateData with external URL');
+        } else if (!profileImage) {
+          console.log('[PROFILE] Profile image cleared, setting to empty');
+          updateData.avatar_url = '';
+        }
+      } else {
+        console.log('[PROFILE] Image not changed, not updating avatar_url');
+      }
+
+      console.log('[PROFILE] Final updateData before API call:', {
+        ...updateData,
+        avatar_url: updateData.avatar_url ? `${updateData.avatar_url.substring(0, 50)}...` : 'not set'
+      });
+
+      // Update user profile
+      console.log('[PROFILE] Calling updateUser with:', profile.user_id, updateData);
+      const updatedProfile = await updateUser(profile.user_id, updateData);
+
+      console.log('[PROFILE] Update successful, received:', updatedProfile);
+      console.log('[PROFILE] Updated avatar_url from server:', updatedProfile.avatar_url ? `${updatedProfile.avatar_url.substring(0, 50)}...` : 'empty');
+
+      setProfile(updatedProfile);
+      setProfileImage(updatedProfile.avatar_url || '');
+      setOriginalProfileImage(updatedProfile.avatar_url || '');
+
+      toast({
+        title: 'Success',
+        description: 'Profile updated successfully',
+      });
+
+      console.log('[PROFILE] Save completed successfully');
+    } catch (err) {
+      const errorMsg = err instanceof Error ? err.message : 'Failed to save changes';
+      console.error('[PROFILE] Error saving profile:', errorMsg);
+      console.error('[PROFILE] Full error:', err);
+      setError(errorMsg);
+      toast({
+        variant: 'destructive',
+        title: 'Error',
+        description: errorMsg,
+      });
+    } finally {
+      setIsSaving(false);
     }
   };
 
@@ -229,12 +375,36 @@ export default function ProfilePage() {
       <main className="flex-grow p-6 space-y-6 overflow-y-auto">
         <div className="flex flex-col items-center space-y-4">
           <div className="relative h-24 w-24">
-            <Image
-              src={profileImage || profile?.avatar_url || DEFAULT_AVATAR}
-              alt="User profile picture"
-              fill
-              className="rounded-full object-cover"
-            />
+            {(() => {
+              console.log('[PROFILE-DISPLAY] Rendering profile image');
+              console.log('[PROFILE-DISPLAY] profileImage:', profileImage ? `${profileImage.substring(0, 50)}...` : 'empty');
+              console.log('[PROFILE-DISPLAY] profile?.avatar_url:', profile?.avatar_url ? `${profile.avatar_url.substring(0, 50)}...` : 'empty');
+              console.log('[PROFILE-DISPLAY] profile?.name:', profile?.name);
+
+              if (profileImage && profileImage.startsWith('data:')) {
+                console.log('[PROFILE-DISPLAY] Rendering data URL image');
+                return (
+                  <img
+                    src={profileImage}
+                    alt="User profile picture"
+                    className="w-full h-full rounded-full object-cover"
+                  />
+                );
+              } else if (profileImage && !profileImage.startsWith('data:')) {
+                console.log('[PROFILE-DISPLAY] Rendering external URL image');
+                return (
+                  <Image
+                    src={profileImage}
+                    alt="User profile picture"
+                    fill
+                    className="rounded-full object-cover"
+                  />
+                );
+              } else {
+                console.log('[PROFILE-DISPLAY] Rendering default avatar');
+                return <DefaultAvatar name={profile?.name} />;
+              }
+            })()}
             <Dialog>
               <DialogTrigger asChild>
                 <Button size="icon" variant="outline" className="absolute bottom-0 right-0 bg-card-light dark:bg-card-dark rounded-full h-8 w-8 border-2 border-background-light dark:border-background-dark">
@@ -271,23 +441,51 @@ export default function ProfilePage() {
         <div className="space-y-4">
           <div>
             <label className="text-sm font-medium" htmlFor="name">Full Name</label>
-            <Input id="name" defaultValue={profile?.name || ''} className="mt-1 bg-input-light dark:bg-input-dark" />
+            <Input
+              id="name"
+              value={formData.name}
+              onChange={(e) => handleInputChange('name', e.target.value)}
+              className="mt-1 bg-input-light dark:bg-input-dark"
+            />
           </div>
           <div>
             <label className="text-sm font-medium" htmlFor="email">Email Address</label>
-            <Input id="email" type="email" defaultValue={profile?.email || ''} disabled className="mt-1 bg-input-light dark:bg-input-dark opacity-60" />
+            <Input
+              id="email"
+              type="email"
+              value={profile?.email || ''}
+              disabled
+              className="mt-1 bg-input-light dark:bg-input-dark opacity-60"
+            />
           </div>
           <div>
             <label className="text-sm font-medium" htmlFor="phone">Phone Number</label>
-            <Input id="phone" type="tel" defaultValue={profile?.phone || ''} placeholder="Add phone number" className="mt-1 bg-input-light dark:bg-input-dark" />
+            <Input
+              id="phone"
+              type="tel"
+              value={formData.phone}
+              onChange={(e) => handleInputChange('phone', e.target.value)}
+              placeholder="Add phone number"
+              className="mt-1 bg-input-light dark:bg-input-dark"
+            />
           </div>
           <div>
             <label className="text-sm font-medium" htmlFor="theme">Theme</label>
-            <Input id="theme" defaultValue={profile?.theme || 'light'} className="mt-1 bg-input-light dark:bg-input-dark" />
+            <Input
+              id="theme"
+              value={formData.theme}
+              onChange={(e) => handleInputChange('theme', e.target.value)}
+              className="mt-1 bg-input-light dark:bg-input-dark"
+            />
           </div>
           <div>
             <label className="text-sm font-medium" htmlFor="language">Language</label>
-            <Input id="language" defaultValue={profile?.language || 'en'} className="mt-1 bg-input-light dark:bg-input-dark" />
+            <Input
+              id="language"
+              value={formData.language}
+              onChange={(e) => handleInputChange('language', e.target.value)}
+              className="mt-1 bg-input-light dark:bg-input-dark"
+            />
           </div>
         </div>
         
@@ -315,8 +513,12 @@ export default function ProfilePage() {
         )}
       </main>
       <footer className="p-6 space-y-4">
-        <Button className="w-full h-14 rounded-lg bg-primary text-white font-bold text-base hover:bg-primary/90 transition-colors">
-          Save Changes
+        <Button
+          onClick={handleSaveChanges}
+          disabled={isSaving}
+          className="w-full h-14 rounded-lg bg-primary text-white font-bold text-base hover:bg-primary/90 transition-colors disabled:opacity-50"
+        >
+          {isSaving ? 'Saving...' : 'Save Changes'}
         </Button>
         <Button onClick={handleLogout} variant="destructive" className="w-full h-14 rounded-lg text-white font-bold text-base transition-colors">
           Logout

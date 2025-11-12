@@ -95,6 +95,12 @@ export async function updateUser(
   updates: Partial<User>
 ): Promise<User> {
   try {
+    console.log('[USER-SERVICE] updateUser called with userId:', userId);
+    console.log('[USER-SERVICE] Updates to apply:', {
+      ...updates,
+      avatar_url: updates.avatar_url ? `${updates.avatar_url.substring(0, 50)}...` : 'not set'
+    });
+
     const { data, error } = await supabase
       .from('users')
       .update(updates)
@@ -102,10 +108,19 @@ export async function updateUser(
       .select()
       .single();
 
-    if (error) throw error;
+    if (error) {
+      console.error('[USER-SERVICE] Supabase error during update:', error);
+      throw error;
+    }
+
+    console.log('[USER-SERVICE] Update successful, returned data:', {
+      ...data,
+      avatar_url: data.avatar_url ? `${data.avatar_url.substring(0, 50)}...` : 'empty'
+    });
+
     return data;
   } catch (error) {
-    console.error('Error updating user:', error);
+    console.error('[USER-SERVICE] Error updating user:', error);
     throw error;
   }
 }

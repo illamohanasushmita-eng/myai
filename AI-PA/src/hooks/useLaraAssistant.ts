@@ -404,42 +404,24 @@ export function useLaraAssistant(
         musicQuery = 'favorite songs';
       }
 
-      console.log('🎵 [SPOTIFY] Playing music:', musicQuery);
+      console.log('🎵 [SPOTIFY] Using intent router for:', musicQuery);
 
-      // Step 1: Search for tracks
-      const searchResponse = await fetch(`/api/spotify/search?q=${encodeURIComponent(musicQuery)}&userId=${options.userId}`);
-      
-      if (!searchResponse.ok) {
-        throw new Error('Failed to search for music');
-      }
+      // Use the intent router which handles URI schemes properly
+      const { routeIntent } = await import('@/lib/lara/intentRouter');
 
-      const searchResults = await searchResponse.json();
-      console.log('🔍 [SPOTIFY] Search results:', searchResults);
-
-      if (!searchResults.tracks || searchResults.tracks.length === 0) {
-        return `No songs found for "${musicQuery}"`;
-      }
-
-      // Step 2: Play the first track
-      const firstTrack = searchResults.tracks[0];
-      const playResponse = await fetch('/api/spotify/play', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
+      // Pass the musicQuery as userText so extractMusicQuery can parse it properly
+      const result = await routeIntent(
+        {
+          intent: 'play_music',
+          confidence: 1.0,
+          entities: {},
+          raw: {}
         },
-        body: JSON.stringify({
-          trackId: firstTrack.id,
-          userId: options.userId,
-        }),
-      });
+        musicQuery, // Pass as userText for proper extraction
+        { userId: options.userId }
+      );
 
-      if (!playResponse.ok) {
-        const errorData = await playResponse.json();
-        throw new Error(errorData.message || 'Failed to play music');
-      }
-
-      console.log('✅ [SPOTIFY] Now playing:', firstTrack.name);
-      return `Now playing "${firstTrack.name}" by ${firstTrack.artists[0]?.name}`;
+      return result || `Playing ${musicQuery}`;
     } catch (error) {
       console.error('❌ [SPOTIFY] Error playing music:', error);
       return `Failed to play music: ${error instanceof Error ? error.message : 'Unknown error'}`;
@@ -596,4 +578,6 @@ export function useLaraAssistant(
     executeAction,
   };
 }
+
+
 

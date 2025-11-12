@@ -50,6 +50,8 @@ const nextConfig: NextConfig = {
         pathname: '/**',
       },
     ],
+    // Allow unoptimized images for data URLs and local images
+    unoptimized: process.env.NODE_ENV === 'development',
   },
 };
 
