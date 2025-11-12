@@ -64,6 +64,17 @@ export async function signUp(
 
     // Step 3: Insert directly into users table (NO API route, NO settings creation)
     console.log('[SIGNUP] Inserting user record for userId:', data.user.id);
+    console.log('[SIGNUP] Supabase client configuration: Supabase client initialized successfully');
+
+    console.log('[SIGNUP] Insert query payload:', {
+      user_id: data.user.id,
+      email,
+      name,
+      phone: phone || null,
+      theme: 'light',
+      language: 'en',
+    });
+
     const { error: insertError } = await supabase
       .from('users')
       .insert({
@@ -76,17 +87,20 @@ export async function signUp(
       });
 
     if (insertError) {
+      console.error('[SIGNUP] Detailed insert error:', {
+        code: insertError.code,
+        message: insertError.message,
+        hint: insertError.hint,
+        details: insertError.details,
+      });
+
       // Handle duplicate user gracefully (23505 = unique constraint violation)
       if (insertError.code === '23505') {
         console.log('[SIGNUP] User already exists in users table, continuing...');
-        // User was created in auth but already exists in users table - this is OK
       } else if (insertError.code === '23503') {
-        // Foreign key constraint error - suppress and continue
-        console.warn('[SIGNUP] Foreign key constraint error (expected if settings not created yet):', insertError.message);
-        // This is OK - settings will be created when user visits settings page
+        console.warn('[SIGNUP] Foreign key constraint error:', insertError.message);
       } else {
         console.error('[SIGNUP] Failed to insert user:', insertError);
-        // Return generic error message without exposing database details
         throw new Error('Unable to complete signup. Please try again.');
       }
     }

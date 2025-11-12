@@ -423,6 +423,9 @@ function mapPageToPath(page: string | null): string | null {
 
     // Insights
     insights: '/insights',
+
+    // Slack
+    slack: 'https://slack.com',
   };
 
   return pageMap[pageLower] || null;
