@@ -52,6 +52,12 @@ EXAMPLES:
 Input: "add task to buy groceries"
 Output: {"intent": "add_task", "entities": {"title": "buy groceries"}, "confidence": 0.95}
 
+Input: "add a task to attend the scrum tomorrow"
+Output: {"intent": "add_task", "entities": {"title": "attend the scrum tomorrow"}, "confidence": 0.95}
+
+Input: "add task call my mom"
+Output: {"intent": "add_task", "entities": {"title": "call my mom"}, "confidence": 0.95}
+
 Input: "play some Telugu songs"
 Output: {"intent": "play_music", "entities": {"genre": "Telugu"}, "confidence": 0.9}
 
@@ -60,6 +66,21 @@ Output: {"intent": "show_tasks", "entities": {}, "confidence": 0.95}
 
 Input: "remind me to call mom at 5 PM"
 Output: {"intent": "add_reminder", "entities": {"description": "call mom", "time": "5 PM"}, "confidence": 0.9}
+
+Input: "reminder to call my mom tomorrow"
+Output: {"intent": "add_reminder", "entities": {"description": "call my mom", "time": "tomorrow"}, "confidence": 0.9}
+
+Input: "set a reminder to call my mom tomorrow"
+Output: {"intent": "add_reminder", "entities": {"description": "call my mom", "time": "tomorrow"}, "confidence": 0.9}
+
+Input: "create a reminder for tomorrow to call my mom"
+Output: {"intent": "add_reminder", "entities": {"description": "call my mom", "time": "tomorrow"}, "confidence": 0.9}
+
+Input: "add reminder to attend the scrum Tuesday 5:30"
+Output: {"intent": "add_reminder", "entities": {"description": "attend the scrum", "time": "Tuesday 5:30"}, "confidence": 0.95}
+
+Input: "add a reminder to buy groceries tomorrow"
+Output: {"intent": "add_reminder", "entities": {"description": "buy groceries", "time": "tomorrow"}, "confidence": 0.95}
 
 Input: "hey lara"
 Output: {"intent": "general_greeting", "entities": {}, "confidence": 0.95}
@@ -189,10 +210,67 @@ export function detectIntentWithFallback(text: string): CohereIntentResult {
   }
 
   // Reminder creation intents
-  if (lowerText.match(/(?:remind|set\s+reminder)\s+me/i)) {
-    const match = lowerText.match(/(?:remind|set\s+reminder)\s+me\s+(?:to\s+)?(.+?)(?:\s+at\s+(.+))?$/i);
-    const description = match?.[1] || '';
-    const time = match?.[2] || '';
+  // Matches patterns like:
+  // - "remind me to call my mom tomorrow"
+  // - "reminder to call my mom tomorrow"
+  // - "set a reminder to call my mom tomorrow"
+  // - "create a reminder for tomorrow to call my mom"
+  // - "add reminder to attend scrum"
+  // - "add a reminder to call my mom"
+  // - "remind me to call my mom at 5:30"
+  // - "set reminder me to call my mom tomorrow at 5:30"
+  if (lowerText.match(/(?:add\s+(?:a\s+)?reminder|remind|reminder|set\s+(?:a\s+)?reminder|create\s+(?:a\s+)?reminder)/i)) {
+    let description = '';
+    let time = '';
+
+    // Pattern 1: "remind me to X at TIME" or "reminder to X at TIME" or "add reminder to X at TIME"
+    const atMatch = lowerText.match(/(?:add\s+(?:a\s+)?reminder|remind|reminder|set\s+(?:a\s+)?reminder|create\s+(?:a\s+)?reminder)\s+(?:me\s+)?(?:to\s+)?(.+?)\s+at\s+(.+)$/i);
+    if (atMatch) {
+      description = atMatch[1];
+      time = atMatch[2];
+    } else {
+      // Pattern 2: "remind me to X, TIME" or "reminder to X, TIME" or "add reminder to X, TIME"
+      const commaMatch = lowerText.match(/(?:add\s+(?:a\s+)?reminder|remind|reminder|set\s+(?:a\s+)?reminder|create\s+(?:a\s+)?reminder)\s+(?:me\s+)?(?:to\s+)?(.+?),\s*(.+)$/i);
+      if (commaMatch) {
+        description = commaMatch[1];
+        time = commaMatch[2];
+      } else {
+        // Pattern 3: "create a reminder for TIME to X" or "add reminder for TIME to X"
+        const forMatch = lowerText.match(/(?:add\s+(?:a\s+)?reminder|create\s+(?:a\s+)?reminder|set\s+(?:a\s+)?reminder)\s+for\s+(.+?)\s+to\s+(.+)$/i);
+        if (forMatch) {
+          time = forMatch[1];
+          description = forMatch[2];
+        } else {
+          // Pattern 4a: "remind me to X DAY TIME" (e.g., "attend the scrum tuesday 5:30")
+          // This pattern specifically handles day name followed by time
+          const dayTimeMatch = lowerText.match(/(?:add\s+(?:a\s+)?reminder|remind|reminder|set\s+(?:a\s+)?reminder|create\s+(?:a\s+)?reminder)\s+(?:me\s+)?(?:to\s+)?(.+?)\s+((?:monday|tuesday|wednesday|thursday|friday|saturday|sunday))\s+(\d{1,2}(?::\d{2})?\s*(?:am|pm)?)$/i);
+          if (dayTimeMatch) {
+            description = dayTimeMatch[1];
+            time = dayTimeMatch[2] + ' ' + dayTimeMatch[3]; // "tuesday 5:30"
+          } else {
+            // Pattern 4b: "remind me to X TIME" or "reminder to X TIME" or "add reminder to X TIME" (with time at end)
+            // This regex matches:
+            // - "tomorrow", "today", "tonight"
+            // - Day names: "monday", "tuesday", "wednesday", "thursday", "friday", "saturday", "sunday"
+            // - "next [word]"
+            // - Time patterns: "5:30", "5:00 pm", etc.
+            const timePatternMatch = lowerText.match(/(?:add\s+(?:a\s+)?reminder|remind|reminder|set\s+(?:a\s+)?reminder|create\s+(?:a\s+)?reminder)\s+(?:me\s+)?(?:to\s+)?(.+?)\s+((?:tomorrow|today|tonight|monday|tuesday|wednesday|thursday|friday|saturday|sunday|next\s+\w+|\d{1,2}(?::\d{2})?\s*(?:am|pm)?))$/i);
+            if (timePatternMatch) {
+              description = timePatternMatch[1];
+              time = timePatternMatch[2];
+            } else {
+              // Pattern 5: Fallback - just extract everything after the reminder keyword
+              const fallbackMatch = lowerText.match(/(?:add\s+(?:a\s+)?reminder|remind|reminder|set\s+(?:a\s+)?reminder|create\s+(?:a\s+)?reminder)\s+(?:me\s+)?(?:to\s+)?(.+)$/i);
+              if (fallbackMatch) {
+                description = fallbackMatch[1];
+                time = '';
+              }
+            }
+          }
+        }
+      }
+    }
+
     return {
       intent: 'reminder_create',
       entities: {

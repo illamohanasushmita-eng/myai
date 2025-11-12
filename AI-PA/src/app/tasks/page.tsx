@@ -1,12 +1,14 @@
 "use client";
 
 import { useState, useEffect, useCallback, useMemo, memo } from "react";
+import { useSearchParams } from "next/navigation";
 import { Button } from "@/components/ui/button";
 import Link from "next/link";
 import BottomNav from "@/components/layout/bottom-nav";
 import TaskCalendar from "@/components/TaskCalendar";
-import { getUserTasks, updateTask, deleteTask } from "@/lib/services/taskService";
+import { updateTask, deleteTask, getUserTasks } from "@/lib/services/taskService";
 import { Task } from "@/lib/types/database";
+import { VoiceAssistantWrapper } from "@/components/layout/VoiceAssistantWrapper";
 
 // Memoized task item component to prevent unnecessary re-renders
 const TaskItem = memo(({ task, onToggle, onDelete }: {
@@ -36,6 +38,7 @@ const TaskItem = memo(({ task, onToggle, onDelete }: {
 TaskItem.displayName = "TaskItem";
 
 export default function TasksPage() {
+  const searchParams = useSearchParams();
   const [view, setView] = useState("list");
   const [tasks, setTasks] = useState<Task[]>([]);
   const [loading, setLoading] = useState(true);
@@ -47,12 +50,31 @@ export default function TasksPage() {
       const userId = localStorage.getItem("userId");
       if (!userId) {
         setError("User not authenticated");
+        setLoading(false);
+        console.error('[TASKS-PAGE] No userId found in localStorage');
         return;
       }
-      const userTasks = await getUserTasks(userId);
-      setTasks(userTasks);
+
+      console.log('📝 [TASKS-PAGE] Fetching tasks for userId:', userId);
+
+      const response = await fetch(`/api/tasks?userId=${userId}`);
+      console.log('📝 [TASKS-PAGE] Fetch response status:', response.status);
+
+      if (!response.ok) {
+        throw new Error('Failed to fetch tasks');
+      }
+
+      const result = await response.json();
+      console.log('📝 [TASKS-PAGE] Tasks fetched successfully:', {
+        count: result.data?.length || 0,
+        tasks: result.data,
+      });
+      setTasks(result.data || []);
+      setError('');
     } catch (err) {
-      setError(err instanceof Error ? err.message : "Failed to fetch tasks");
+      const errorMessage = err instanceof Error ? err.message : "Failed to load tasks";
+      setError(errorMessage);
+      console.error('❌ [TASKS-PAGE] Error fetching tasks:', err);
     } finally {
       setLoading(false);
     }
@@ -63,11 +85,25 @@ export default function TasksPage() {
     fetchTasks();
   }, [fetchTasks]);
 
+  // Refetch tasks when refresh query param is set (for voice-created tasks)
+  useEffect(() => {
+    if (searchParams) {
+      const refresh = searchParams.get('refresh');
+      console.log('📝 [TASKS-PAGE] Checking refresh param:', refresh);
+      if (refresh === 'true') {
+        console.log('📝 [TASKS-PAGE] Refresh triggered, refetching tasks immediately...');
+        // Task is already created in database by the time we navigate here
+        // So we can refetch immediately without delay
+        fetchTasks();
+      }
+    }
+  }, [searchParams, fetchTasks]);
+
   // Refetch tasks when page comes into focus (for voice-created tasks)
   useEffect(() => {
     const handleVisibilityChange = () => {
       if (!document.hidden) {
-        console.log('📝 Tasks page came into focus, refetching tasks...');
+        console.log('📝 [TASKS-PAGE] Tasks page came into focus, refetching tasks...');
         fetchTasks();
       }
     };
@@ -115,17 +151,39 @@ export default function TasksPage() {
     tomorrow.setDate(tomorrow.getDate() + 1);
     const tomorrowStr = tomorrow.toDateString();
 
+    console.log('📝 [TASKS-PAGE] Filtering tasks:', {
+      totalTasks: tasks.length,
+      today,
+      tomorrow: tomorrowStr,
+    });
+
     const todayTasks = tasks.filter(t => {
       if (!t.due_date) return false;
-      return new Date(t.due_date).toDateString() === today;
+      const taskDate = new Date(t.due_date).toDateString();
+      const isToday = taskDate === today;
+      if (isToday) {
+        console.log('📝 [TASKS-PAGE] Found today task:', { title: t.title, due_date: t.due_date, taskDate });
+      }
+      return isToday;
     });
 
     const tomorrowTasks = tasks.filter(t => {
       if (!t.due_date) return false;
-      return new Date(t.due_date).toDateString() === tomorrowStr;
+      const taskDate = new Date(t.due_date).toDateString();
+      const isTomorrow = taskDate === tomorrowStr;
+      if (isTomorrow) {
+        console.log('📝 [TASKS-PAGE] Found tomorrow task:', { title: t.title, due_date: t.due_date, taskDate });
+      }
+      return isTomorrow;
     });
 
     const completedCount = tasks.filter(t => t.status === "completed").length;
+
+    console.log('📝 [TASKS-PAGE] Filtering complete:', {
+      todayCount: todayTasks.length,
+      tomorrowCount: tomorrowTasks.length,
+      completedCount,
+    });
 
     return { todayTasks, tomorrowTasks, completedCount };
   }, [tasks]);
@@ -220,7 +278,7 @@ export default function TasksPage() {
           </main>
         </div>
 
-        <div className="fixed bottom-24 right-4 z-20">
+        <div className="fixed bottom-24 left-4 z-20">
           <Button asChild className="flex items-center gap-2 rounded-full bg-primary px-4 py-3 text-white shadow-lg transition-transform hover:scale-105 active:scale-95">
             <Link href="/tasks/add">
                 <svg fill="currentColor" height="24px" viewBox="0 0 256 256" width="24px" xmlns="http://www.w3.org/2000/svg">
@@ -230,6 +288,7 @@ export default function TasksPage() {
             </Link>
           </Button>
         </div>
+        <VoiceAssistantWrapper />
         <BottomNav />
       </div>
     </>

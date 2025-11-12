@@ -17,6 +17,7 @@ import {
   startLaraAssistant,
   stopLaraAssistant,
   setLaraRunning,
+  abortCurrentRecognition,
   LaraContext,
 } from '@/lib/voice/lara-assistant';
 import { automateSpotifyPlayback } from '@/lib/voice/spotify-automation';
@@ -27,6 +28,9 @@ export interface UseLaraOptions {
   userId: string;
   enabled?: boolean;
   onError?: (error: Error) => void;
+  onTaskStatusChange?: (status: 'processing' | 'completed' | 'error', message?: string) => void;
+  onListeningStateChange?: (state: 'wake-word' | 'command' | 'processing' | 'idle') => void;
+  oneShot?: boolean; // If true, stop after one command
 }
 
 export interface UseLaraReturn {
@@ -37,8 +41,14 @@ export interface UseLaraReturn {
   restart: () => void;
 }
 
-export function useLara(options: UseLaraOptions): UseLaraReturn {
-  const { userId, enabled = true, onError } = options;
+export function useLara({
+  userId,
+  enabled = true,
+  onError,
+  onTaskStatusChange,
+  onListeningStateChange,
+  oneShot = true, // Default to one-shot mode
+}: UseLaraOptions) {
   const router = useRouter();
 
   const [isRunning, setIsRunning] = useState(false);
@@ -57,17 +67,15 @@ export function useLara(options: UseLaraOptions): UseLaraReturn {
         console.log('🔧 Router object:', router);
         console.log('🔧 Router.push type:', typeof router?.push);
 
-        // Use setTimeout to ensure navigation happens on next tick
-        // This helps avoid timing issues with the async assistant loop
-        setTimeout(() => {
-          try {
-            console.log('🔧 Executing router.push for path:', path);
-            router.push(path);
-            console.log('🔧 router.push completed');
-          } catch (error) {
-            console.error('🔧 Error during router.push:', error);
-          }
-        }, 0);
+        // Execute navigation immediately (no setTimeout delay)
+        // This ensures navigation happens as soon as intent is handled
+        try {
+          console.log('🔧 Executing router.push for path:', path);
+          router.push(path);
+          console.log('🔧 router.push completed');
+        } catch (error) {
+          console.error('🔧 Error during router.push:', error);
+        }
       },
       onPlayMusic: async (query: string) => {
         await automateSpotifyPlayback(query, userId);
@@ -78,14 +86,18 @@ export function useLara(options: UseLaraOptions): UseLaraReturn {
       onAddReminder: async (text: string, time?: string) => {
         await addReminderVoice(text, userId, time, context.onNavigate);
       },
+      onTaskStatusChange,
+      onListeningStateChange,
+      oneShot,
     };
     console.log('🔧 Context created:', {
       hasOnNavigate: !!context.onNavigate,
       hasRouter: !!context.router,
-      userId: context.userId
+      userId: context.userId,
+      oneShot
     });
     return context;
-  }, [userId, router]);
+  }, [userId, router, onTaskStatusChange, onListeningStateChange, oneShot]);
 
   // Start Lara Assistant
   const start = useCallback(async () => {
@@ -101,12 +113,18 @@ export function useLara(options: UseLaraOptions): UseLaraReturn {
       // Start the assistant loop (don't await - let it run in background)
       assistantLoopRef.current = startLaraAssistant(context);
       // Don't await here - the loop runs continuously until stopped
-      assistantLoopRef.current.catch((err) => {
-        const error = err instanceof Error ? err : new Error('Unknown error');
-        setError(error.message);
-        onError?.(error);
-        setIsRunning(false);
-      });
+      assistantLoopRef.current
+        .then(() => {
+          // Loop completed successfully (e.g., in one-shot mode)
+          console.log('🛑 Assistant loop completed successfully');
+          setIsRunning(false);
+        })
+        .catch((err) => {
+          const error = err instanceof Error ? err : new Error('Unknown error');
+          setError(error.message);
+          onError?.(error);
+          setIsRunning(false);
+        });
     } catch (err) {
       const error = err instanceof Error ? err : new Error('Unknown error');
       setError(error.message);
@@ -117,10 +135,28 @@ export function useLara(options: UseLaraOptions): UseLaraReturn {
 
   // Stop Lara Assistant
   const stop = useCallback(() => {
+    console.log('🛑 FORCE STOP: Stopping Lara Assistant immediately...');
     shouldContinueRef.current = false;
+
+    // Set flag to false FIRST before aborting
     setLaraRunning(false);
+
+    // Immediately abort all voice operations (hard stop)
+    console.log('🛑 FORCE STOP: Calling abortCurrentRecognition...');
+    abortCurrentRecognition();
+
+    // Also cancel speech synthesis directly
+    if (window.speechSynthesis) {
+      try {
+        window.speechSynthesis.cancel();
+      } catch (error) {
+        console.warn('⚠️ Error canceling speech synthesis:', error);
+      }
+    }
+
     stopLaraAssistant();
     setIsRunning(false);
+    console.log('🛑 FORCE STOP: Complete');
   }, []);
 
   // Restart Lara Assistant
@@ -146,4 +182,6 @@ export function useLara(options: UseLaraOptions): UseLaraReturn {
     restart,
   };
 }
+
+
 

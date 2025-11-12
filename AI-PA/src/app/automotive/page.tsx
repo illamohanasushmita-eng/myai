@@ -3,6 +3,7 @@ import { Button } from "@/components/ui/button";
 import Image from "next/image";
 import Link from "next/link";
 import BottomNav from "@/components/layout/bottom-nav";
+import { VoiceAssistantWrapper } from "@/components/layout/VoiceAssistantWrapper";
 
 export default function AutomotivePage() {
   return (
@@ -198,6 +199,7 @@ export default function AutomotivePage() {
           </div>
         </div>
       </main>
+      <VoiceAssistantWrapper />
       <BottomNav />
     </div>
   );

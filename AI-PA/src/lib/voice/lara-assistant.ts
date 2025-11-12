@@ -30,6 +30,9 @@ export interface LaraContext {
   onPlayMusic?: (query: string) => Promise<void>;
   onAddTask?: (text: string) => Promise<void>;
   onAddReminder?: (text: string, time?: string) => Promise<void>;
+  onTaskStatusChange?: (status: 'processing' | 'completed' | 'error', message?: string) => void;
+  onListeningStateChange?: (state: 'wake-word' | 'command' | 'processing' | 'idle') => void;
+  oneShot?: boolean; // If true, stop after one command
 }
 
 // ============================================================================
@@ -38,121 +41,153 @@ export interface LaraContext {
 
 export async function wakeWordListener(): Promise<void> {
   return new Promise((resolve, reject) => {
+    // Check if we should stop
+    if (shouldStop()) {
+      reject(new Error('Assistant stopped'));
+      return;
+    }
+
     const recognition = new (window as any).webkitSpeechRecognition();
-    recognition.continuous = false; // Single recognition session
-    recognition.interimResults = false;
+    currentRecognition = recognition; // Track this instance
+    recognition.continuous = true; // Keep listening for wake word continuously
+    recognition.interimResults = true; // Get interim results to detect speech
     recognition.lang = 'en-US';
 
     let wakeWordDetected = false;
-    let isRestarting = false; // Flag to prevent duplicate restart attempts
     let timeoutId: NodeJS.Timeout | null = null;
-    let restartTimeoutId: NodeJS.Timeout | null = null;
+    let recognitionStarted = false;
 
     // Set timeout for wake word detection (30 seconds total)
     timeoutId = setTimeout(() => {
-      if (!wakeWordDetected) {
+      if (!wakeWordDetected && !shouldStop()) {
+        console.warn('⚠️ Wake word detection timeout (30s)');
         recognition.abort();
         reject(new Error('Wake word detection timeout. Please say "Hey Lara" to start.'));
       }
     }, 30000);
 
     recognition.onstart = () => {
+      recognitionStarted = true;
       console.log('👂 Listening for wake word "Hey Lara"...');
     };
 
     recognition.onresult = (event: any) => {
+      // Check if we should stop
+      if (shouldStop()) {
+        recognition.abort();
+        reject(new Error('Assistant stopped'));
+        return;
+      }
+
       let transcript = '';
       for (let i = event.resultIndex; i < event.results.length; i++) {
         transcript += event.results[i][0].transcript;
       }
 
-      console.log('🎤 Detected speech:', transcript);
+      if (transcript.trim()) {
+        console.log('🎤 Detected speech:', transcript);
 
-      // Check if wake word is detected
-      // Remove punctuation and extra spaces for better matching
-      const cleanTranscript = transcript
-        .toLowerCase()
-        .replace(/[.,!?;:]/g, '') // Remove punctuation
-        .trim();
+        // Check if wake word is detected
+        // Remove punctuation and extra spaces for better matching
+        const cleanTranscript = transcript
+          .toLowerCase()
+          .replace(/[.,!?;:]/g, '') // Remove punctuation
+          .trim();
 
-      // Check for wake word variations: "hey lara", "laura", "lera", "lawra"
-      const wakeWordPatterns = [
-        'hey lara',
-        'hey laura',
-        'hey lera',
-        'hey lawra',
-        'lara',
-        'laura',
-        'lera',
-        'lawra'
-      ];
+        // Check for wake word variations: "hey lara", "hey laura", "hey lera", "hey lawra", "hey lora", "hey laraw"
+        const wakeWordPatterns = [
+          'hey lara',
+          'hey laura',
+          'hey lera',
+          'hey lawra',
+          'hey lora',
+          'hey laraw',
+          'lara',
+          'laura',
+          'lera',
+          'lawra',
+          'lora',
+          'laraw'
+        ];
 
-      const isWakeWordDetected = wakeWordPatterns.some(pattern =>
-        cleanTranscript.includes(pattern)
-      );
+        const isWakeWordDetected = wakeWordPatterns.some(pattern =>
+          cleanTranscript.includes(pattern)
+        );
 
-      if (isWakeWordDetected) {
-        console.log('🎤 Wake word detected!');
-        wakeWordDetected = true;
-        if (timeoutId) clearTimeout(timeoutId);
-        if (restartTimeoutId) clearTimeout(restartTimeoutId);
-        recognition.abort();
-        resolve();
+        if (isWakeWordDetected) {
+          console.log('✅ Wake word detected!');
+          wakeWordDetected = true;
+          if (timeoutId) clearTimeout(timeoutId);
+          recognition.abort();
+          resolve();
+        }
       }
     };
 
     recognition.onerror = (event: any) => {
-      // Only reject on actual errors, not on no-speech
+      // Check if we're stopping
+      if (shouldStop()) {
+        console.log('🛑 Error handler - stop signal detected');
+        if (timeoutId) clearTimeout(timeoutId);
+        recognition.abort();
+        reject(new Error('Assistant stopped'));
+        return;
+      }
+
+      // Handle specific error types
       if (event.error === 'no-speech') {
-        console.warn('⚠️ No speech detected, will restart on end...');
-        // Don't restart here - let onend handle it
+        console.warn('⚠️ No speech detected. Waiting for speech...');
+        // In continuous mode, no-speech errors are normal - just keep listening
         return;
       } else if (event.error === 'network') {
         console.warn('⚠️ Network error during wake word detection - retrying...');
         // Network errors are often temporary, so we'll retry instead of rejecting
-        // Let onend handle the restart
         return;
       } else if (event.error === 'audio-capture') {
         console.error('❌ No microphone found');
         if (timeoutId) clearTimeout(timeoutId);
-        if (restartTimeoutId) clearTimeout(restartTimeoutId);
         recognition.abort();
         reject(new Error('Microphone not found. Please check your microphone connection.'));
       } else if (event.error === 'not-allowed') {
         console.error('❌ Microphone permission denied');
         if (timeoutId) clearTimeout(timeoutId);
-        if (restartTimeoutId) clearTimeout(restartTimeoutId);
         recognition.abort();
         reject(new Error('Microphone permission denied. Please allow microphone access.'));
       } else if (event.error === 'aborted') {
         // This is expected when we abort after detecting wake word
+        console.log('🛑 Recognition aborted');
+        if (wakeWordDetected) {
+          // If we already detected the wake word, don't reject
+          return;
+        }
         return;
       } else {
         console.error('❌ Wake word detection error:', event.error);
         if (timeoutId) clearTimeout(timeoutId);
-        if (restartTimeoutId) clearTimeout(restartTimeoutId);
         recognition.abort();
         reject(new Error(`Wake word detection error: ${event.error}`));
       }
     };
 
     recognition.onend = () => {
-      // If recognition ended and we haven't detected the wake word, restart
-      if (!wakeWordDetected && !isRestarting) {
-        isRestarting = true;
-        restartTimeoutId = setTimeout(() => {
-          if (!wakeWordDetected) {
-            try {
-              recognition.start();
-              isRestarting = false;
-            } catch (error) {
-              console.error('❌ Failed to restart listener:', error);
-              clearTimeout(timeoutId);
-              isRestarting = false;
-              reject(new Error('Failed to restart wake word listener'));
-            }
-          }
-        }, 500);
+      // If we're stopping, don't restart
+      if (shouldStop()) {
+        console.log('🛑 Recognition ended - stop signal detected');
+        if (timeoutId) clearTimeout(timeoutId);
+        reject(new Error('Assistant stopped'));
+        return;
+      }
+
+      // In continuous mode, if recognition ends without detecting wake word, restart it
+      if (!wakeWordDetected && recognitionStarted) {
+        console.log('⏳ Recognition ended, restarting...');
+        try {
+          recognition.start();
+        } catch (error) {
+          console.error('❌ Failed to restart listener:', error);
+          if (timeoutId) clearTimeout(timeoutId);
+          reject(new Error('Failed to restart wake word listener'));
+        }
       }
     };
 
@@ -160,7 +195,6 @@ export async function wakeWordListener(): Promise<void> {
       recognition.start();
     } catch (error) {
       if (timeoutId) clearTimeout(timeoutId);
-      if (restartTimeoutId) clearTimeout(restartTimeoutId);
       reject(new Error('Failed to start wake word listener'));
     }
   });
@@ -172,44 +206,96 @@ export async function wakeWordListener(): Promise<void> {
 
 export async function listenForCommand(): Promise<string> {
   return new Promise((resolve, reject) => {
+    // Check if we should stop
+    if (shouldStop()) {
+      reject(new Error('Assistant stopped'));
+      return;
+    }
+
     const recognition = new (window as any).webkitSpeechRecognition();
-    recognition.continuous = false;
-    recognition.interimResults = false;
+    currentRecognition = recognition; // Track this instance
+    recognition.continuous = true; // Keep listening for continuous speech
+    recognition.interimResults = true; // Get interim results to detect speech is happening
     recognition.lang = 'en-US';
     recognition.maxAlternatives = 1;
 
     let hasResult = false;
     let timeoutId: NodeJS.Timeout | null = null;
+    let noSpeechCount = 0; // Track consecutive no-speech errors
+    let recognitionStarted = false;
 
     recognition.onstart = () => {
-      console.log('🎤 Listening for command...');
-      // Set timeout for 10 seconds of listening
+      recognitionStarted = true;
+      console.log('🎤 Listening for command... (waiting for speech)');
+
+      // Set timeout for 20 seconds of listening (more generous for user to think and speak)
       timeoutId = setTimeout(() => {
         if (!hasResult) {
+          console.warn('⚠️ Command listening timeout (20s)');
           recognition.abort();
-          reject(new Error('No speech detected. Please speak louder and try again.'));
+          reject(new Error('Command listening timeout. Please try again.'));
         }
-      }, 10000);
+      }, 20000);
     };
 
     recognition.onresult = (event: any) => {
-      let transcript = '';
-      for (let i = event.resultIndex; i < event.results.length; i++) {
-        transcript += event.results[i][0].transcript;
+      // Check if we should stop
+      if (shouldStop()) {
+        recognition.abort();
+        reject(new Error('Assistant stopped'));
+        return;
       }
-      if (transcript.trim()) {
+
+      let transcript = '';
+      let isFinal = false;
+
+      for (let i = event.resultIndex; i < event.results.length; i++) {
+        const transcriptSegment = event.results[i][0].transcript;
+        transcript += transcriptSegment;
+        // Check if this is a final result
+        if (event.results[i].isFinal) {
+          isFinal = true;
+        }
+      }
+
+      if (transcript.trim() && isFinal) {
+        console.log('✅ Final transcript:', transcript.trim());
         hasResult = true;
+
+        // Clear timeout
         if (timeoutId) clearTimeout(timeoutId);
+
+        // Abort recognition after getting final result
+        recognition.abort();
         resolve(transcript.trim());
+      } else if (transcript.trim()) {
+        console.log('📝 Interim transcript:', transcript.trim());
       }
     };
 
     recognition.onerror = (event: any) => {
       if (timeoutId) clearTimeout(timeoutId);
+
+      // Check if we're stopping
+      if (shouldStop()) {
+        console.log('🛑 Error handler - stop signal detected');
+        reject(new Error('Assistant stopped'));
+        return;
+      }
+
       // Handle specific error types with helpful messages
       if (event.error === 'no-speech') {
-        console.warn('⚠️ No speech detected. Please speak louder.');
-        reject(new Error('No speech detected. Please speak louder and try again.'));
+        console.warn('⚠️ No speech detected. Waiting for speech...');
+        // In continuous mode, no-speech errors are normal - just keep listening
+        // The timeout will handle if they never speak
+        noSpeechCount++;
+        if (noSpeechCount > 5) {
+          // After 5 consecutive no-speech errors, give up
+          console.warn('⚠️ Multiple no-speech errors detected');
+          recognition.abort();
+          reject(new Error('No speech detected. Please speak louder and try again.'));
+        }
+        return;
       } else if (event.error === 'network') {
         console.warn('⚠️ Network error during speech recognition - retrying...');
         // Network errors are often temporary, retry instead of rejecting
@@ -220,6 +306,13 @@ export async function listenForCommand(): Promise<string> {
       } else if (event.error === 'not-allowed') {
         console.error('❌ Microphone permission denied');
         reject(new Error('Microphone permission denied. Please allow microphone access.'));
+      } else if (event.error === 'aborted') {
+        console.log('🛑 Recognition aborted');
+        if (hasResult) {
+          // If we already have a result, don't reject
+          return;
+        }
+        reject(new Error('Assistant stopped'));
       } else {
         console.warn('⚠️ Speech recognition error:', event.error);
         reject(new Error(`Speech recognition error: ${event.error}`));
@@ -228,7 +321,17 @@ export async function listenForCommand(): Promise<string> {
 
     recognition.onend = () => {
       if (timeoutId) clearTimeout(timeoutId);
-      if (!hasResult) {
+
+      // Check if we're stopping
+      if (shouldStop()) {
+        console.log('🛑 Recognition ended - stop signal detected');
+        reject(new Error('Assistant stopped'));
+        return;
+      }
+
+      // Only reject if we have no result AND recognition actually started
+      if (!hasResult && recognitionStarted) {
+        console.warn('⚠️ Recognition ended without result');
         reject(new Error('No speech detected. Please try again.'));
       }
     };
@@ -348,24 +451,83 @@ export async function speak(text: string, isFemaleVoice: boolean = true): Promis
 
 // Global flag to control the assistant loop
 let isRunning = false;
+let currentRecognition: any = null; // Track current recognition instance
 
 export function setLaraRunning(running: boolean): void {
+  console.log('🔧 setLaraRunning called with:', running);
   isRunning = running;
 }
 
+// Check if we should stop immediately
+export function shouldStop(): boolean {
+  return !isRunning;
+}
+
+// Abort any active speech recognition and TTS - FORCE STOP
+export function abortCurrentRecognition(): void {
+  console.log('🛑 FORCE STOP: Aborting all voice operations...');
+
+  // Abort speech recognition FIRST
+  if (currentRecognition) {
+    try {
+      console.log('🛑 FORCE STOP: Aborting speech recognition instance');
+      currentRecognition.abort();
+      currentRecognition.stop?.();
+      currentRecognition = null;
+    } catch (error) {
+      console.warn('⚠️ Error aborting recognition:', error);
+    }
+  }
+
+  // Cancel all speech synthesis
+  if (window.speechSynthesis) {
+    try {
+      console.log('🛑 FORCE STOP: Canceling speech synthesis');
+      window.speechSynthesis.cancel();
+    } catch (error) {
+      console.warn('⚠️ Error canceling speech synthesis:', error);
+    }
+  }
+
+  // Try to abort any remaining recognition instances
+  try {
+    const recognition = new (window as any).webkitSpeechRecognition();
+    recognition.abort();
+  } catch (error) {
+    // Ignore errors
+  }
+}
+
 export async function startLaraAssistant(context: LaraContext): Promise<void> {
-  console.log('🎤 Lara Assistant started');
+  console.log('🎤 Lara Assistant started', context.oneShot ? '(one-shot mode)' : '(continuous mode)');
   isRunning = true;
 
-  while (isRunning) {
+  while (isRunning && !shouldStop()) {
     try {
       // 1. Wait for wake word
       console.log('👂 Listening for wake word...');
+      context.onListeningStateChange?.('wake-word');
       try {
         await wakeWordListener();
       } catch (error) {
         console.warn('⚠️ Wake word detection error:', error);
+        // Check if we're stopping
+        if (shouldStop()) {
+          console.log('🛑 Stop signal received during wake word detection');
+          break;
+        }
+        // In one-shot mode, stop after wake word detection fails
+        if (context.oneShot) {
+          isRunning = false;
+          break;
+        }
         continue; // Skip to next iteration
+      }
+
+      // Check if we should stop before speaking greeting
+      if (shouldStop()) {
+        console.log('🛑 Stop signal received before greeting');
+        break;
       }
 
       // 2. Speak greeting (with female voice)
@@ -377,62 +539,159 @@ export async function startLaraAssistant(context: LaraContext): Promise<void> {
         // Continue anyway
       }
 
+      // Check if we should stop before listening for command
+      if (shouldStop()) {
+        console.log('🛑 Stop signal received before command listening');
+        break;
+      }
+
+      // Add a small delay after greeting to give user time to prepare to speak
+      console.log('⏳ Waiting for user to speak command...');
+      await new Promise(resolve => setTimeout(resolve, 1000));
+
+      // Check if we should stop before listening for command
+      if (shouldStop()) {
+        console.log('🛑 Stop signal received before command listening');
+        break;
+      }
+
       // 3. Listen for command
       console.log('👂 Listening for command...');
+      context.onListeningStateChange?.('command');
       let command: string;
       try {
         command = await listenForCommand();
         console.log('📝 Command received:', command);
       } catch (error) {
         console.warn('⚠️ Command listening error:', error);
+        // Check if we're stopping
+        if (shouldStop()) {
+          console.log('🛑 Stop signal received during command listening');
+          break;
+        }
         try {
           await speak('Sorry, I did not hear that. Please try again.');
         } catch (ttsError) {
           console.error('TTS error:', ttsError);
         }
+        // In one-shot mode, stop after command listening fails
+        if (context.oneShot) {
+          // Notify UI that we're returning to idle state
+          context.onListeningStateChange?.('idle');
+          isRunning = false;
+          break;
+        }
         continue; // Skip to next iteration
+      }
+
+      // Check if we should stop before parsing intent
+      if (shouldStop()) {
+        console.log('🛑 Stop signal received before intent parsing');
+        break;
       }
 
       // 4. Parse intent
       console.log('🧠 Parsing intent...');
+      context.onListeningStateChange?.('processing');
+      const parseStartTime = performance.now();
       let intentResult: WitIntentResult;
       try {
         intentResult = await parseIntent(command);
-        console.log('✅ Intent parsed:', intentResult);
+        const parseEndTime = performance.now();
+        console.log('✅ Intent parsed:', intentResult, `(${(parseEndTime - parseStartTime).toFixed(0)}ms)`);
       } catch (error) {
         console.error('❌ Intent parsing error:', error);
         intentResult = { intent: null, confidence: 0, entities: {}, raw: {} };
       }
 
-      // 5. Handle intent
+      // Check if we should stop before handling intent
+      if (shouldStop()) {
+        console.log('🛑 Stop signal received before intent handling');
+        break;
+      }
+
+      // 5. Handle intent (non-blocking - don't await)
       console.log('⚙️ Handling intent...');
       let result: string | null;
       try {
-        result = await handleIntent(intentResult, command, context);
-      } catch (error) {
-        console.error('❌ Intent handling error:', error);
-        result = 'Sorry, I could not complete that action.';
-      }
+        // Notify UI that we're processing (for task operations)
+        if (command.toLowerCase().includes('add') && command.toLowerCase().includes('task')) {
+          context.onTaskStatusChange?.('processing', 'Adding task...');
+        }
 
-      // 6. Speak confirmation
-      console.log('🗣️ Speaking confirmation...');
-      try {
-        if (result) {
-          await speak(result);
-        } else {
-          await speak('Done');
+        const intentStartTime = performance.now();
+        result = await handleIntent(intentResult, command, context);
+        const intentEndTime = performance.now();
+        console.log('⚙️ Intent handled:', `(${(intentEndTime - intentStartTime).toFixed(0)}ms)`);
+
+        // Check if we should stop after handling intent
+        if (shouldStop()) {
+          console.log('🛑 Stop signal received during intent handling - aborting');
+          context.onTaskStatusChange?.('error', 'Task cancelled');
+          break;
+        }
+
+        // Notify UI that processing is complete
+        if (command.toLowerCase().includes('add') && command.toLowerCase().includes('task')) {
+          context.onTaskStatusChange?.('completed', 'Task added successfully');
         }
       } catch (error) {
-        console.error('❌ TTS error during confirmation:', error);
+        console.error('❌ Intent handling error:', error);
+
+        // Check if error is due to stop signal
+        if (shouldStop()) {
+          console.log('🛑 Stop signal received - intent handling cancelled');
+          context.onTaskStatusChange?.('error', 'Task cancelled');
+          break;
+        }
+
+        result = 'Sorry, I could not complete that action.';
+        context.onTaskStatusChange?.('error', 'Failed to add task');
+      }
+
+      // Check if we should stop before speaking confirmation
+      if (shouldStop()) {
+        console.log('🛑 Stop signal received before confirmation');
+        break;
+      }
+
+      // 6. Speak confirmation (non-blocking - don't await)
+      console.log('🗣️ Speaking confirmation...');
+      // Don't await the speech - let it play in background
+      // This allows navigation to happen immediately
+      if (result) {
+        speak(result).catch(error => {
+          console.error('❌ TTS error during confirmation:', error);
+        });
+      } else {
+        speak('Done').catch(error => {
+          console.error('❌ TTS error during confirmation:', error);
+        });
       }
 
       console.log('✅ Command completed');
+
+      // In one-shot mode, stop after one command
+      if (context.oneShot) {
+        console.log('🛑 One-shot mode: stopping after command');
+        // Notify UI that we're returning to idle state
+        context.onListeningStateChange?.('idle');
+        isRunning = false;
+        break;
+      }
     } catch (error) {
       console.error('❌ Unexpected error in Lara loop:', error);
       try {
         await speak('An unexpected error occurred. Please try again.');
       } catch (ttsError) {
         console.error('TTS error:', ttsError);
+      }
+      // In one-shot mode, stop after error
+      if (context.oneShot) {
+        // Notify UI that we're returning to idle state
+        context.onListeningStateChange?.('idle');
+        isRunning = false;
+        break;
       }
     }
   }
@@ -445,6 +704,13 @@ export async function startLaraAssistant(context: LaraContext): Promise<void> {
 export function stopLaraAssistant(): void {
   console.log('🛑 Lara Assistant stopped');
   isRunning = false;
-  window.speechSynthesis.cancel();
+  
+  // Abort any active speech recognition immediately
+  abortCurrentRecognition();
+  
+  // Cancel any ongoing speech synthesis
+  if (window.speechSynthesis) {
+    window.speechSynthesis.cancel();
+  }
 }
 

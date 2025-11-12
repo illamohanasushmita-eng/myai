@@ -7,6 +7,7 @@ import Image from "next/image";
 import BottomNav from "@/components/layout/bottom-nav";
 import { useEffect, useState } from "react";
 import { Switch } from "@/components/ui/switch";
+import { VoiceAssistantWrapper } from "@/components/layout/VoiceAssistantWrapper";
 
 export default function SettingsPage() {
   const [isDark, setIsDark] = useState(false);
@@ -204,6 +205,7 @@ export default function SettingsPage() {
             </div>
           </div>
         </main>
+        <VoiceAssistantWrapper />
         <BottomNav />
       </div>
     </div>

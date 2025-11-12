@@ -60,14 +60,17 @@ export async function routeIntent(
       });
 
       try {
+        const navStartTime = performance.now();
         if (context.onNavigate) {
           console.log('📋 Using onNavigate callback');
           context.onNavigate('/tasks');
-          console.log('📋 onNavigate callback executed');
+          const navEndTime = performance.now();
+          console.log('📋 onNavigate callback executed', `(${(navEndTime - navStartTime).toFixed(0)}ms)`);
         } else if (context.router) {
           console.log('📋 Using router.push');
           context.router.push('/tasks');
-          console.log('📋 router.push executed');
+          const navEndTime = performance.now();
+          console.log('📋 router.push executed', `(${(navEndTime - navStartTime).toFixed(0)}ms)`);
         } else {
           console.error('❌ No navigation method available in context');
         }
@@ -104,7 +107,8 @@ export async function routeIntent(
     }
 
     // Reminders intents (handle both dot and underscore notation)
-    if (intent === 'reminder.create' || intent === 'reminder.add' || intent === 'reminder_create' || intent === 'add_reminder') {
+    // NOTE: reminder_create is handled separately below with actual creation logic
+    if (intent === 'reminder.create' || intent === 'reminder.add' || intent === 'add_reminder') {
       console.log('➕ Opening add reminder page');
       const reminderText = entities.reminderText || '';
       if (context.onNavigate) {
@@ -117,10 +121,19 @@ export async function routeIntent(
 
     if (intent === 'reminders.open' || intent === 'reminders.show' || intent === 'reminders_open' || intent === 'show_reminders') {
       console.log('📌 Opening reminders page');
-      if (context.onNavigate) {
-        context.onNavigate('/reminders');
-      } else if (context.router) {
-        context.router.push('/reminders');
+      try {
+        const navStartTime = performance.now();
+        if (context.onNavigate) {
+          context.onNavigate('/reminders');
+          const navEndTime = performance.now();
+          console.log('📌 onNavigate callback executed', `(${(navEndTime - navStartTime).toFixed(0)}ms)`);
+        } else if (context.router) {
+          context.router.push('/reminders');
+          const navEndTime = performance.now();
+          console.log('📌 router.push executed', `(${(navEndTime - navStartTime).toFixed(0)}ms)`);
+        }
+      } catch (error) {
+        console.error('❌ Error during navigation:', error);
       }
       return 'Opening reminders page';
     }
@@ -176,8 +189,12 @@ export async function routeIntent(
     // Handle Cohere's reminder_create intent
     if (intent === 'reminder_create') {
       console.log('➕ Creating reminder (Cohere)');
+      console.log('📌 Entities received:', JSON.stringify(entities));
       const description = entities.description || '';
       const time = entities.time || '';
+
+      console.log('📌 Description:', description, 'Length:', description.length);
+      console.log('📌 Time:', time, 'Length:', time.length);
 
       if (description && description.trim().length > 0) {
         // Actually create the reminder
@@ -186,13 +203,19 @@ export async function routeIntent(
         try {
           if (context.onAddReminder) {
             console.log('📌 Calling onAddReminder with description:', description, 'time:', time);
-            await context.onAddReminder(description, time);
+            const result = await context.onAddReminder(description, time);
+            console.log('📌 onAddReminder result:', result);
             return time ? `Reminder set: ${description} at ${time}` : `Reminder set: ${description}`;
+          } else {
+            console.error('❌ onAddReminder callback not available');
+            console.log('📌 Context keys:', Object.keys(context));
           }
         } catch (error) {
           console.error('❌ Error creating reminder:', error);
           return `Failed to set reminder: ${description}`;
         }
+      } else {
+        console.log('⚠️ No description found, navigating to add reminder page');
       }
 
       // If no description, just navigate to reminders page
@@ -216,7 +239,8 @@ export async function routeIntent(
 
       // Clean up page name (remove trailing period and "page" word)
       if (page) {
-        page = page.replace(/\s*page\.?$/i, '').trim();
+        // Remove trailing periods, "page" word, and extra whitespace
+        page = page.replace(/\s*page\.?$/i, '').replace(/\.+$/i, '').trim();
         console.log('🗺️ Cleaned page name:', page);
       }
 
@@ -225,13 +249,18 @@ export async function routeIntent(
 
       if (path) {
         try {
+          const navStartTime = performance.now();
           console.log('🗺️ Attempting navigation to:', path);
           if (context.onNavigate) {
             console.log('🗺️ Using onNavigate callback');
             context.onNavigate(path);
+            const navEndTime = performance.now();
+            console.log('🗺️ onNavigate callback executed', `(${(navEndTime - navStartTime).toFixed(0)}ms)`);
           } else if (context.router) {
             console.log('🗺️ Using router.push');
             context.router.push(path);
+            const navEndTime = performance.now();
+            console.log('🗺️ router.push executed', `(${(navEndTime - navStartTime).toFixed(0)}ms)`);
           } else {
             console.log('🗺️ No navigation method available!');
           }
@@ -253,6 +282,23 @@ export async function routeIntent(
     // Handle Cohere's general_unknown intent
     if (intent === 'general_unknown') {
       console.log('❓ Unknown intent (Cohere)');
+
+      // Check if the user text looks like a task/reminder description (without trigger words)
+      // Pattern: starts with "to" or contains action words like "attend", "call", "buy", etc.
+      const lowerUserText = userText.toLowerCase().trim();
+      const descriptionPatterns = [
+        /^to\s+/i,  // "to attend the scrum"
+        /^(?:attend|call|buy|send|check|review|finish|complete|do|make|get|take|read|write|prepare|schedule|book|plan|organize|clean|fix|update|create|delete|edit|submit|approve|reject|confirm|cancel|reschedule)/i
+      ];
+
+      const looksLikeDescription = descriptionPatterns.some(pattern => pattern.test(lowerUserText));
+
+      if (looksLikeDescription) {
+        console.log('💡 Detected possible task/reminder description without trigger word');
+        // Ask for clarification
+        return 'I can help you create a task or reminder. Please say "add task" or "add reminder" followed by your description.';
+      }
+
       return 'I did not understand that. Please try again.';
     }
 
@@ -365,6 +411,8 @@ function extractPageName(userText: string, entities: Record<string, any>): strin
     car: 'automotive',
     vehicle: 'automotive',
     insights: 'insights',
+    profile: 'profile',
+    settings: 'settings',
   };
 
   const lowerText = userText.toLowerCase();
@@ -423,6 +471,10 @@ function mapPageToPath(page: string | null): string | null {
 
     // Insights
     insights: '/insights',
+
+    // Profile & Settings
+    profile: '/settings/profile',
+    settings: '/settings',
   };
 
   return pageMap[pageLower] || null;

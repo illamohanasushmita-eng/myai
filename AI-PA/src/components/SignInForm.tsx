@@ -29,9 +29,11 @@ export default function SignInForm() {
     setLoading(true);
 
     try {
+      console.log('[SIGNIN-FORM] Attempting sign in...');
       const result = await signIn(email, password);
 
       if (result.user) {
+        console.log('[SIGNIN-FORM] Sign in successful, storing user data...');
         // Store user ID in localStorage
         localStorage.setItem('userId', result.user.id);
         localStorage.setItem('userEmail', result.user.email || '');
@@ -41,10 +43,16 @@ export default function SignInForm() {
 
         // Redirect to dashboard after 1 second
         setTimeout(() => {
+          console.log('[SIGNIN-FORM] Redirecting to dashboard...');
           router.push('/dashboard');
         }, 1000);
+      } else {
+        console.error('[SIGNIN-FORM] No user data returned');
+        setMessageType('error');
+        setMessage('❌ Sign in failed: No user data returned');
       }
     } catch (error: any) {
+      console.error('[SIGNIN-FORM] Sign in error:', error);
       setMessageType('error');
       const errorMessage = error?.message || 'Sign in failed. Please try again.';
       setMessage(`❌ ${errorMessage}`);

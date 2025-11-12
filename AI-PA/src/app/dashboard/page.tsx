@@ -14,7 +14,7 @@ import {
 } from "@/components/ui/dialog";
 import { useEffect, useState } from "react";
 import { generatePersonalizedDailyPlan } from "@/ai/openai-client";
-import { VoiceCommandButton } from "@/components/voice/VoiceCommandButton";
+import { VoiceAssistantWrapper } from "@/components/layout/VoiceAssistantWrapper";
 import { supabase } from "@/lib/supabaseClient";
 
 type DailyPlan = {
@@ -29,9 +29,8 @@ export default function DashboardPage() {
 
   const [dailyPlan, setDailyPlan] = useState<DailyPlan | null>(null);
   const [loading, setLoading] = useState(true);
-  const [userId, setUserId] = useState<string | null>(null);
 
-  // Get authenticated user ID from Supabase
+  // Get authenticated user ID from Supabase and store in localStorage
   useEffect(() => {
     const getAuthenticatedUser = async () => {
       try {
@@ -41,8 +40,7 @@ export default function DashboardPage() {
           return;
         }
         if (user) {
-          setUserId(user.id);
-          // Also store in localStorage for other components
+          // Store in localStorage for other components (including VoiceAssistantWrapper)
           localStorage.setItem('userId', user.id);
         }
       } catch (error) {
@@ -356,9 +354,7 @@ export default function DashboardPage() {
           </div>
         </div>
       </main>
-      <div className="fixed bottom-20 right-6 z-20">
-        <VoiceCommandButton userId={userId || undefined} />
-      </div>
+      <VoiceAssistantWrapper />
       <BottomNav />
     </div>
     </>

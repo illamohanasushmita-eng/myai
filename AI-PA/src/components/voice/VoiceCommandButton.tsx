@@ -23,6 +23,8 @@ export function VoiceCommandButton({
   const [feedbackMessage, setFeedbackMessage] = useState('');
   const [feedbackType, setFeedbackType] = useState<'success' | 'error' | 'info'>('info');
   const [userId, setUserId] = useState<string | undefined>(userIdProp);
+  const [isProcessingTask, setIsProcessingTask] = useState(false);
+  const [commandCompleted, setCommandCompleted] = useState(false);
   const autoStartedRef = useRef(false);
 
   // Get user ID from localStorage on mount if not provided
@@ -38,12 +40,49 @@ export function VoiceCommandButton({
   // Use Lara Assistant hook
   const { isRunning, error, start, stop } = useLara({
     userId: userId || 'default-user',
+    oneShot: true, // Enable one-shot mode
     onError: (err) => {
       console.error('❌ Lara Error:', err);
       setFeedbackMessage(`Error: ${err.message}`);
       setFeedbackType('error');
       setShowFeedback(true);
+      setIsProcessingTask(false);
       setTimeout(() => setShowFeedback(false), 3000);
+    },
+    onTaskStatusChange: (status, message) => {
+      setIsProcessingTask(status === 'processing');
+      if (status === 'completed') {
+        setCommandCompleted(true);
+        setFeedbackMessage(message || 'Task added successfully!');
+        setFeedbackType('success');
+        setShowFeedback(true);
+        setTimeout(() => setShowFeedback(false), 2000);
+      } else if (status === 'error') {
+        setFeedbackMessage(message || 'Failed to add task');
+        setFeedbackType('error');
+        setShowFeedback(true);
+        setTimeout(() => setShowFeedback(false), 3000);
+      }
+    },
+    onListeningStateChange: (state) => {
+      console.log('🎤 Listening state changed to:', state);
+      if (state === 'wake-word') {
+        setCommandCompleted(false);
+        setFeedbackMessage('Listening for "Hey Lara"...');
+        setFeedbackType('info');
+        setShowFeedback(true);
+      } else if (state === 'command') {
+        setCommandCompleted(false);
+        setFeedbackMessage('Wake word detected! Listening for command...');
+        setFeedbackType('info');
+        setShowFeedback(true);
+      } else if (state === 'processing') {
+        setFeedbackMessage('Processing your command...');
+        setFeedbackType('info');
+        setShowFeedback(true);
+      } else if (state === 'idle') {
+        setShowFeedback(false);
+      }
     },
   });
 
@@ -54,11 +93,77 @@ export function VoiceCommandButton({
     // Not on component mount
   }, []);
 
+  // Handle page visibility changes - restart assistant if it was running
+  useEffect(() => {
+    const handleVisibilityChange = () => {
+      if (!document.hidden && isRunning) {
+        // Page became visible and assistant was running
+        console.log('📱 Page became visible, restarting assistant...');
+        // Stop and restart to reset state
+        stop();
+        setTimeout(() => {
+          start();
+        }, 500);
+      }
+    };
+
+    document.addEventListener('visibilitychange', handleVisibilityChange);
+    return () => {
+      document.removeEventListener('visibilitychange', handleVisibilityChange);
+    };
+  }, [isRunning, start, stop]);
+
+  // Auto-stop after one command completes (one-shot mode)
+  useEffect(() => {
+    if (isRunning && commandCompleted && isProcessingTask === false && feedbackType === 'success' && showFeedback) {
+      const timer = setTimeout(() => {
+        console.log('🛑 One-shot mode: stopping after command');
+        stop();
+      }, 500); // Reduced from 2000ms to 500ms
+      return () => clearTimeout(timer);
+    }
+  }, [isRunning, commandCompleted, isProcessingTask, feedbackType, showFeedback, stop]);
   // Handle button toggle
   const handleToggle = () => {
     if (isRunning) {
-      console.log('🎤 Stopping Lara');
+      console.log('🎤 FORCE STOP: User clicked button to stop');
+
+      // Show immediate feedback that we're stopping
+      const stopMessage = isProcessingTask ? 'Stopping task processing...' : 'Stopping...';
+      setFeedbackMessage(stopMessage);
+      setFeedbackType('info');
+      setShowFeedback(true);
+
+      // Force stop immediately
+      setIsProcessingTask(false);
+
+      // Cancel any ongoing speech FIRST
+      if (window.speechSynthesis) {
+        try {
+          console.log('🎤 FORCE STOP: Canceling speech synthesis');
+          window.speechSynthesis.cancel();
+        } catch (error) {
+          console.warn('⚠️ Error canceling speech synthesis:', error);
+        }
+      }
+
+      // Try to abort any active recognition
+      try {
+        const recognition = new (window as any).webkitSpeechRecognition();
+        recognition.abort();
+        console.log('🎤 FORCE STOP: Aborted recognition instance');
+      } catch (error) {
+        console.warn('⚠️ Error aborting recognition:', error);
+      }
+
+      // Call stop hook
+      console.log('🎤 FORCE STOP: Calling stop hook');
       stop();
+
+      // Keep feedback visible longer so user sees the stop message
+      setTimeout(() => {
+        setShowFeedback(false);
+      }, 2000);
     } else {
       console.log('🎤 Starting Lara');
       start();
@@ -70,15 +175,24 @@ export function VoiceCommandButton({
       <Button
         onClick={handleToggle}
         size="icon"
+        disabled={false} // Remove disabled state so button always works
         className={`flex items-center justify-center w-16 h-16 rounded-full shadow-lg transform transition-all duration-300 ${
-          isRunning
+          isProcessingTask
+            ? 'bg-yellow-500 hover:bg-yellow-600 scale-110 animate-pulse'
+            : isRunning
             ? 'bg-red-500 hover:bg-red-600 scale-110 animate-pulse'
             : 'bg-primary hover:bg-primary/90 hover:scale-110'
         } text-white`}
-        title={isRunning ? 'Stop listening' : 'Start voice command'}
+        title={
+          isProcessingTask
+            ? 'Click to stop processing'
+            : isRunning
+            ? 'Stop listening'
+            : 'Start voice command'
+        }
       >
         <span className="material-symbols-outlined text-4xl">
-          {isRunning ? 'mic' : 'mic_none'}
+          {isProcessingTask ? 'hourglass_empty' : isRunning ? 'mic' : 'mic_none'}
         </span>
       </Button>
 
@@ -142,4 +256,9 @@ export function VoiceCommandButton({
     </div>
   );
 }
+
+
+
+
+
 

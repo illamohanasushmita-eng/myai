@@ -9,6 +9,7 @@ import { AddMedicationModal } from "@/components/modals/AddMedicationModal";
 import { AddAppointmentModal } from "@/components/modals/AddAppointmentModal";
 import { getUserSymptoms, getUserMedications, getUserAppointments } from "@/lib/services/healthRecordService";
 import { Symptom, Medication, Appointment } from "@/lib/types/database";
+import { VoiceAssistantWrapper } from "@/components/layout/VoiceAssistantWrapper";
 
 export default function HealthcarePage() {
   const [isAddSymptomOpen, setIsAddSymptomOpen] = useState(false);
@@ -393,6 +394,7 @@ export default function HealthcarePage() {
           </div>
         </div>
       </main>
+      <VoiceAssistantWrapper />
       <BottomNav />
       </div>
 

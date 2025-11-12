@@ -105,26 +105,53 @@ export async function signUp(
 // Sign in user using Supabase Auth
 export async function signIn(email: string, password: string): Promise<any> {
   try {
+    console.log('[SIGNIN] Starting sign in for email:', email);
+
+    // Validate inputs
+    if (!email || !password) {
+      throw new Error('Email and password are required');
+    }
+
+    // Check if Supabase is initialized
+    if (!supabase) {
+      console.error('[SIGNIN] Supabase client not initialized');
+      throw new Error('Authentication service not available. Please check your environment configuration.');
+    }
+
+    console.log('[SIGNIN] Calling Supabase auth.signInWithPassword...');
+
     // Use Supabase Auth for signin
     const { data, error } = await supabase.auth.signInWithPassword({
       email,
       password,
     });
 
-    if (error) throw error;
+    if (error) {
+      console.error('[SIGNIN] Supabase auth error:', error);
+      throw new Error(error.message || 'Sign in failed');
+    }
+
+    console.log('[SIGNIN] Sign in successful for user:', data.user?.id);
 
     // Update last login in user profile
     if (data.user) {
-      await supabase
-        .from('users')
-        .update({ last_login: new Date().toISOString() })
-        .eq('user_id', data.user.id);
+      try {
+        await supabase
+          .from('users')
+          .update({ last_login: new Date().toISOString() })
+          .eq('user_id', data.user.id);
+        console.log('[SIGNIN] Updated last login timestamp');
+      } catch (updateError) {
+        console.warn('[SIGNIN] Failed to update last login:', updateError);
+        // Don't throw - this is not critical
+      }
     }
 
     return data;
   } catch (error) {
-    console.error('Error signing in:', error);
-    throw error;
+    const errorMessage = error instanceof Error ? error.message : 'Unknown error occurred';
+    console.error('[SIGNIN] Sign in error:', errorMessage);
+    throw new Error(errorMessage);
   }
 }
 
