@@ -8,6 +8,7 @@ export * from './smartHomeRoutineService';
 export * from './noteService';
 export * from './chatService';
 export * from './moodService';
+export * from './billingService';
 
 // ===== HEALTH RECORD SERVICE =====
 export {

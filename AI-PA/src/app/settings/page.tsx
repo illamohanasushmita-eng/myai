@@ -130,6 +130,18 @@ export default function SettingsPage() {
                     <span className="material-symbols-outlined text-gray-400 dark:text-gray-500">arrow_forward_ios</span>
                   </Link>
                 </li>
+                <li className="border-t border-gray-200/50 dark:border-gray-700/50">
+                  <Link href="/settings/billing" className="flex items-center gap-4 p-4">
+                    <div className="flex h-12 w-12 flex-shrink-0 items-center justify-center rounded-lg bg-primary/10 text-primary">
+                      <span className="material-symbols-outlined text-2xl">receipt_long</span>
+                    </div>
+                    <div className="flex-1">
+                      <p className="font-medium text-gray-900 dark:text-white">Billing & Reminders</p>
+                      <p className="text-sm text-gray-500 dark:text-gray-400">Manage your bills and voice reminders</p>
+                    </div>
+                    <span className="material-symbols-outlined text-gray-400 dark:text-gray-500">arrow_forward_ios</span>
+                  </Link>
+                </li>
               </ul>
             </div>
             <div className="p-4">

@@ -208,6 +208,92 @@ export async function routeIntent(
       return 'Opening add reminder page';
     }
 
+    // ============================================================================
+    // BILLING INTENTS
+    // ============================================================================
+
+    // Add bill intent
+    if (intent === 'add_bill' || intent === 'bill.add' || intent === 'bill_create') {
+      console.log('💰 Adding bill');
+      const billName = entities.bill_name || entities.billName || '';
+      const amount = entities.amount || entities.money || '';
+      const dueDate = entities.due_date || entities.dueDate || entities.date || '';
+
+      if (billName && amount) {
+        // Extract bill details and create bill
+        try {
+          if (context.onAddBill) {
+            console.log('💰 Calling onAddBill with:', { billName, amount, dueDate });
+            await context.onAddBill(billName, amount, dueDate);
+            return `Bill added: ${billName} for ${amount} rupees${dueDate ? ` due on ${dueDate}` : ''}`;
+          }
+        } catch (error) {
+          console.error('❌ Error adding bill:', error);
+          return `Failed to add bill: ${billName}`;
+        }
+      }
+
+      // If no bill details, navigate to billing page
+      if (context.onNavigate) {
+        context.onNavigate('/settings/billing');
+      } else if (context.router) {
+        context.router.push('/settings/billing');
+      }
+      return 'Opening billing page';
+    }
+
+    // Show bills intent
+    if (intent === 'show_bills' || intent === 'bills.show' || intent === 'bills_show' || intent === 'view_bills') {
+      console.log('💰 Showing bills');
+      if (context.onNavigate) {
+        context.onNavigate('/settings/billing');
+      } else if (context.router) {
+        context.router.push('/settings/billing');
+      }
+      return 'Opening your bills';
+    }
+
+    // Mark bill as paid intent
+    if (intent === 'mark_bill_paid' || intent === 'bill.paid' || intent === 'pay_bill') {
+      console.log('💰 Marking bill as paid');
+      const billName = entities.bill_name || entities.billName || '';
+
+      if (billName && context.onMarkBillPaid) {
+        try {
+          console.log('💰 Calling onMarkBillPaid with:', billName);
+          await context.onMarkBillPaid(billName);
+          return `Marked ${billName} as paid`;
+        } catch (error) {
+          console.error('❌ Error marking bill as paid:', error);
+          return `Failed to mark ${billName} as paid`;
+        }
+      }
+
+      // If no bill name, navigate to billing page
+      if (context.onNavigate) {
+        context.onNavigate('/settings/billing');
+      } else if (context.router) {
+        context.router.push('/settings/billing');
+      }
+      return 'Please specify which bill to mark as paid';
+    }
+
+    // Bill summary intent
+    if (intent === 'bill_summary' || intent === 'bills.summary' || intent === 'total_bills') {
+      console.log('💰 Getting bill summary');
+      if (context.onGetBillSummary) {
+        try {
+          console.log('💰 Calling onGetBillSummary');
+          const summary = await context.onGetBillSummary();
+          return summary;
+        } catch (error) {
+          console.error('❌ Error getting bill summary:', error);
+          return 'Failed to get bill summary';
+        }
+      }
+      return 'Please check your billing page for a summary';
+    }
+
     // Handle Cohere's navigate intent
     if (intent === 'navigate') {
       console.log('🗺️ Navigating to page (Cohere)');

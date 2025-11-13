@@ -441,3 +441,92 @@ export interface Note {
   created_at: string;
   updated_at: string;
 }
+
+// ============================================================================
+// BILLING & PAYMENTS TYPES
+// ============================================================================
+
+export type BillingCategory =
+  | 'phone_emi'
+  | 'electricity'
+  | 'water'
+  | 'internet'
+  | 'gas'
+  | 'home_loan'
+  | 'vehicle_emi'
+  | 'ott_subscription'
+  | 'insurance'
+  | 'credit_card'
+  | 'mobile_recharge'
+  | 'rent'
+  | 'other';
+
+export type BillingFrequency = 'monthly' | 'quarterly' | 'yearly' | 'one-time';
+
+export type BillingStatus = 'pending' | 'paid' | 'overdue' | 'completed';
+
+export type Currency = 'INR' | 'USD' | 'EUR' | 'GBP';
+
+export interface BillingReminder {
+  id: string;
+  user_id: string;
+  bill_name: string;
+  category: BillingCategory;
+  amount: number;
+  currency: Currency;
+  due_date: string;
+  next_due_date?: string | null;
+  frequency: BillingFrequency;
+  status: BillingStatus;
+  reminder_days: number;
+  reminder_enabled: boolean;
+  last_notified_at?: string | null;
+  paid_at?: string | null;
+  payment_method?: string | null;
+  notes?: string | null;
+  auto_pay: boolean;
+  created_at: string;
+  updated_at: string;
+}
+
+export interface CreateBillingReminderInput {
+  bill_name: string;
+  category: BillingCategory;
+  amount: number;
+  currency?: Currency;
+  due_date: string;
+  frequency?: BillingFrequency;
+  reminder_days?: number;
+  reminder_enabled?: boolean;
+  notes?: string;
+  auto_pay?: boolean;
+}
+
+export interface UpdateBillingReminderInput {
+  bill_name?: string;
+  category?: BillingCategory;
+  amount?: number;
+  due_date?: string;
+  frequency?: BillingFrequency;
+  reminder_days?: number;
+  reminder_enabled?: boolean;
+  notes?: string;
+  auto_pay?: boolean;
+}
+
+export interface BillingInsights {
+  total_monthly_bills: number;
+  total_amount: number;
+  bills_by_category: Record<BillingCategory, number>;
+  upcoming_bills_count: number;
+  overdue_bills_count: number;
+  paid_this_month: number;
+  spending_trend: 'increasing' | 'decreasing' | 'stable';
+  highest_bill: BillingReminder | null;
+  suggestions: string[];
+}
+
+export interface BillingReminderWithDays extends BillingReminder {
+  days_until_due: number;
+  urgency_level: 'overdue' | 'urgent' | 'soon' | 'upcoming';
+}

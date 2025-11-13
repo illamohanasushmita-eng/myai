@@ -78,6 +78,110 @@ export function useLara(options: UseLaraOptions): UseLaraReturn {
       onAddReminder: async (text: string, time?: string) => {
         await addReminderVoice(text, userId, time, context.onNavigate);
       },
+      onAddBill: async (billName: string, amount: string, dueDate?: string) => {
+        console.log('💰 Adding bill via voice:', { billName, amount, dueDate });
+        try {
+          // Parse amount (remove currency symbols, commas, etc.)
+          const cleanAmount = parseFloat(amount.replace(/[^0-9.]/g, ''));
+
+          // Parse due date if provided
+          let formattedDueDate = '';
+          if (dueDate) {
+            // Try to parse the date
+            const date = new Date(dueDate);
+            if (!isNaN(date.getTime())) {
+              formattedDueDate = date.toISOString().split('T')[0];
+            }
+          }
+
+          // If no due date, default to end of current month
+          if (!formattedDueDate) {
+            const now = new Date();
+            const lastDay = new Date(now.getFullYear(), now.getMonth() + 1, 0);
+            formattedDueDate = lastDay.toISOString().split('T')[0];
+          }
+
+          const response = await fetch('/api/billing/add', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+              userId,
+              bill_name: billName,
+              category: 'other',
+              amount: cleanAmount,
+              currency: 'INR',
+              due_date: formattedDueDate,
+              frequency: 'monthly',
+            }),
+          });
+
+          if (!response.ok) {
+            throw new Error('Failed to add bill');
+          }
+
+          console.log('✅ Bill added successfully');
+        } catch (error) {
+          console.error('❌ Error adding bill:', error);
+          throw error;
+        }
+      },
+      onMarkBillPaid: async (billName: string) => {
+        console.log('💰 Marking bill as paid via voice:', billName);
+        try {
+          // First, fetch the bill by name
+          const listResponse = await fetch(`/api/billing/list?userId=${userId}`);
+          const listData = await listResponse.json();
+
+          if (!listResponse.ok || !listData.data) {
+            throw new Error('Failed to fetch bills');
+          }
+
+          // Find the bill by name (case-insensitive partial match)
+          const bill = listData.data.find((b: any) =>
+            b.bill_name.toLowerCase().includes(billName.toLowerCase())
+          );
+
+          if (!bill) {
+            throw new Error(`Bill "${billName}" not found`);
+          }
+
+          // Mark as paid
+          const response = await fetch('/api/billing/mark-paid', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ billId: bill.id }),
+          });
+
+          if (!response.ok) {
+            throw new Error('Failed to mark bill as paid');
+          }
+
+          console.log('✅ Bill marked as paid successfully');
+        } catch (error) {
+          console.error('❌ Error marking bill as paid:', error);
+          throw error;
+        }
+      },
+      onGetBillSummary: async () => {
+        console.log('💰 Getting bill summary via voice');
+        try {
+          const response = await fetch(`/api/billing/insights?userId=${userId}`);
+          const data = await response.json();
+
+          if (!response.ok || !data.data) {
+            throw new Error('Failed to fetch bill summary');
+          }
+
+          const insights = data.data;
+          const summary = `You have ${insights.total_monthly_bills} monthly bills totaling ${insights.total_amount} rupees. ${insights.upcoming_bills_count} bills are upcoming, and ${insights.overdue_bills_count} bills are overdue.`;
+
+          console.log('✅ Bill summary:', summary);
+          return summary;
+        } catch (error) {
+          console.error('❌ Error getting bill summary:', error);
+          throw error;
+        }
+      },
     };
     console.log('🔧 Context created:', {
       hasOnNavigate: !!context.onNavigate,

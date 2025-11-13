@@ -3,7 +3,7 @@
  *
  * Flow:
  * 1. User says: "Hey Lara"
- * 2. App speaks: "How can I help you?"
+ *  * 2. App speaks: "How can I help you?"
  * 3. App starts listening for command
  * 4. App identifies intent using Wit.ai
  * 5. App performs associated action
@@ -30,6 +30,9 @@ export interface LaraContext {
   onPlayMusic?: (query: string) => Promise<void>;
   onAddTask?: (text: string) => Promise<void>;
   onAddReminder?: (text: string, time?: string) => Promise<void>;
+  onAddBill?: (billName: string, amount: string, dueDate?: string) => Promise<void>;
+  onMarkBillPaid?: (billName: string) => Promise<void>;
+  onGetBillSummary?: () => Promise<string>;
 }
 
 // ============================================================================
@@ -286,6 +289,15 @@ export async function handleIntent(
   context: LaraContext
 ): Promise<string> {
   try {
+    const { intent } = intentResult;
+
+    // Handle specific intents here
+    if (intent === 'open_slack') {
+      console.log('🗺️ Opening Slack application');
+      window.open('https://slack.com/app', '_blank');
+      return 'Opening Slack...';
+    }
+
     return await routeIntent(intentResult, userText, context);
   } catch (error) {
     console.error('Intent handling error:', error);
