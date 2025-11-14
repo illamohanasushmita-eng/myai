@@ -9,10 +9,6 @@ import { CreateRoutineModal } from "@/components/modals/CreateRoutineModal";
 import { getUserSmartDevices } from "@/lib/services/smartHomeService";
 import { getUserRoutines } from "@/lib/services/smartHomeRoutineService";
 import { SmartDevice, SmartHomeRoutine } from "@/lib/types/database";
-<<<<<<< HEAD
-=======
-import { VoiceAssistantWrapper } from "@/components/layout/VoiceAssistantWrapper";
->>>>>>> a6255b82338b7ae41ee0071d55d8e67f3c8aa6d2
 
 // Helper function to get icon for device type
 const getDeviceIcon = (deviceType: string): string => {
@@ -282,10 +278,6 @@ export default function AtHomePage() {
           </div>
         </div>
       </main>
-<<<<<<< HEAD
-=======
-      <VoiceAssistantWrapper />
->>>>>>> a6255b82338b7ae41ee0071d55d8e67f3c8aa6d2
       <BottomNav />
 
       {/* Modals */}

@@ -4,7 +4,6 @@
  * Available for all clients (browser and server-side)
  */
 
-import { Anthropic } from '@anthropic-ai/sdk';
 
 // Initialize Claude client (server-side only)
 const apiKey = process.env.ANTHROPIC_API_KEY;
@@ -38,39 +37,57 @@ export async function callClaudeHaiku(
   }
 
   try {
-    const client = new Anthropic({
-      apiKey,
+    const response = await fetch('https://api.anthropic.com/v1/messages', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        'x-api-key': apiKey,
+        'anthropic-version': '2023-06-01',
+      },
+      body: JSON.stringify({
+        model: 'claude-3-5-haiku-20241022',
+        max_tokens: options.maxTokens ?? 1024,
+        temperature: options.temperature ?? 0.7,
+        system:
+          options.systemPrompt ||
+          'You are a helpful AI assistant. Provide clear and concise responses.',
+        messages: [
+          {
+            role: 'user',
+            content: userMessage,
+          },
+        ],
+      }),
     });
 
-    const response = await client.messages.create({
-      model: 'claude-3-5-haiku-20241022',
-      max_tokens: options.maxTokens || 1024,
-      temperature: options.temperature || 0.7,
-      system: options.systemPrompt || 'You are a helpful AI assistant. Provide clear and concise responses.',
-      messages: [
-        {
-          role: 'user',
-          content: userMessage,
-        },
-      ],
-    });
+    if (!response.ok) {
+      const errorText = await response.text();
+      throw new Error(
+        `Claude Haiku 4.5 HTTP error ${response.status}: ${errorText}`
+      );
+    }
 
-    const content =
-      response.content[0].type === 'text'
-        ? response.content[0].text
-        : 'No response generated';
+    const data = (await response.json()) as {
+      content: Array<{ type: string; text?: string }>;
+      stop_reason: string;
+      usage?: { input_tokens: number; output_tokens: number };
+    };
+
+    const firstBlock = data.content?.find((block) => block.type === 'text');
+    const content = firstBlock?.text ?? 'No response generated';
 
     return {
       content,
       model: 'claude-3-5-haiku-20241022',
-      stopReason: response.stop_reason,
+      stopReason: data.stop_reason,
       usage: {
-        inputTokens: response.usage.input_tokens,
-        outputTokens: response.usage.output_tokens,
+        inputTokens: data.usage?.input_tokens ?? 0,
+        outputTokens: data.usage?.output_tokens ?? 0,
       },
     };
   } catch (error) {
-    const errorMessage = error instanceof Error ? error.message : 'Unknown error';
+    const errorMessage =
+      error instanceof Error ? error.message : 'Unknown error';
     throw new Error(`Claude Haiku 4.5 error: ${errorMessage}`);
   }
 }
@@ -78,46 +95,16 @@ export async function callClaudeHaiku(
 /**
  * Stream Claude Haiku response
  * Real-time streaming for better UX
+ *
+ * Note: This implementation currently streams the full response
+ * as a single chunk for simplicity.
  */
 export async function* streamClaudeHaiku(
   userMessage: string,
   options: ClaudeHaikuOptions = {}
 ): AsyncGenerator<string, void, unknown> {
-  if (!apiKey) {
-    throw new Error('ANTHROPIC_API_KEY environment variable is not set');
-  }
-
-  try {
-    const client = new Anthropic({
-      apiKey,
-    });
-
-    const stream = await client.messages.create({
-      model: 'claude-3-5-haiku-20241022',
-      max_tokens: options.maxTokens || 1024,
-      temperature: options.temperature || 0.7,
-      system: options.systemPrompt || 'You are a helpful AI assistant.',
-      messages: [
-        {
-          role: 'user',
-          content: userMessage,
-        },
-      ],
-      stream: true,
-    });
-
-    for await (const event of stream) {
-      if (
-        event.type === 'content_block_delta' &&
-        event.delta.type === 'text_delta'
-      ) {
-        yield event.delta.text;
-      }
-    }
-  } catch (error) {
-    const errorMessage = error instanceof Error ? error.message : 'Unknown error';
-    throw new Error(`Claude Haiku 4.5 streaming error: ${errorMessage}`);
-  }
+  const result = await callClaudeHaiku(userMessage, options);
+  yield result.content;
 }
 
 /**

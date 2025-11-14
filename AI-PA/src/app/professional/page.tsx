@@ -10,10 +10,6 @@ import { AddTaskModal } from "@/components/modals/AddTaskModal";
 import { getUserProfessionalNotes } from "@/lib/services/professionalService";
 import { getTasksByCategory } from "@/lib/services/taskService";
 import { ProfessionalNote, Task } from "@/lib/types/database";
-<<<<<<< HEAD
-=======
-import { VoiceAssistantWrapper } from "@/components/layout/VoiceAssistantWrapper";
->>>>>>> a6255b82338b7ae41ee0071d55d8e67f3c8aa6d2
 
 export default function ProfessionalPage() {
   const [isAddTaskOpen, setIsAddTaskOpen] = useState(false);
@@ -378,10 +374,6 @@ export default function ProfessionalPage() {
         category="Professional"
       />
 
-<<<<<<< HEAD
-=======
-      <VoiceAssistantWrapper />
->>>>>>> a6255b82338b7ae41ee0071d55d8e67f3c8aa6d2
       <BottomNav />
     </div>
   );

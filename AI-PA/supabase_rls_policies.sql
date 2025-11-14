@@ -466,3 +466,19 @@ USING (auth.uid() = user_id);
 -- Users can now only access their own data
 -- ============================================================================
 
+
+
+-- ============================================================================
+-- FITBIT CONNECTIONS TABLE POLICIES
+-- ============================================================================
+
+-- Enable RLS in setup script; here we add policies
+CREATE POLICY "Service role can manage fitbit connections"
+ON fitbit_connections FOR ALL
+USING (auth.role() = 'service_role')
+WITH CHECK (auth.role() = 'service_role');
+
+CREATE POLICY "Users manage their own fitbit connections"
+ON fitbit_connections FOR ALL
+USING (auth.uid() = user_id)
+WITH CHECK (auth.uid() = user_id);

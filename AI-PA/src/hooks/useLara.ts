@@ -17,10 +17,6 @@ import {
   startLaraAssistant,
   stopLaraAssistant,
   setLaraRunning,
-<<<<<<< HEAD
-=======
-  abortCurrentRecognition,
->>>>>>> a6255b82338b7ae41ee0071d55d8e67f3c8aa6d2
   LaraContext,
 } from '@/lib/voice/lara-assistant';
 import { automateSpotifyPlayback } from '@/lib/voice/spotify-automation';
@@ -31,12 +27,6 @@ export interface UseLaraOptions {
   userId: string;
   enabled?: boolean;
   onError?: (error: Error) => void;
-<<<<<<< HEAD
-=======
-  onTaskStatusChange?: (status: 'processing' | 'completed' | 'error', message?: string) => void;
-  onListeningStateChange?: (state: 'wake-word' | 'command' | 'processing' | 'idle') => void;
-  oneShot?: boolean; // If true, stop after one command
->>>>>>> a6255b82338b7ae41ee0071d55d8e67f3c8aa6d2
 }
 
 export interface UseLaraReturn {
@@ -47,19 +37,8 @@ export interface UseLaraReturn {
   restart: () => void;
 }
 
-<<<<<<< HEAD
 export function useLara(options: UseLaraOptions): UseLaraReturn {
   const { userId, enabled = true, onError } = options;
-=======
-export function useLara({
-  userId,
-  enabled = true,
-  onError,
-  onTaskStatusChange,
-  onListeningStateChange,
-  oneShot = true, // Default to one-shot mode
-}: UseLaraOptions) {
->>>>>>> a6255b82338b7ae41ee0071d55d8e67f3c8aa6d2
   const router = useRouter();
 
   const [isRunning, setIsRunning] = useState(false);
@@ -78,7 +57,6 @@ export function useLara({
         console.log('🔧 Router object:', router);
         console.log('🔧 Router.push type:', typeof router?.push);
 
-<<<<<<< HEAD
         // Use setTimeout to ensure navigation happens on next tick
         // This helps avoid timing issues with the async assistant loop
         setTimeout(() => {
@@ -90,17 +68,6 @@ export function useLara({
             console.error('🔧 Error during router.push:', error);
           }
         }, 0);
-=======
-        // Execute navigation immediately (no setTimeout delay)
-        // This ensures navigation happens as soon as intent is handled
-        try {
-          console.log('🔧 Executing router.push for path:', path);
-          router.push(path);
-          console.log('🔧 router.push completed');
-        } catch (error) {
-          console.error('🔧 Error during router.push:', error);
-        }
->>>>>>> a6255b82338b7ae41ee0071d55d8e67f3c8aa6d2
       },
       onPlayMusic: async (query: string) => {
         await automateSpotifyPlayback(query, userId);
@@ -109,144 +76,16 @@ export function useLara({
         await addTaskVoice(text, userId, context.onNavigate);
       },
       onAddReminder: async (text: string, time?: string) => {
-<<<<<<< HEAD
         await addReminderVoice(text, userId, time, context.onNavigate);
       },
-      onAddBill: async (billName: string, amount: string, dueDate?: string) => {
-        console.log('💰 Adding bill via voice:', { billName, amount, dueDate });
-        try {
-          // Parse amount (remove currency symbols, commas, etc.)
-          const cleanAmount = parseFloat(amount.replace(/[^0-9.]/g, ''));
-
-          // Parse due date if provided
-          let formattedDueDate = '';
-          if (dueDate) {
-            // Try to parse the date
-            const date = new Date(dueDate);
-            if (!isNaN(date.getTime())) {
-              formattedDueDate = date.toISOString().split('T')[0];
-            }
-          }
-
-          // If no due date, default to end of current month
-          if (!formattedDueDate) {
-            const now = new Date();
-            const lastDay = new Date(now.getFullYear(), now.getMonth() + 1, 0);
-            formattedDueDate = lastDay.toISOString().split('T')[0];
-          }
-
-          const response = await fetch('/api/billing/add', {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({
-              userId,
-              bill_name: billName,
-              category: 'other',
-              amount: cleanAmount,
-              currency: 'INR',
-              due_date: formattedDueDate,
-              frequency: 'monthly',
-            }),
-          });
-
-          if (!response.ok) {
-            throw new Error('Failed to add bill');
-          }
-
-          console.log('✅ Bill added successfully');
-        } catch (error) {
-          console.error('❌ Error adding bill:', error);
-          throw error;
-        }
-      },
-      onMarkBillPaid: async (billName: string) => {
-        console.log('💰 Marking bill as paid via voice:', billName);
-        try {
-          // First, fetch the bill by name
-          const listResponse = await fetch(`/api/billing/list?userId=${userId}`);
-          const listData = await listResponse.json();
-
-          if (!listResponse.ok || !listData.data) {
-            throw new Error('Failed to fetch bills');
-          }
-
-          // Find the bill by name (case-insensitive partial match)
-          const bill = listData.data.find((b: any) =>
-            b.bill_name.toLowerCase().includes(billName.toLowerCase())
-          );
-
-          if (!bill) {
-            throw new Error(`Bill "${billName}" not found`);
-          }
-
-          // Mark as paid
-          const response = await fetch('/api/billing/mark-paid', {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ billId: bill.id }),
-          });
-
-          if (!response.ok) {
-            throw new Error('Failed to mark bill as paid');
-          }
-
-          console.log('✅ Bill marked as paid successfully');
-        } catch (error) {
-          console.error('❌ Error marking bill as paid:', error);
-          throw error;
-        }
-      },
-      onGetBillSummary: async () => {
-        console.log('💰 Getting bill summary via voice');
-        try {
-          const response = await fetch(`/api/billing/insights?userId=${userId}`);
-          const data = await response.json();
-
-          if (!response.ok || !data.data) {
-            throw new Error('Failed to fetch bill summary');
-          }
-
-          const insights = data.data;
-          const summary = `You have ${insights.total_monthly_bills} monthly bills totaling ${insights.total_amount} rupees. ${insights.upcoming_bills_count} bills are upcoming, and ${insights.overdue_bills_count} bills are overdue.`;
-
-          console.log('✅ Bill summary:', summary);
-          return summary;
-        } catch (error) {
-          console.error('❌ Error getting bill summary:', error);
-          throw error;
-        }
-      },
-=======
-        // Try to get the optimistic add function from reminders page (stored on window)
-        let onReminderCreated: ((reminder: any) => void) | undefined = undefined;
-        if (typeof window !== 'undefined' && (window as any).__addReminderOptimistically) {
-          onReminderCreated = (window as any).__addReminderOptimistically;
-          console.log('📌 [LARA] Found optimistic add function on window');
-        } else {
-          console.log('📌 [LARA] Optimistic add function not available (reminders page may not be mounted)');
-        }
-        await addReminderVoice(text, userId, time, context.onNavigate, onReminderCreated);
-      },
-      onTaskStatusChange,
-      onListeningStateChange,
-      oneShot,
->>>>>>> a6255b82338b7ae41ee0071d55d8e67f3c8aa6d2
     };
     console.log('🔧 Context created:', {
       hasOnNavigate: !!context.onNavigate,
       hasRouter: !!context.router,
-<<<<<<< HEAD
       userId: context.userId
     });
     return context;
   }, [userId, router]);
-=======
-      userId: context.userId,
-      oneShot
-    });
-    return context;
-  }, [userId, router, onTaskStatusChange, onListeningStateChange, oneShot]);
->>>>>>> a6255b82338b7ae41ee0071d55d8e67f3c8aa6d2
 
   // Start Lara Assistant
   const start = useCallback(async () => {
@@ -262,27 +101,12 @@ export function useLara({
       // Start the assistant loop (don't await - let it run in background)
       assistantLoopRef.current = startLaraAssistant(context);
       // Don't await here - the loop runs continuously until stopped
-<<<<<<< HEAD
       assistantLoopRef.current.catch((err) => {
         const error = err instanceof Error ? err : new Error('Unknown error');
         setError(error.message);
         onError?.(error);
         setIsRunning(false);
       });
-=======
-      assistantLoopRef.current
-        .then(() => {
-          // Loop completed successfully (e.g., in one-shot mode)
-          console.log('🛑 Assistant loop completed successfully');
-          setIsRunning(false);
-        })
-        .catch((err) => {
-          const error = err instanceof Error ? err : new Error('Unknown error');
-          setError(error.message);
-          onError?.(error);
-          setIsRunning(false);
-        });
->>>>>>> a6255b82338b7ae41ee0071d55d8e67f3c8aa6d2
     } catch (err) {
       const error = err instanceof Error ? err : new Error('Unknown error');
       setError(error.message);
@@ -293,35 +117,10 @@ export function useLara({
 
   // Stop Lara Assistant
   const stop = useCallback(() => {
-<<<<<<< HEAD
     shouldContinueRef.current = false;
     setLaraRunning(false);
     stopLaraAssistant();
     setIsRunning(false);
-=======
-    console.log('🛑 FORCE STOP: Stopping Lara Assistant immediately...');
-    shouldContinueRef.current = false;
-
-    // Set flag to false FIRST before aborting
-    setLaraRunning(false);
-
-    // Immediately abort all voice operations (hard stop)
-    console.log('🛑 FORCE STOP: Calling abortCurrentRecognition...');
-    abortCurrentRecognition();
-
-    // Also cancel speech synthesis directly
-    if (window.speechSynthesis) {
-      try {
-        window.speechSynthesis.cancel();
-      } catch (error) {
-        console.warn('⚠️ Error canceling speech synthesis:', error);
-      }
-    }
-
-    stopLaraAssistant();
-    setIsRunning(false);
-    console.log('🛑 FORCE STOP: Complete');
->>>>>>> a6255b82338b7ae41ee0071d55d8e67f3c8aa6d2
   }, []);
 
   // Restart Lara Assistant
@@ -348,8 +147,3 @@ export function useLara({
   };
 }
 
-<<<<<<< HEAD
-=======
-
-
->>>>>>> a6255b82338b7ae41ee0071d55d8e67f3c8aa6d2

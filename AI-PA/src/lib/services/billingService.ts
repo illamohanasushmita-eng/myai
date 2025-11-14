@@ -4,7 +4,7 @@
  * This file can be used in both client and server contexts
  */
 
-import { supabase } from '@/lib/supabaseClient';
+import { supabaseServer } from '@/lib/supabaseServer';
 import {
   BillingReminder,
   CreateBillingReminderInput,
@@ -116,29 +116,31 @@ export async function getUpcomingBills(
   }
 
   // Calculate days until due and urgency level
-  const billsWithDays: BillingReminderWithDays[] = (data || []).map((bill) => {
-    const dueDate = new Date(bill.due_date);
-    const daysUntilDue = Math.ceil(
-      (dueDate.getTime() - today.getTime()) / (1000 * 60 * 60 * 24)
-    );
+  const billsWithDays: BillingReminderWithDays[] = (data || []).map(
+    (bill: BillingReminder) => {
+      const dueDate = new Date(bill.due_date);
+      const daysUntilDue = Math.ceil(
+        (dueDate.getTime() - today.getTime()) / (1000 * 60 * 60 * 24)
+      );
 
-    let urgencyLevel: 'overdue' | 'urgent' | 'soon' | 'upcoming';
-    if (daysUntilDue < 0) {
-      urgencyLevel = 'overdue';
-    } else if (daysUntilDue <= 3) {
-      urgencyLevel = 'urgent';
-    } else if (daysUntilDue <= 7) {
-      urgencyLevel = 'soon';
-    } else {
-      urgencyLevel = 'upcoming';
+      let urgencyLevel: 'overdue' | 'urgent' | 'soon' | 'upcoming';
+      if (daysUntilDue < 0) {
+        urgencyLevel = 'overdue';
+      } else if (daysUntilDue <= 3) {
+        urgencyLevel = 'urgent';
+      } else if (daysUntilDue <= 7) {
+        urgencyLevel = 'soon';
+      } else {
+        urgencyLevel = 'upcoming';
+      }
+
+      return {
+        ...(bill as BillingReminder),
+        days_until_due: daysUntilDue,
+        urgency_level: urgencyLevel,
+      };
     }
-
-    return {
-      ...(bill as BillingReminder),
-      days_until_due: daysUntilDue,
-      urgency_level: urgencyLevel,
-    };
-  });
+  );
 
   console.log(`✅ Found ${billsWithDays.length} upcoming bills`);
   return billsWithDays;

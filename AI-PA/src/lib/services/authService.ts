@@ -1,10 +1,6 @@
 import { supabase } from '@/lib/supabaseClient';
 
-<<<<<<< HEAD
-// Sign up a new user using API route (server-side)
-=======
 // Sign up a new user using Supabase Auth
->>>>>>> a6255b82338b7ae41ee0071d55d8e67f3c8aa6d2
 export async function signUp(
   email: string,
   password: string,
@@ -14,50 +10,6 @@ export async function signUp(
   try {
     console.log('[SIGNUP] Starting signup process for email:', email);
 
-<<<<<<< HEAD
-    // Call the server-side API route to handle signup
-    const response = await fetch('/api/auth/signup', {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-      },
-      body: JSON.stringify({
-        email,
-        password,
-        name,
-        phone: phone || null,
-      }),
-    });
-
-    const data = await response.json();
-
-    if (!response.ok) {
-      console.error('[SIGNUP] API error:', data);
-      throw new Error(data.error || data.message || 'Signup failed');
-    }
-
-    console.log('[SIGNUP] Signup successful:', data);
-
-    // Now sign in the user to get a session
-    console.log('[SIGNUP] Signing in user...');
-    const { data: signInData, error: signInError } = await supabase.auth.signInWithPassword({
-      email,
-      password,
-    });
-
-    if (signInError) {
-      console.error('[SIGNUP] Auto sign-in failed:', signInError);
-      // Don't throw error - user was created successfully, they can sign in manually
-      return {
-        user: data.user,
-        session: null,
-        message: 'Account created successfully. Please sign in.',
-      };
-    }
-
-    console.log('[SIGNUP] User signed in successfully');
-    return signInData;
-=======
     // Step 1: Pre-signup email check - query users table for existing email
     console.log('[SIGNUP] Checking if email already exists in users table...');
     const { data: existingUser, error: checkError } = await supabase
@@ -110,40 +62,57 @@ export async function signUp(
 
     console.log('[SIGNUP] Auth user created successfully:', data.user.id);
 
-    // Step 3: Insert directly into users table (NO API route, NO settings creation)
-    console.log('[SIGNUP] Inserting user record for userId:', data.user.id);
-    const { error: insertError } = await supabase
-      .from('users')
-      .insert({
-        user_id: data.user.id,
-        email,
-        name,
-        phone: phone || null,
-        password_hash: 'managed_by_supabase_auth',
-        theme: 'light',
-        language: 'en',
-      });
+    // Step 3: If there is an active session (email confirmed), create user profile now.
+    // Otherwise, skip insert; we'll create the profile on the first successful sign-in.
+    const { data: sessionData } = await supabase.auth.getSession();
+    const activeSession = sessionData?.session;
+    if (!activeSession) {
+      console.log(
+        '[SIGNUP] No active session after signup (email confirmation likely required). Skipping profile insert until first sign-in.'
+      );
+    } else {
+      console.log('[SIGNUP] Inserting user record for userId:', data.user.id);
+      const passwordHash = await hashPassword(password);
+      const { error: insertError } = await supabase
+        .from('users')
+        .insert({
+          user_id: data.user.id,
+          email,
+          name,
+          phone: phone || null,
+          password_hash: passwordHash,
+          theme: 'light',
+          language: 'en',
+        });
 
-    if (insertError) {
-      // Handle duplicate user gracefully (23505 = unique constraint violation)
-      if (insertError.code === '23505') {
-        console.log('[SIGNUP] User already exists in users table, continuing...');
-        // User was created in auth but already exists in users table - this is OK
-      } else if (insertError.code === '23503') {
-        // Foreign key constraint error - suppress and continue
-        console.warn('[SIGNUP] Foreign key constraint error (expected if settings not created yet):', insertError.message);
-        // This is OK - settings will be created when user visits settings page
+      if (insertError) {
+        // Handle duplicate user gracefully (23505 = unique constraint violation)
+        if (insertError.code === '23505') {
+          console.log('[SIGNUP] User already exists in users table, continuing...');
+          // User was created in auth but already exists in users table - this is OK
+        } else if (insertError.code === '23503') {
+          // Foreign key constraint error - suppress and continue
+          console.warn(
+            '[SIGNUP] Foreign key constraint error (expected if settings not created yet):',
+            insertError.message
+          );
+          // This is OK - settings will be created when user visits settings page
+        } else {
+          console.error(
+            '[SIGNUP] Failed to insert user:',
+            insertError.code,
+            insertError.message || insertError
+          );
+          // Return generic error message without exposing database details
+          throw new Error('Unable to complete signup. Please try again.');
+        }
       } else {
-        console.error('[SIGNUP] Failed to insert user:', insertError);
-        // Return generic error message without exposing database details
-        throw new Error('Unable to complete signup. Please try again.');
+        console.log('[SIGNUP] User record created successfully');
       }
     }
 
-    console.log('[SIGNUP] User record created successfully');
     console.log('[SIGNUP] Signup completed successfully');
     return data;
->>>>>>> a6255b82338b7ae41ee0071d55d8e67f3c8aa6d2
 
   } catch (error) {
     const errorMessage = error instanceof Error ? error.message : 'Signup failed';
@@ -155,72 +124,58 @@ export async function signUp(
 // Sign in user using Supabase Auth
 export async function signIn(email: string, password: string): Promise<any> {
   try {
-<<<<<<< HEAD
-=======
-    console.log('[SIGNIN] Starting sign in for email:', email);
-
-    // Validate inputs
-    if (!email || !password) {
-      throw new Error('Email and password are required');
-    }
-
-    // Check if Supabase is initialized
-    if (!supabase) {
-      console.error('[SIGNIN] Supabase client not initialized');
-      throw new Error('Authentication service not available. Please check your environment configuration.');
-    }
-
-    console.log('[SIGNIN] Calling Supabase auth.signInWithPassword...');
-
->>>>>>> a6255b82338b7ae41ee0071d55d8e67f3c8aa6d2
     // Use Supabase Auth for signin
     const { data, error } = await supabase.auth.signInWithPassword({
       email,
       password,
     });
 
-<<<<<<< HEAD
     if (error) throw error;
 
-    // Update last login in user profile
     if (data.user) {
+      // Ensure user profile exists (create on first sign-in if missing)
+      const { data: userRow, error: userRowError } = await supabase
+        .from('users')
+        .select('user_id')
+        .eq('user_id', data.user.id)
+        .single();
+
+      if (userRowError?.code === 'PGRST116') {
+        // No profile yet — create it now
+        const passwordHash = await hashPassword(password);
+        const { error: insertProfileError } = await supabase.from('users').insert({
+          user_id: data.user.id,
+          email,
+          name: (data.user.user_metadata as any)?.name ?? null,
+          phone: (data.user.user_metadata as any)?.phone ?? null,
+          password_hash: passwordHash,
+          theme: 'light',
+          language: 'en',
+        });
+        if (insertProfileError && insertProfileError.code !== '23505') {
+          console.warn(
+            '[SIGNIN] Failed to create missing user profile:',
+            insertProfileError.message || insertProfileError
+          );
+        }
+      } else if (userRowError) {
+        console.warn(
+          '[SIGNIN] Unexpected error checking user profile:',
+          userRowError.message || userRowError
+        );
+      }
+
+      // Update last_login
       await supabase
         .from('users')
         .update({ last_login: new Date().toISOString() })
         .eq('user_id', data.user.id);
-=======
-    if (error) {
-      console.error('[SIGNIN] Supabase auth error:', error);
-      throw new Error(error.message || 'Sign in failed');
-    }
-
-    console.log('[SIGNIN] Sign in successful for user:', data.user?.id);
-
-    // Update last login in user profile
-    if (data.user) {
-      try {
-        await supabase
-          .from('users')
-          .update({ last_login: new Date().toISOString() })
-          .eq('user_id', data.user.id);
-        console.log('[SIGNIN] Updated last login timestamp');
-      } catch (updateError) {
-        console.warn('[SIGNIN] Failed to update last login:', updateError);
-        // Don't throw - this is not critical
-      }
->>>>>>> a6255b82338b7ae41ee0071d55d8e67f3c8aa6d2
     }
 
     return data;
   } catch (error) {
-<<<<<<< HEAD
     console.error('Error signing in:', error);
     throw error;
-=======
-    const errorMessage = error instanceof Error ? error.message : 'Unknown error occurred';
-    console.error('[SIGNIN] Sign in error:', errorMessage);
-    throw new Error(errorMessage);
->>>>>>> a6255b82338b7ae41ee0071d55d8e67f3c8aa6d2
   }
 }
 

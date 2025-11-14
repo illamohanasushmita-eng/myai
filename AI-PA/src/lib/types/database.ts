@@ -127,6 +127,24 @@ export interface Appointment {
 }
 
 // ============================================================================
+// WEARABLE INTEGRATIONS TYPES
+// ============================================================================
+export interface FitbitConnection {
+  connection_id: string;
+  user_id: string;
+  fitbit_user_id?: string;
+  access_token: string;
+  refresh_token: string;
+  scope?: string;
+  token_type: string;
+  expires_at: string;
+  connected_at: string;
+  updated_at: string;
+  is_connected: boolean;
+}
+
+
+// ============================================================================
 // PERSONAL GROWTH TYPES
 // ============================================================================
 
@@ -441,7 +459,6 @@ export interface Note {
   created_at: string;
   updated_at: string;
 }
-<<<<<<< HEAD
 
 // ============================================================================
 // BILLING & PAYMENTS TYPES
@@ -531,5 +548,3 @@ export interface BillingReminderWithDays extends BillingReminder {
   days_until_due: number;
   urgency_level: 'overdue' | 'urgent' | 'soon' | 'upcoming';
 }
-=======
->>>>>>> a6255b82338b7ae41ee0071d55d8e67f3c8aa6d2

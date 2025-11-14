@@ -2,10 +2,6 @@
 import { Button } from "@/components/ui/button";
 import Link from "next/link";
 import BottomNav from "@/components/layout/bottom-nav";
-<<<<<<< HEAD
-=======
-import { VoiceAssistantWrapper } from "@/components/layout/VoiceAssistantWrapper";
->>>>>>> a6255b82338b7ae41ee0071d55d8e67f3c8aa6d2
 
 export default function InsightsPage() {
   return (
@@ -162,10 +158,6 @@ export default function InsightsPage() {
             </div>
           </section>
         </main>
-<<<<<<< HEAD
-=======
-        <VoiceAssistantWrapper />
->>>>>>> a6255b82338b7ae41ee0071d55d8e67f3c8aa6d2
         <BottomNav />
       </div>
     </div>

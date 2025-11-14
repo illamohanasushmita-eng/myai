@@ -14,7 +14,7 @@ import {
   ActionExecutorContext,
 } from '@/lib/voice/voice-automation';
 import { automateSpotifyPlayback } from '@/lib/voice/spotify-automation';
-import { addTaskVoice, getTaskSummaryVoice } from '@/lib/voice/task-automation';
+import { addTaskVoice } from '@/lib/voice/task-automation';
 import { addReminderVoice, getReminderSummaryVoice } from '@/lib/voice/reminder-automation';
 import { navigateVoice } from '@/lib/voice/navigation-automation';
 

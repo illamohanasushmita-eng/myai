@@ -14,15 +14,8 @@ import {
 } from "@/components/ui/dialog";
 import { useEffect, useState } from "react";
 import { generatePersonalizedDailyPlan } from "@/ai/openai-client";
-<<<<<<< HEAD
 import { VoiceCommandButton } from "@/components/voice/VoiceCommandButton";
 import { supabase } from "@/lib/supabaseClient";
-=======
-import { VoiceAssistantWrapper } from "@/components/layout/VoiceAssistantWrapper";
-import { supabase } from "@/lib/supabaseClient";
-import { WeatherScheduler } from "@/components/WeatherScheduler";
-import { getUser } from "@/lib/services/userService";
->>>>>>> a6255b82338b7ae41ee0071d55d8e67f3c8aa6d2
 
 type DailyPlan = {
   morning: string;
@@ -36,15 +29,9 @@ export default function DashboardPage() {
 
   const [dailyPlan, setDailyPlan] = useState<DailyPlan | null>(null);
   const [loading, setLoading] = useState(true);
-<<<<<<< HEAD
   const [userId, setUserId] = useState<string | null>(null);
 
   // Get authenticated user ID from Supabase
-=======
-  const [userName, setUserName] = useState<string>("User");
-
-  // Get authenticated user ID from Supabase and fetch user name
->>>>>>> a6255b82338b7ae41ee0071d55d8e67f3c8aa6d2
   useEffect(() => {
     const getAuthenticatedUser = async () => {
       try {
@@ -54,29 +41,9 @@ export default function DashboardPage() {
           return;
         }
         if (user) {
-<<<<<<< HEAD
           setUserId(user.id);
           // Also store in localStorage for other components
           localStorage.setItem('userId', user.id);
-=======
-          // Store in localStorage for other components (including VoiceAssistantWrapper)
-          localStorage.setItem('userId', user.id);
-
-          // Fetch user profile to get the name
-          try {
-            const userProfile = await getUser(user.id);
-            if (userProfile && userProfile.name) {
-              setUserName(userProfile.name);
-            } else {
-              // Fallback to "User" if name is not available
-              setUserName("User");
-            }
-          } catch (error) {
-            console.error('Error fetching user profile:', error);
-            // Keep the default "User" fallback
-            setUserName("User");
-          }
->>>>>>> a6255b82338b7ae41ee0071d55d8e67f3c8aa6d2
         }
       } catch (error) {
         console.error('Error fetching authenticated user:', error);
@@ -135,11 +102,7 @@ export default function DashboardPage() {
             </Link>
           </Button>
           <div className="flex flex-col items-center">
-<<<<<<< HEAD
             <h1 className="text-lg font-bold">Hello, Alex!</h1>
-=======
-            <h1 className="text-lg font-bold">Hello, {userName}!</h1>
->>>>>>> a6255b82338b7ae41ee0071d55d8e67f3c8aa6d2
             <p className="text-sm text-subtle-light dark:text-subtle-dark">
               Let's make today productive.
             </p>
@@ -268,12 +231,6 @@ export default function DashboardPage() {
           </div>
         </div>
         <div className="px-6 mt-6">
-<<<<<<< HEAD
-=======
-          <WeatherScheduler />
-        </div>
-        <div className="px-6 mt-6">
->>>>>>> a6255b82338b7ae41ee0071d55d8e67f3c8aa6d2
           <div className="flex justify-between items-center mb-4">
             <h2 className="text-2xl font-bold font-display">
               Categorized Dashboard
@@ -399,13 +356,9 @@ export default function DashboardPage() {
           </div>
         </div>
       </main>
-<<<<<<< HEAD
       <div className="fixed bottom-20 right-6 z-20">
         <VoiceCommandButton userId={userId || undefined} />
       </div>
-=======
-      <VoiceAssistantWrapper />
->>>>>>> a6255b82338b7ae41ee0071d55d8e67f3c8aa6d2
       <BottomNav />
     </div>
     </>

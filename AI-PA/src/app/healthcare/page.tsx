@@ -3,16 +3,15 @@
 import { Button } from "@/components/ui/button";
 import Link from "next/link";
 import BottomNav from "@/components/layout/bottom-nav";
+import { VoiceAssistantWrapper } from "@/components/layout/VoiceAssistantWrapper";
 import { useState, useEffect } from "react";
 import { AddSymptomModal } from "@/components/modals/AddSymptomModal";
 import { AddMedicationModal } from "@/components/modals/AddMedicationModal";
 import { AddAppointmentModal } from "@/components/modals/AddAppointmentModal";
 import { getUserSymptoms, getUserMedications, getUserAppointments } from "@/lib/services/healthRecordService";
 import { Symptom, Medication, Appointment } from "@/lib/types/database";
-<<<<<<< HEAD
-=======
-import { VoiceAssistantWrapper } from "@/components/layout/VoiceAssistantWrapper";
->>>>>>> a6255b82338b7ae41ee0071d55d8e67f3c8aa6d2
+import { FitbitPanel } from "@/components/healthcare/FitbitPanel";
+import { supabase } from "@/lib/supabaseClient";
 
 export default function HealthcarePage() {
   const [isAddSymptomOpen, setIsAddSymptomOpen] = useState(false);
@@ -26,6 +25,88 @@ export default function HealthcarePage() {
   const [symptomsLoading, setSymptomsLoading] = useState(true);
   const [medicationsLoading, setMedicationsLoading] = useState(true);
   const [appointmentsLoading, setAppointmentsLoading] = useState(true);
+
+  // Fitbit summary + Water intake state
+  const [fitbitSummary, setFitbitSummary] = useState<any | null>(null);
+  const [fitbitLoading, setFitbitLoading] = useState(false);
+  const [waterMl, setWaterMl] = useState<number>(0);
+  const [waterLoading, setWaterLoading] = useState(false);
+  const [waterSaving, setWaterSaving] = useState(false);
+
+  const waterGoalMl = 2000; // default goal in ml
+
+
+	  const [waterAmountInput, setWaterAmountInput] = useState<string>('');
+
+  const getToday = () => new Date().toISOString().slice(0, 10);
+
+  const loadFitbit = async () => {
+    try {
+      setFitbitLoading(true);
+      const userId = localStorage.getItem('userId');
+      if (userId) {
+        const res = await fetch(`/api/fitbit/summary?userId=${encodeURIComponent(userId)}`, { cache: 'no-store' });
+        const json = await res.json();
+        setFitbitSummary(json && json.connected ? json : null);
+      } else {
+        setFitbitSummary(null);
+      }
+    } catch (e) {
+      console.error('Error loading Fitbit summary:', e);
+    } finally {
+      setFitbitLoading(false);
+    }
+  };
+
+  const loadWater = async () => {
+    try {
+      setWaterLoading(true);
+      const userId = localStorage.getItem('userId');
+      if (!userId) {
+        setWaterMl(0);
+        return;
+      }
+      const { data, error } = await supabase
+        .from('user_water_intake')
+        .select('amount_ml, date')
+        .eq('user_id', userId)
+        .eq('date', getToday());
+      if (error) {
+        console.warn('Skipping water load (table may not exist yet):', error.message);
+        setWaterMl(0);
+      } else {
+        const total = (data || []).reduce((sum: number, r: any) => sum + (r.amount_ml || 0), 0);
+        setWaterMl(total);
+      }
+    } catch (e) {
+      console.warn('Error loading water intake:', e);
+      setWaterMl(0);
+    } finally {
+      setWaterLoading(false);
+    }
+  };
+
+  const addWater = async (amount: number) => {
+    try {
+      setWaterSaving(true);
+      const userId = localStorage.getItem('userId');
+      if (!userId) return;
+      const { error } = await supabase.from('user_water_intake').insert({
+        user_id: userId,
+        amount_ml: amount,
+        date: getToday(),
+      });
+      if (error) {
+        console.error('Failed to add water:', error.message);
+        return;
+      }
+      setWaterMl((w) => w + amount);
+    } catch (e) {
+      console.error('Add water error:', e);
+    } finally {
+      setWaterSaving(false);
+    }
+  };
 
   // Load symptoms
   const loadSymptoms = async () => {
@@ -80,6 +161,8 @@ export default function HealthcarePage() {
     loadSymptoms();
     loadMedications();
     loadAppointments();
+    loadFitbit();
+    loadWater();
   }, []);
 
   // Handle callbacks
@@ -140,101 +223,67 @@ export default function HealthcarePage() {
       </header>
       <main className="flex-1 overflow-y-auto pb-28">
         <div className="p-6">
-          <div className="bg-card-light dark:bg-card-dark rounded-xl p-4 shadow-md frosted-glass border border-white/30 dark:border-white/10">
-            <h2 className="text-xl font-bold mb-4">Daily Health Metrics</h2>
-            <div className="grid grid-cols-3 gap-4 text-center">
-              <div>
-                <div className="relative w-20 h-20 mx-auto">
-                  <svg className="w-full h-full" viewBox="0 0 36 36">
-                    <path
-                      className="text-blue-100 dark:text-blue-900/50"
-                      d="M18 2.0845 a 15.9155 15.9155 0 0 1 0 31.831 a 15.9155 15.9155 0 0 1 0 -31.831"
-                      fill="none"
-                      strokeWidth="3"
-                    ></path>
-                    <path
-                      className="text-blue-500"
-                      d="M18 2.0845 a 15.9155 15.9155 0 0 1 0 31.831 a 15.9155 15.9155 0 0 1 0 -31.831"
-                      fill="none"
-                      strokeDasharray="75, 100"
-                      strokeLinecap="round"
-                      strokeWidth="3"
-                      transform="rotate(90 18 18)"
-                    ></path>
-                  </svg>
-                  <div className="absolute inset-0 flex flex-col items-center justify-center">
-                    <span className="material-symbols-outlined text-blue-500 text-2xl">
-                      water_drop
-                    </span>
-                  </div>
-                </div>
-                <p className="font-semibold mt-2">6/8 Glasses</p>
-                <p className="text-xs text-subtle-light dark:text-subtle-dark">
-                  Water
-                </p>
+            <div className="mb-6">
+              <FitbitPanel />
+            </div>
+
+            {/* Water Intake (standalone) */}
+            <div className="bg-card-light dark:bg-card-dark rounded-xl p-4 shadow-md frosted-glass border border-white/30 dark:border-white/10">
+              <div className="flex justify-between items-center mb-4">
+                <h2 className="text-xl font-bold">Water Intake</h2>
               </div>
-              <div>
-                <div className="relative w-20 h-20 mx-auto">
-                  <svg className="w-full h-full" viewBox="0 0 36 36">
-                    <path
-                      className="text-green-100 dark:text-green-900/50"
-                      d="M18 2.0845 a 15.9155 15.9155 0 0 1 0 31.831 a 15.9155 15.9155 0 0 1 0 -31.831"
-                      fill="none"
-                      strokeWidth="3"
-                    ></path>
-                    <path
-                      className="text-green-500"
-                      d="M18 2.0845 a 15.9155 15.9155 0 0 1 0 31.831 a 15.9155 15.9155 0 0 1 0 -31.831"
-                      fill="none"
-                      strokeDasharray="60, 100"
-                      strokeLinecap="round"
-                      strokeWidth="3"
-                      transform="rotate(90 18 18)"
-                    ></path>
-                  </svg>
-                  <div className="absolute inset-0 flex flex-col items-center justify-center">
-                    <span className="material-symbols-outlined text-green-500 text-2xl">
-                      footprint
-                    </span>
-                  </div>
+
+              <div className="space-y-4">
+                <div className="text-sm text-subtle-light dark:text-subtle-dark">
+                  Today: <span className="font-semibold text-foreground">{waterLoading ? '—' : `${waterMl} / ${waterGoalMl} ml`}</span>
                 </div>
-                <p className="font-semibold mt-2">6,201</p>
-                <p className="text-xs text-subtle-light dark:text-subtle-dark">
-                  Steps
-                </p>
-              </div>
-              <div>
-                <div className="relative w-20 h-20 mx-auto">
-                  <svg className="w-full h-full" viewBox="0 0 36 36">
-                    <path
-                      className="text-purple-100 dark:text-purple-900/50"
-                      d="M18 2.0845 a 15.9155 15.9155 0 0 1 0 31.831 a 15.9155 15.9155 0 0 1 0 -31.831"
-                      fill="none"
-                      strokeWidth="3"
-                    ></path>
-                    <path
-                      className="text-purple-500"
-                      d="M18 2.0845 a 15.9155 15.9155 0 0 1 0 31.831 a 15.9155 15.9155 0 0 1 0 -31.831"
-                      fill="none"
-                      strokeDasharray="90, 100"
-                      strokeLinecap="round"
-                      strokeWidth="3"
-                      transform="rotate(90 18 18)"
-                    ></path>
-                  </svg>
-                  <div className="absolute inset-0 flex flex-col items-center justify-center">
-                    <span className="material-symbols-outlined text-purple-500 text-2xl">
-                      bedtime
-                    </span>
-                  </div>
+
+                <div className="flex items-center gap-2 flex-wrap">
+                  <input
+                    type="number"
+                    inputMode="numeric"
+                    min={1}
+                    placeholder="Amount (ml)"
+                    value={waterAmountInput}
+                    onChange={(e) => setWaterAmountInput(e.target.value)}
+                    className="flex-1 px-3 py-2 rounded-md border border-border-light/50 dark:border-border-dark/50 bg-background text-foreground"
+                  />
+                  <Button
+                    onClick={() => {
+                      const amt = parseInt(waterAmountInput || '0', 10);
+                      if (!Number.isFinite(amt) || amt <= 0) return;
+                      addWater(amt);
+                      setWaterAmountInput('');
+                    }}
+                    className="font-semibold"
+                    title="Add custom amount"
+                    disabled={waterSaving || waterLoading || !(Number.isFinite(parseInt(waterAmountInput || '0', 10)) && parseInt(waterAmountInput || '0', 10) > 0)}
+                  >
+                    <span className="material-symbols-outlined text-base mr-1">water_drop</span>
+                    Add Water
+                  </Button>
+                  <Button
+                    onClick={() => addWater(250)}
+                    className="font-semibold"
+                    title="Add 250ml"
+                    disabled={waterSaving || waterLoading}
+                  >
+                    <span className="material-symbols-outlined text-base mr-1">water_drop</span>
+                    250ml
+                  </Button>
+                  <Button
+                    onClick={() => addWater(500)}
+                    className="font-semibold"
+                    title="Add 500ml"
+                    disabled={waterSaving || waterLoading}
+                  >
+                    <span className="material-symbols-outlined text-base mr-1">water_drop</span>
+                    500ml
+                  </Button>
                 </div>
-                <p className="font-semibold mt-2">7h 15m</p>
-                <p className="text-xs text-subtle-light dark:text-subtle-dark">
-                  Sleep
-                </p>
               </div>
             </div>
-          </div>
+
           <div className="mt-6">
             <div className="flex justify-between items-center mb-4">
               <h2 className="text-xl font-bold">Symptom Tracker</h2>
@@ -397,10 +446,7 @@ export default function HealthcarePage() {
           </div>
         </div>
       </main>
-<<<<<<< HEAD
-=======
       <VoiceAssistantWrapper />
->>>>>>> a6255b82338b7ae41ee0071d55d8e67f3c8aa6d2
       <BottomNav />
       </div>
 

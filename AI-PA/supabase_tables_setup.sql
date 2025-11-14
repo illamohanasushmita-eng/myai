@@ -369,3 +369,26 @@ ALTER TABLE insights ENABLE ROW LEVEL SECURITY;
 -- 3. Update your service files to match the new schema
 -- ============================================================================
 
+
+
+-- 22. FITBIT CONNECTIONS TABLE
+CREATE TABLE IF NOT EXISTS fitbit_connections (
+    connection_id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+    user_id UUID NOT NULL UNIQUE REFERENCES users(user_id) ON DELETE CASCADE,
+    fitbit_user_id TEXT,
+    access_token TEXT,
+    refresh_token TEXT,
+    scope TEXT,
+    token_type TEXT DEFAULT 'Bearer',
+    expires_at TIMESTAMP NOT NULL,
+    connected_at TIMESTAMP DEFAULT NOW(),
+    updated_at TIMESTAMP DEFAULT NOW(),
+    is_connected BOOLEAN DEFAULT TRUE
+);
+
+-- Index for quick lookups
+CREATE INDEX IF NOT EXISTS idx_fitbit_connections_user_id ON fitbit_connections(user_id);
+
+
+-- Enable RLS on fitbit_connections
+ALTER TABLE fitbit_connections ENABLE ROW LEVEL SECURITY;

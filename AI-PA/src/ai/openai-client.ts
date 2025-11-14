@@ -2,6 +2,10 @@
 
 import OpenAI from 'openai';
 
+export const openai = new OpenAI({
+  apiKey: process.env.OPENAI_API_KEY,
+});
+
 export interface DailyPlanOutput {
   morning: string;
   afternoon: string;
@@ -19,10 +23,6 @@ export async function generatePersonalizedDailyPlan(profile: {
   upcomingDeadlines?: string;
 }): Promise<DailyPlanOutput> {
   try {
-    const openai = new OpenAI({
-      apiKey: process.env.OPENAI_API_KEY,
-    });
-
     const systemPrompt = `
 You are an AI that returns ONLY valid JSON.
 Never include commentary, markdown, or explanation.
