@@ -1,9 +1,15 @@
+<<<<<<< HEAD
 import { createClient } from '@supabase/supabase-js';
 
 const supabase = createClient(
   process.env.NEXT_PUBLIC_SUPABASE_URL || '',
   process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY || ''
 );
+=======
+// Note: We use the API endpoint instead of direct Supabase client
+// because voice commands run on the client side and need to bypass RLS policies
+// The API endpoint uses the service role key on the backend
+>>>>>>> a6255b82338b7ae41ee0071d55d8e67f3c8aa6d2
 
 /**
  * Add a task via voice command
@@ -15,7 +21,11 @@ export async function addTaskVoice(
   onNavigate?: (path: string) => void
 ): Promise<{ success: boolean; message: string; error?: string }> {
   try {
+<<<<<<< HEAD
     // Handle backward compatibility - if dueDate is a function, it's actually onNavigate
+=======
+    // Handle backward compatibility
+>>>>>>> a6255b82338b7ae41ee0071d55d8e67f3c8aa6d2
     let actualDueDate: string | undefined;
     let actualOnNavigate: ((path: string) => void) | undefined;
 
@@ -27,6 +37,7 @@ export async function addTaskVoice(
       actualOnNavigate = onNavigate;
     }
 
+<<<<<<< HEAD
     // Determine task category based on content
     const category = determineTaskCategory(taskText);
 
@@ -41,6 +52,39 @@ export async function addTaskVoice(
     // Create task in background without blocking
     createTaskInBackground(taskText, userId, category, actualDueDate);
 
+=======
+    const category = determineTaskCategory(taskText);
+
+    console.log('📝 [TASK-VOICE] Starting task creation process...');
+
+    // Create task and wait for it to complete before navigating
+    // This ensures the task is in the database before the page tries to fetch it
+    await createTaskInBackground(taskText, userId, category, actualDueDate);
+
+    console.log('📝 [TASK-VOICE] Task created successfully, now providing voice feedback...');
+
+    // Provide voice feedback before navigation
+    try {
+      const { speak } = await import('@/lib/voice/lara-assistant');
+      console.log('📝 [TASK-VOICE] Providing voice feedback: "Task added"');
+      speak('Task added', true).catch(err => console.log('📝 [TASK-VOICE] TTS error (non-critical):', err));
+    } catch (error) {
+      console.log('📝 [TASK-VOICE] Could not provide voice feedback:', error);
+    }
+
+    console.log('📝 [TASK-VOICE] Now navigating to tasks page...');
+
+    // Navigate after task is created
+    // Always navigate to /tasks page with refresh parameter, regardless of category
+    // The /professional page is for viewing only, not for task creation
+    const targetPath = '/tasks?refresh=true';
+    if (actualOnNavigate) {
+      console.log('📝 [TASK-VOICE] Navigating to tasks page with refresh...');
+      actualOnNavigate(targetPath);
+    }
+
+    console.log('✅ [TASK-VOICE] Task voice function completed successfully');
+>>>>>>> a6255b82338b7ae41ee0071d55d8e67f3c8aa6d2
     return {
       success: true,
       message: `Task "${taskText}" added successfully`,
@@ -162,6 +206,10 @@ function determineTaskCategory(taskText: string): 'professional' | 'personal' {
 
 /**
  * Create task in background without blocking UI
+<<<<<<< HEAD
+=======
+ * Uses API endpoint to bypass RLS policies (service role key on backend)
+>>>>>>> a6255b82338b7ae41ee0071d55d8e67f3c8aa6d2
  */
 async function createTaskInBackground(
   taskText: string,
@@ -170,6 +218,7 @@ async function createTaskInBackground(
   dueDate?: string
 ): Promise<void> {
   try {
+<<<<<<< HEAD
     const { error } = await supabase.from('tasks').insert([
       {
         user_id: userId,
@@ -193,3 +242,78 @@ async function createTaskInBackground(
   }
 }
 
+=======
+    // Use today's date if no due date provided
+    // Use local date to match the filtering logic in the tasks page
+    let finalDueDate = dueDate;
+    if (!finalDueDate) {
+      const today = new Date();
+      const year = today.getFullYear();
+      const month = String(today.getMonth() + 1).padStart(2, '0');
+      const day = String(today.getDate()).padStart(2, '0');
+      finalDueDate = `${year}-${month}-${day}`;
+    }
+
+    console.log('📝 [TASK-VOICE] Creating task in background:', {
+      title: taskText,
+      category,
+      due_date: finalDueDate,
+      userId,
+    });
+
+    // Use API endpoint which has service role key on backend
+    console.log('📝 [TASK-VOICE] Sending fetch request to /api/tasks/create...');
+
+    const response = await fetch('/api/tasks/create', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({
+        userId,
+        title: taskText,
+        description: '',
+        due_date: finalDueDate,
+        category: category,
+        status: 'pending',
+        priority: 'medium',
+      }),
+    });
+
+    console.log('📝 [TASK-VOICE] Fetch response received, status:', response.status);
+
+    let result;
+    try {
+      result = await response.json();
+      console.log('📝 [TASK-VOICE] Response parsed successfully:', result);
+    } catch (parseError) {
+      console.error('❌ [TASK-VOICE] Failed to parse response JSON:', parseError);
+      console.error('❌ [TASK-VOICE] Parse error details:', parseError);
+      return;
+    }
+
+    if (!response.ok) {
+      console.error('❌ [TASK-VOICE] Error creating task in background:', {
+        status: response.status,
+        error: result.error,
+        details: result.details,
+      });
+    } else {
+      console.log('✅ [TASK-VOICE] Task created successfully in background:', {
+        task_id: result.data?.task_id,
+        title: taskText,
+        due_date: finalDueDate,
+      });
+      console.log('✅ [TASK-VOICE] Task is created');
+    }
+  } catch (error) {
+    console.error('❌ [TASK-VOICE] Error in createTaskInBackground:', error);
+    console.error('❌ [TASK-VOICE] Error details:', {
+      message: error instanceof Error ? error.message : String(error),
+      stack: error instanceof Error ? error.stack : undefined,
+    });
+  }
+}
+
+
+>>>>>>> a6255b82338b7ae41ee0071d55d8e67f3c8aa6d2

@@ -58,7 +58,11 @@ export async function getUserByEmail(email: string): Promise<User | null> {
 
 // Create a new user
 export async function createUser(
+<<<<<<< HEAD
   userData: Omit<User, 'user_id' | 'created_at'>
+=======
+  userData: Omit<User, 'created_at'> | Omit<User, 'user_id' | 'created_at'>
+>>>>>>> a6255b82338b7ae41ee0071d55d8e67f3c8aa6d2
 ): Promise<User> {
   try {
     console.log('[USER-SERVICE] Creating user with email:', userData.email);
@@ -95,6 +99,15 @@ export async function updateUser(
   updates: Partial<User>
 ): Promise<User> {
   try {
+<<<<<<< HEAD
+=======
+    console.log('[USER-SERVICE] updateUser called with userId:', userId);
+    console.log('[USER-SERVICE] Updates to apply:', {
+      ...updates,
+      avatar_url: updates.avatar_url ? `${updates.avatar_url.substring(0, 50)}...` : 'not set'
+    });
+
+>>>>>>> a6255b82338b7ae41ee0071d55d8e67f3c8aa6d2
     const { data, error } = await supabase
       .from('users')
       .update(updates)
@@ -102,10 +115,26 @@ export async function updateUser(
       .select()
       .single();
 
+<<<<<<< HEAD
     if (error) throw error;
     return data;
   } catch (error) {
     console.error('Error updating user:', error);
+=======
+    if (error) {
+      console.error('[USER-SERVICE] Supabase error during update:', error);
+      throw error;
+    }
+
+    console.log('[USER-SERVICE] Update successful, returned data:', {
+      ...data,
+      avatar_url: data.avatar_url ? `${data.avatar_url.substring(0, 50)}...` : 'empty'
+    });
+
+    return data;
+  } catch (error) {
+    console.error('[USER-SERVICE] Error updating user:', error);
+>>>>>>> a6255b82338b7ae41ee0071d55d8e67f3c8aa6d2
     throw error;
   }
 }

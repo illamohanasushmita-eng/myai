@@ -404,6 +404,7 @@ export function useLaraAssistant(
         musicQuery = 'favorite songs';
       }
 
+<<<<<<< HEAD
       console.log('🎵 [SPOTIFY] Playing music:', musicQuery);
 
       // Step 1: Search for tracks
@@ -440,6 +441,26 @@ export function useLaraAssistant(
 
       console.log('✅ [SPOTIFY] Now playing:', firstTrack.name);
       return `Now playing "${firstTrack.name}" by ${firstTrack.artists[0]?.name}`;
+=======
+      console.log('🎵 [SPOTIFY] Using intent router for:', musicQuery);
+
+      // Use the intent router which handles URI schemes properly
+      const { routeIntent } = await import('@/lib/lara/intentRouter');
+
+      // Pass the musicQuery as userText so extractMusicQuery can parse it properly
+      const result = await routeIntent(
+        {
+          intent: 'play_music',
+          confidence: 1.0,
+          entities: {},
+          raw: {}
+        },
+        musicQuery, // Pass as userText for proper extraction
+        { userId: options.userId }
+      );
+
+      return result || `Playing ${musicQuery}`;
+>>>>>>> a6255b82338b7ae41ee0071d55d8e67f3c8aa6d2
     } catch (error) {
       console.error('❌ [SPOTIFY] Error playing music:', error);
       return `Failed to play music: ${error instanceof Error ? error.message : 'Unknown error'}`;
@@ -597,3 +618,8 @@ export function useLaraAssistant(
   };
 }
 
+<<<<<<< HEAD
+=======
+
+
+>>>>>>> a6255b82338b7ae41ee0071d55d8e67f3c8aa6d2

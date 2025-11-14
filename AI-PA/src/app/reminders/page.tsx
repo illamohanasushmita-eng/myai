@@ -5,8 +5,15 @@ import { Button } from "@/components/ui/button";
 import Link from "next/link";
 import BottomNav from "@/components/layout/bottom-nav";
 import { useEffect, useState, useCallback, useMemo, memo } from "react";
+<<<<<<< HEAD
 import { Reminder } from "@/lib/types/database";
 import { format, isPast, isToday, isTomorrow } from "date-fns";
+=======
+import { useSearchParams } from "next/navigation";
+import { Reminder } from "@/lib/types/database";
+import { format, isPast, isToday, isTomorrow } from "date-fns";
+import { VoiceAssistantWrapper } from "@/components/layout/VoiceAssistantWrapper";
+>>>>>>> a6255b82338b7ae41ee0071d55d8e67f3c8aa6d2
 
 // Memoized reminder item component
 const ReminderItem = memo(({ reminder, formatTime, isPast: isPastReminder }: {
@@ -33,6 +40,10 @@ const ReminderItem = memo(({ reminder, formatTime, isPast: isPastReminder }: {
 ReminderItem.displayName = "ReminderItem";
 
 export default function RemindersPage() {
+<<<<<<< HEAD
+=======
+  const searchParams = useSearchParams();
+>>>>>>> a6255b82338b7ae41ee0071d55d8e67f3c8aa6d2
   const [reminders, setReminders] = useState<Reminder[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string>("");
@@ -72,6 +83,52 @@ export default function RemindersPage() {
     fetchReminders();
   }, [fetchReminders]);
 
+<<<<<<< HEAD
+=======
+  // Add reminder optimistically to the list
+  const addReminderOptimistically = useCallback((reminder: Reminder) => {
+    console.log('📌 [REMINDERS-PAGE] Adding reminder optimistically:', reminder);
+    setReminders(prevReminders => {
+      // Check if reminder already exists (avoid duplicates)
+      const exists = prevReminders.some(r => r.reminder_id === reminder.reminder_id);
+      if (exists) {
+        console.log('📌 [REMINDERS-PAGE] Reminder already exists, skipping');
+        return prevReminders;
+      }
+      // Add new reminder to the list
+      return [reminder, ...prevReminders];
+    });
+  }, []);
+
+  // Store the function on window so voice assistant can access it
+  useEffect(() => {
+    if (typeof window !== 'undefined') {
+      (window as any).__addReminderOptimistically = addReminderOptimistically;
+      console.log('📌 [REMINDERS-PAGE] Stored addReminderOptimistically on window');
+    }
+    return () => {
+      if (typeof window !== 'undefined') {
+        delete (window as any).__addReminderOptimistically;
+      }
+    };
+  }, [addReminderOptimistically]);
+
+  // Refetch reminders when refresh query param is set (for voice-created reminders)
+  useEffect(() => {
+    if (searchParams) {
+      const refresh = searchParams.get('refresh');
+      console.log('📌 [REMINDERS-PAGE] Checking refresh param:', refresh);
+      if (refresh === 'true') {
+        console.log('📌 [REMINDERS-PAGE] Refresh triggered, refetching reminders...');
+        // Add a small delay to ensure the database has been updated
+        setTimeout(() => {
+          fetchReminders();
+        }, 500);
+      }
+    }
+  }, [searchParams, fetchReminders]);
+
+>>>>>>> a6255b82338b7ae41ee0071d55d8e67f3c8aa6d2
   // Refetch reminders when page comes into focus (for voice-created reminders)
   useEffect(() => {
     const handleVisibilityChange = () => {
@@ -173,13 +230,21 @@ export default function RemindersPage() {
           )}
         </main>
       </div>
+<<<<<<< HEAD
        <div className="fixed bottom-24 right-4 z-20">
+=======
+       <div className="fixed bottom-24 left-4 z-20">
+>>>>>>> a6255b82338b7ae41ee0071d55d8e67f3c8aa6d2
           <Button asChild className="flex items-center gap-2 rounded-full bg-primary px-4 py-3 text-white shadow-lg transition-transform hover:scale-105 active:scale-95 h-16 w-16">
             <Link href="/reminders/add">
                 <span className="material-symbols-outlined text-3xl">add</span>
             </Link>
           </Button>
         </div>
+<<<<<<< HEAD
+=======
+      <VoiceAssistantWrapper />
+>>>>>>> a6255b82338b7ae41ee0071d55d8e67f3c8aa6d2
       <BottomNav />
     </div>
   );

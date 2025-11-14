@@ -15,6 +15,10 @@ import { cn } from "@/lib/utils";
 import { AddGoalModal } from "@/components/modals/AddGoalModal";
 import { getUserGrowthGoals } from "@/lib/services/habitService";
 import { GrowthGoal } from "@/lib/types/database";
+<<<<<<< HEAD
+=======
+import { VoiceAssistantWrapper } from "@/components/layout/VoiceAssistantWrapper";
+>>>>>>> a6255b82338b7ae41ee0071d55d8e67f3c8aa6d2
 
 const initialHabitState = {
   Mon: true,
@@ -282,6 +286,10 @@ export default function PersonalGrowthPage() {
             </div>
           </div>
         </main>
+<<<<<<< HEAD
+=======
+        <VoiceAssistantWrapper />
+>>>>>>> a6255b82338b7ae41ee0071d55d8e67f3c8aa6d2
         <BottomNav />
       </div>
 

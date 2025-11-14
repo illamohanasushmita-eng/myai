@@ -7,6 +7,10 @@ import Image from "next/image";
 import BottomNav from "@/components/layout/bottom-nav";
 import { useEffect, useState } from "react";
 import { Switch } from "@/components/ui/switch";
+<<<<<<< HEAD
+=======
+import { VoiceAssistantWrapper } from "@/components/layout/VoiceAssistantWrapper";
+>>>>>>> a6255b82338b7ae41ee0071d55d8e67f3c8aa6d2
 
 export default function SettingsPage() {
   const [isDark, setIsDark] = useState(false);
@@ -130,6 +134,7 @@ export default function SettingsPage() {
                     <span className="material-symbols-outlined text-gray-400 dark:text-gray-500">arrow_forward_ios</span>
                   </Link>
                 </li>
+<<<<<<< HEAD
                 <li className="border-t border-gray-200/50 dark:border-gray-700/50">
                   <Link href="/settings/billing" className="flex items-center gap-4 p-4">
                     <div className="flex h-12 w-12 flex-shrink-0 items-center justify-center rounded-lg bg-primary/10 text-primary">
@@ -142,6 +147,8 @@ export default function SettingsPage() {
                     <span className="material-symbols-outlined text-gray-400 dark:text-gray-500">arrow_forward_ios</span>
                   </Link>
                 </li>
+=======
+>>>>>>> a6255b82338b7ae41ee0071d55d8e67f3c8aa6d2
               </ul>
             </div>
             <div className="p-4">
@@ -216,6 +223,10 @@ export default function SettingsPage() {
             </div>
           </div>
         </main>
+<<<<<<< HEAD
+=======
+        <VoiceAssistantWrapper />
+>>>>>>> a6255b82338b7ae41ee0071d55d8e67f3c8aa6d2
         <BottomNav />
       </div>
     </div>
