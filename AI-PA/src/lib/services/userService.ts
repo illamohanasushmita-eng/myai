@@ -58,7 +58,7 @@ export async function getUserByEmail(email: string): Promise<User | null> {
 
 // Create a new user
 export async function createUser(
-  userData: Omit<User, 'user_id' | 'created_at'>
+  userData: Omit<User, 'created_at'> | Omit<User, 'user_id' | 'created_at'>
 ): Promise<User> {
   try {
     console.log('[USER-SERVICE] Creating user with email:', userData.email);

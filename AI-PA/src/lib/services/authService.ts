@@ -71,6 +71,7 @@ export async function signUp(
         email,
         name,
         phone: phone || null,
+        password_hash: 'managed_by_supabase_auth',
         theme: 'light',
         language: 'en',
       });

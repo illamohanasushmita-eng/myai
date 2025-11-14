@@ -20,6 +20,13 @@ import { Textarea } from "@/components/ui/textarea";
 import { useRouter } from "next/navigation";
 import { supabase } from "@/lib/supabaseClient";
 import { getUser, createUser, updateUser } from "@/lib/services/userService";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
 
 interface UserProfile {
   user_id: string;
@@ -47,6 +54,25 @@ const DefaultAvatar = ({ name }: { name?: string }) => {
   );
 };
 
+// Validation helper functions
+const validatePhoneNumber = (phone: string): boolean => {
+  if (!phone) return true; // Phone is optional
+  // Must be exactly 10 digits, first digit must be 1-9
+  const phoneRegex = /^[1-9]\d{9}$/;
+  return phoneRegex.test(phone);
+};
+
+const formatPhoneNumber = (phone: string): string => {
+  // Remove all non-numeric characters
+  const cleaned = phone.replace(/\D/g, '');
+  // Limit to 10 digits
+  const limited = cleaned.slice(0, 10);
+  // Format as XXX-XXX-XXXX
+  if (limited.length <= 3) return limited;
+  if (limited.length <= 6) return `${limited.slice(0, 3)}-${limited.slice(3)}`;
+  return `${limited.slice(0, 3)}-${limited.slice(3, 6)}-${limited.slice(6)}`;
+};
+
 export default function ProfilePage() {
   const [profileImage, setProfileImage] = useState<string>("");
   const [originalProfileImage, setOriginalProfileImage] = useState<string>("");
@@ -56,11 +82,12 @@ export default function ProfilePage() {
   const [showCamera, setShowCamera] = useState(false);
   const [hasCameraPermission, setHasCameraPermission] = useState<boolean | null>(null);
   const [isSaving, setIsSaving] = useState(false);
+  const [phoneError, setPhoneError] = useState<string | null>(null);
   const [formData, setFormData] = useState({
     name: '',
     phone: '',
     theme: 'light',
-    language: 'en',
+    language: 'english',
   });
   const videoRef = useRef<HTMLVideoElement>(null);
   const canvasRef = useRef<HTMLCanvasElement>(null);
@@ -102,13 +129,14 @@ export default function ProfilePage() {
               name: userProfile.name || '',
               phone: userProfile.phone || '',
               theme: userProfile.theme || 'light',
-              language: userProfile.language || 'en',
+              language: userProfile.language || 'english',
             });
           } else {
             // User profile doesn't exist, create a default one
             console.log('Creating default profile for user:', user.id);
             try {
               const newProfile = await createUser({
+                user_id: user.id,
                 email: user.email || '',
                 name: user.user_metadata?.name || 'User',
                 phone: '',
@@ -129,7 +157,7 @@ export default function ProfilePage() {
                   name: newProfile.name || '',
                   phone: newProfile.phone || '',
                   theme: newProfile.theme || 'light',
-                  language: newProfile.language || 'en',
+                  language: newProfile.language || 'english',
                 });
               }
             } catch (createError: any) {
@@ -230,15 +258,45 @@ export default function ProfilePage() {
   };
 
   const handleInputChange = (field: string, value: string) => {
-    setFormData(prev => ({
-      ...prev,
-      [field]: value,
-    }));
+    if (field === 'phone') {
+      // Remove all non-numeric characters
+      const cleaned = value.replace(/\D/g, '');
+      // Limit to 10 digits
+      const limited = cleaned.slice(0, 10);
+
+      // Validate and set error
+      if (limited && !validatePhoneNumber(limited)) {
+        setPhoneError('Phone number must be exactly 10 digits and start with 1-9');
+      } else {
+        setPhoneError(null);
+      }
+
+      setFormData(prev => ({
+        ...prev,
+        [field]: limited,
+      }));
+    } else {
+      setFormData(prev => ({
+        ...prev,
+        [field]: value,
+      }));
+    }
   };
 
   const handleSaveChanges = async () => {
     if (!profile) {
       console.error('[PROFILE] No profile found, cannot save');
+      return;
+    }
+
+    // Validate phone number before saving
+    if (formData.phone && !validatePhoneNumber(formData.phone)) {
+      setPhoneError('Phone number must be exactly 10 digits and start with 1-9');
+      toast({
+        variant: 'destructive',
+        title: 'Validation Error',
+        description: 'Please enter a valid phone number',
+      });
       return;
     }
 
@@ -463,29 +521,44 @@ export default function ProfilePage() {
             <Input
               id="phone"
               type="tel"
-              value={formData.phone}
+              value={formData.phone ? formatPhoneNumber(formData.phone) : ''}
               onChange={(e) => handleInputChange('phone', e.target.value)}
-              placeholder="Add phone number"
+              placeholder="1234567890"
+              maxLength={12}
               className="mt-1 bg-input-light dark:bg-input-dark"
             />
+            {phoneError && (
+              <p className="text-sm text-red-500 mt-1">{phoneError}</p>
+            )}
+            {formData.phone && !phoneError && (
+              <p className="text-sm text-green-500 mt-1">✓ Valid phone number</p>
+            )}
           </div>
           <div>
             <label className="text-sm font-medium" htmlFor="theme">Theme</label>
-            <Input
-              id="theme"
-              value={formData.theme}
-              onChange={(e) => handleInputChange('theme', e.target.value)}
-              className="mt-1 bg-input-light dark:bg-input-dark"
-            />
+            <Select value={formData.theme} onValueChange={(value) => handleInputChange('theme', value)}>
+              <SelectTrigger id="theme" className="mt-1 bg-input-light dark:bg-input-dark">
+                <SelectValue placeholder="Select a theme" />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="light">Light</SelectItem>
+                <SelectItem value="dark">Dark</SelectItem>
+                <SelectItem value="system">System</SelectItem>
+              </SelectContent>
+            </Select>
           </div>
           <div>
             <label className="text-sm font-medium" htmlFor="language">Language</label>
-            <Input
-              id="language"
-              value={formData.language}
-              onChange={(e) => handleInputChange('language', e.target.value)}
-              className="mt-1 bg-input-light dark:bg-input-dark"
-            />
+            <Select value={formData.language} onValueChange={(value) => handleInputChange('language', value)}>
+              <SelectTrigger id="language" className="mt-1 bg-input-light dark:bg-input-dark">
+                <SelectValue placeholder="Select a language" />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="english">English</SelectItem>
+                <SelectItem value="telugu">Telugu</SelectItem>
+                <SelectItem value="hindi">Hindi</SelectItem>
+              </SelectContent>
+            </Select>
           </div>
         </div>
         
