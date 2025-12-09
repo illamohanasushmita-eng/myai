@@ -2,25 +2,28 @@
 
 **Status**: ✅ FIXED  
 **Date**: 2025-11-08  
-**Error**: `Module not found: Can't resolve 'tls'`  
+**Error**: `Module not found: Can't resolve 'tls'`
 
 ---
 
 ## 🔴 PROBLEM IDENTIFIED
 
 **Error Message**:
+
 ```
 Module not found: Can't resolve 'tls'
 ./node_modules/@grpc/grpc-js/build/src/channel-credentials.js:20:1
 ```
 
 **Root Cause**:
+
 - `intent-classifier.ts` was being imported in a **CLIENT component**
 - `intent-classifier.ts` uses `@genkit-ai/core` which requires Node.js modules
 - `tls` is a Node.js built-in module that doesn't exist in the browser
 - This caused a build error
 
 **Import Chain**:
+
 ```
 VoiceCommandButton.tsx (CLIENT)
     ↓
@@ -48,15 +51,24 @@ Moved intent classification to **SERVER-SIDE API** instead of client-side.
 #### 1. **Updated `useLaraAssistant.ts`** (Lines 1-162)
 
 **Removed**:
+
 ```typescript
-import { classifyIntent, Intent } from '@/lib/ai/intent-classifier';
+import { classifyIntent, Intent } from "@/lib/ai/intent-classifier";
 ```
 
 **Added**:
+
 ```typescript
 // Intent type definition (matches API response)
 export interface Intent {
-  intent: 'play_music' | 'add_task' | 'show_tasks' | 'add_reminder' | 'show_reminders' | 'navigate' | 'general_query';
+  intent:
+    | "play_music"
+    | "add_task"
+    | "show_tasks"
+    | "add_reminder"
+    | "show_reminders"
+    | "navigate"
+    | "general_query";
   query: string;
   navigationTarget?: string;
   musicQuery?: string;
@@ -68,33 +80,34 @@ export interface Intent {
 ```
 
 **Added API Call Function** (Lines 130-162):
+
 ```typescript
 const classifyIntent = useCallback(async (text: string): Promise<Intent> => {
   try {
-    console.log('🎤 Classifying intent for:', text);
+    console.log("🎤 Classifying intent for:", text);
 
-    const response = await fetch('/api/ai/voice-automation/classify', {
-      method: 'POST',
+    const response = await fetch("/api/ai/voice-automation/classify", {
+      method: "POST",
       headers: {
-        'Content-Type': 'application/json',
+        "Content-Type": "application/json",
       },
       body: JSON.stringify({ text }),
     });
 
     if (!response.ok) {
-      throw new Error('Failed to classify intent');
+      throw new Error("Failed to classify intent");
     }
 
     const data = await response.json();
-    
+
     if (!data.success || !data.intent) {
-      throw new Error('Invalid intent response');
+      throw new Error("Invalid intent response");
     }
 
-    console.log('✅ Intent classified:', data.intent);
+    console.log("✅ Intent classified:", data.intent);
     return data.intent;
   } catch (err) {
-    console.error('❌ Error classifying intent:', err);
+    console.error("❌ Error classifying intent:", err);
     throw err;
   }
 }, []);
@@ -103,11 +116,13 @@ const classifyIntent = useCallback(async (text: string): Promise<Intent> => {
 #### 2. **Updated Dependency Array** (Line 215)
 
 **Before**:
+
 ```typescript
 }, [recordForFixedDuration, geminiSTT, options]);
 ```
 
 **After**:
+
 ```typescript
 }, [recordForFixedDuration, geminiSTT, classifyIntent, options]);
 ```
@@ -115,25 +130,29 @@ const classifyIntent = useCallback(async (text: string): Promise<Intent> => {
 #### 3. **Updated `VoiceCommandButton.tsx`** (Lines 3-7)
 
 **Before**:
+
 ```typescript
-import { Intent } from '@/lib/ai/intent-classifier';
+import { Intent } from "@/lib/ai/intent-classifier";
 ```
 
 **After**:
+
 ```typescript
-import { useLaraAssistant, type Intent } from '@/hooks/useLaraAssistant';
+import { useLaraAssistant, type Intent } from "@/hooks/useLaraAssistant";
 ```
 
 #### 4. **Updated `LaraAssistantButton.tsx`** (Lines 3-7)
 
 **Before**:
+
 ```typescript
-import { Intent } from '@/lib/ai/intent-classifier';
+import { Intent } from "@/lib/ai/intent-classifier";
 ```
 
 **After**:
+
 ```typescript
-import { useLaraAssistant, type Intent } from '@/hooks/useLaraAssistant';
+import { useLaraAssistant, type Intent } from "@/hooks/useLaraAssistant";
 ```
 
 ---
@@ -141,6 +160,7 @@ import { useLaraAssistant, type Intent } from '@/hooks/useLaraAssistant';
 ## 🔄 NEW ARCHITECTURE
 
 ### **Before** (❌ Broken):
+
 ```
 CLIENT COMPONENT
     ↓
@@ -154,6 +174,7 @@ intent-classifier.ts (CLIENT - uses Genkit)
 ```
 
 ### **After** (✅ Fixed):
+
 ```
 CLIENT COMPONENT
     ↓
@@ -174,13 +195,13 @@ intent-classifier.ts (SERVER - uses Genkit)
 
 ## 📊 BENEFITS
 
-| Aspect | Before | After |
-|--------|--------|-------|
-| **Build** | ❌ Error | ✅ Success |
-| **Client Size** | Large | Smaller |
+| Aspect              | Before        | After        |
+| ------------------- | ------------- | ------------ |
+| **Build**           | ❌ Error      | ✅ Success   |
+| **Client Size**     | Large         | Smaller      |
 | **Node.js Modules** | ❌ In browser | ✅ On server |
-| **Performance** | N/A | Better |
-| **Security** | Exposed | Protected |
+| **Performance**     | N/A           | Better       |
+| **Security**        | Exposed       | Protected    |
 
 ---
 
@@ -229,11 +250,13 @@ intent-classifier.ts (SERVER - uses Genkit)
 ## 🚀 NEXT STEPS
 
 1. **Rebuild the project**:
+
    ```bash
    npm run build
    ```
 
 2. **Start the development server**:
+
    ```bash
    npm run dev
    ```
@@ -250,6 +273,7 @@ intent-classifier.ts (SERVER - uses Genkit)
 ## 📋 EXPECTED BEHAVIOR
 
 ### Console Logs:
+
 ```
 🎤 Starting assistant
 🎤 Wake word detected!
@@ -278,12 +302,14 @@ intent-classifier.ts (SERVER - uses Genkit)
 The issue was that client-side code was trying to use Node.js modules. The solution was to move intent classification to a server-side API route.
 
 **Key Changes**:
+
 1. ✅ Removed Genkit import from client code
 2. ✅ Added Intent type to useLaraAssistant hook
 3. ✅ Created API call to server-side classifier
 4. ✅ Updated component imports
 
 **Result**:
+
 - ✅ Build succeeds
 - ✅ No module errors
 - ✅ Pipeline works end-to-end
@@ -292,5 +318,3 @@ The issue was that client-side code was trying to use Node.js modules. The solut
 ---
 
 **Your application is now ready to build and deploy!** 🚀✨
-
-

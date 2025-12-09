@@ -1,9 +1,9 @@
-'use client';
+"use client";
 
-import { useState } from 'react';
-import { Button } from '@/components/ui/button';
-import { Input } from '@/components/ui/input';
-import { Textarea } from '@/components/ui/textarea';
+import { useState } from "react";
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import { Textarea } from "@/components/ui/textarea";
 import {
   Dialog,
   DialogContent,
@@ -11,15 +11,15 @@ import {
   DialogHeader,
   DialogTitle,
   DialogFooter,
-} from '@/components/ui/dialog';
+} from "@/components/ui/dialog";
 import {
   Select,
   SelectContent,
   SelectItem,
   SelectTrigger,
   SelectValue,
-} from '@/components/ui/select';
-import { createAppointment } from '@/lib/services/healthRecordService';
+} from "@/components/ui/select";
+import { createAppointment } from "@/lib/services/healthRecordService";
 
 interface AddAppointmentModalProps {
   isOpen: boolean;
@@ -28,52 +28,56 @@ interface AddAppointmentModalProps {
 }
 
 const STATUS_OPTIONS = [
-  { id: 'scheduled', label: 'Scheduled' },
-  { id: 'confirmed', label: 'Confirmed' },
-  { id: 'completed', label: 'Completed' },
-  { id: 'cancelled', label: 'Cancelled' },
+  { id: "scheduled", label: "Scheduled" },
+  { id: "confirmed", label: "Confirmed" },
+  { id: "completed", label: "Completed" },
+  { id: "cancelled", label: "Cancelled" },
 ];
 
-export function AddAppointmentModal({ isOpen, onClose, onSuccess }: AddAppointmentModalProps) {
-  const [title, setTitle] = useState('');
-  const [doctorName, setDoctorName] = useState('');
-  const [clinicName, setClinicName] = useState('');
-  const [appointmentDate, setAppointmentDate] = useState('');
-  const [appointmentTime, setAppointmentTime] = useState('');
-  const [location, setLocation] = useState('');
-  const [durationMinutes, setDurationMinutes] = useState('');
-  const [notes, setNotes] = useState('');
+export function AddAppointmentModal({
+  isOpen,
+  onClose,
+  onSuccess,
+}: AddAppointmentModalProps) {
+  const [title, setTitle] = useState("");
+  const [doctorName, setDoctorName] = useState("");
+  const [clinicName, setClinicName] = useState("");
+  const [appointmentDate, setAppointmentDate] = useState("");
+  const [appointmentTime, setAppointmentTime] = useState("");
+  const [location, setLocation] = useState("");
+  const [durationMinutes, setDurationMinutes] = useState("");
+  const [notes, setNotes] = useState("");
   const [isLoading, setIsLoading] = useState(false);
-  const [error, setError] = useState('');
+  const [error, setError] = useState("");
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    setError('');
+    setError("");
 
     if (!title.trim()) {
-      setError('Appointment title is required');
+      setError("Appointment title is required");
       return;
     }
 
     if (!appointmentDate) {
-      setError('Appointment date is required');
+      setError("Appointment date is required");
       return;
     }
 
     if (!appointmentTime) {
-      setError('Appointment time is required');
+      setError("Appointment time is required");
       return;
     }
 
-    const userId = localStorage.getItem('userId');
+    const userId = localStorage.getItem("userId");
     if (!userId) {
-      setError('User not authenticated');
+      setError("User not authenticated");
       return;
     }
 
     try {
       setIsLoading(true);
-      
+
       // Combine date and time into ISO string
       const dateTimeString = `${appointmentDate}T${appointmentTime}:00`;
       const appointmentDateTime = new Date(dateTimeString).toISOString();
@@ -83,27 +87,33 @@ export function AddAppointmentModal({ isOpen, onClose, onSuccess }: AddAppointme
         doctor_name: doctorName.trim() || undefined,
         clinic_name: clinicName.trim() || undefined,
         appointment_date: appointmentDateTime,
-        duration_minutes: durationMinutes ? parseInt(durationMinutes) : undefined,
+        duration_minutes: durationMinutes
+          ? parseInt(durationMinutes)
+          : undefined,
         location: location.trim() || undefined,
         notes: notes.trim() || undefined,
-        status: 'scheduled',
+        status: "scheduled",
       });
 
       // Reset form
-      setTitle('');
-      setDoctorName('');
-      setClinicName('');
-      setAppointmentDate('');
-      setAppointmentTime('');
-      setLocation('');
-      setDurationMinutes('');
-      setNotes('');
+      setTitle("");
+      setDoctorName("");
+      setClinicName("");
+      setAppointmentDate("");
+      setAppointmentTime("");
+      setLocation("");
+      setDurationMinutes("");
+      setNotes("");
 
       onClose();
       onSuccess?.();
     } catch (err) {
-      console.error('Error creating appointment:', err);
-      setError(err instanceof Error ? err.message : 'Failed to schedule appointment. Please try again.');
+      console.error("Error creating appointment:", err);
+      setError(
+        err instanceof Error
+          ? err.message
+          : "Failed to schedule appointment. Please try again.",
+      );
     } finally {
       setIsLoading(false);
     }
@@ -224,7 +234,7 @@ export function AddAppointmentModal({ isOpen, onClose, onSuccess }: AddAppointme
               Cancel
             </Button>
             <Button type="submit" disabled={isLoading}>
-              {isLoading ? 'Scheduling...' : 'Schedule Appointment'}
+              {isLoading ? "Scheduling..." : "Schedule Appointment"}
             </Button>
           </DialogFooter>
         </form>
@@ -232,4 +242,3 @@ export function AddAppointmentModal({ isOpen, onClose, onSuccess }: AddAppointme
     </Dialog>
   );
 }
-

@@ -1,4 +1,4 @@
-'use server';
+"use server";
 /**
  * @fileOverview Flow for suggesting personalized improvements to a user's daily plan.
  *
@@ -7,41 +7,49 @@
  * - SuggestImprovementsOutput - The return type for the suggestImprovements function.
  */
 
-import {ai} from '@/ai/genkit';
-import {z} from 'genkit';
+import { ai } from "@/ai/genkit";
+import { z } from "genkit";
 
 const SuggestImprovementsInputSchema = z.object({
-  dailyPlan: z.string().describe('The user\'s current daily plan.'),
+  dailyPlan: z.string().describe("The user's current daily plan."),
   pastPerformance: z
     .string()
-    .describe('A summary of the user\'s past performance and habits.'),
-  deadlines: z.string().describe('A list of the user\'s upcoming deadlines.'),
+    .describe("A summary of the user's past performance and habits."),
+  deadlines: z.string().describe("A list of the user's upcoming deadlines."),
 });
-export type SuggestImprovementsInput = z.infer<typeof SuggestImprovementsInputSchema>;
+export type SuggestImprovementsInput = z.infer<
+  typeof SuggestImprovementsInputSchema
+>;
 
 const SuggestImprovementsOutputSchema = z.object({
   improvements: z
     .string()
     .describe(
-      'A list of personalized suggestions for improving the user\'s daily plan.'
+      "A list of personalized suggestions for improving the user's daily plan.",
     ),
   reasoning: z
     .string()
     .describe(
-      'The AI\'s reasoning for suggesting the improvements, based on the user\'s past performance, habits, and deadlines.'
+      "The AI's reasoning for suggesting the improvements, based on the user's past performance, habits, and deadlines.",
     ),
-  isWellSuited: z.boolean().describe('Whether the suggestion is well suited to the specific context.'),
+  isWellSuited: z
+    .boolean()
+    .describe("Whether the suggestion is well suited to the specific context."),
 });
-export type SuggestImprovementsOutput = z.infer<typeof SuggestImprovementsOutputSchema>;
+export type SuggestImprovementsOutput = z.infer<
+  typeof SuggestImprovementsOutputSchema
+>;
 
-export async function suggestImprovements(input: SuggestImprovementsInput): Promise<SuggestImprovementsOutput> {
+export async function suggestImprovements(
+  input: SuggestImprovementsInput,
+): Promise<SuggestImprovementsOutput> {
   return suggestImprovementsFlow(input);
 }
 
 const prompt = ai.definePrompt({
-  name: 'suggestImprovementsPrompt',
-  input: {schema: SuggestImprovementsInputSchema},
-  output: {schema: SuggestImprovementsOutputSchema},
+  name: "suggestImprovementsPrompt",
+  input: { schema: SuggestImprovementsInputSchema },
+  output: { schema: SuggestImprovementsOutputSchema },
   prompt: `You are an AI assistant designed to help users optimize their daily plans for maximum productivity.
 
   Based on the user\'s current daily plan, past performance, habits, and upcoming deadlines, provide personalized suggestions for improvement.
@@ -62,12 +70,12 @@ const prompt = ai.definePrompt({
 
 const suggestImprovementsFlow = ai.defineFlow(
   {
-    name: 'suggestImprovementsFlow',
+    name: "suggestImprovementsFlow",
     inputSchema: SuggestImprovementsInputSchema,
     outputSchema: SuggestImprovementsOutputSchema,
   },
-  async input => {
-    const {output} = await prompt(input);
+  async (input) => {
+    const { output } = await prompt(input);
     return output!;
-  }
+  },
 );

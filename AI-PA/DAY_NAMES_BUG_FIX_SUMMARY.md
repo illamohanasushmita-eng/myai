@@ -16,11 +16,13 @@ The regex pattern in `src/lib/lara/cohere-intent.ts` (line 215) was missing day 
 **File**: `src/lib/lara/cohere-intent.ts` (Line 215)
 
 **Old Regex Pattern**:
+
 ```regex
 /(?:remind|set\s+reminder)\s+me\s+(?:to\s+)?(.+?)\s+((?:tomorrow|today|tonight|next\s+\w+|\d{1,2}(?::\d{2})?\s*(?:am|pm)?))$/i
 ```
 
 **Problem**: This pattern only recognized:
+
 - ✅ "tomorrow"
 - ✅ "today"
 - ✅ "tonight"
@@ -33,12 +35,14 @@ The regex pattern in `src/lib/lara/cohere-intent.ts` (line 215) was missing day 
 **Command**: "Remind me to attend the meeting Tuesday"
 
 **Entity Extraction Result**:
+
 ```
 description: "attend the meeting tuesday"  (includes "tuesday"!)
 time: ""                                    (empty - "tuesday" not recognized)
 ```
 
 **Then in convertToISOTimestamp()**:
+
 - Receives: `text="attend the meeting tuesday"`, `timeStr=""`
 - Looks for day names in the text
 - Finds "tuesday" in the text ✅
@@ -49,9 +53,11 @@ time: ""                                    (empty - "tuesday" not recognized)
 ## Fix Applied
 
 ### Changed File
+
 **File**: `src/lib/lara/cohere-intent.ts` (Line 220)
 
 **New Regex Pattern**:
+
 ```regex
 /(?:remind|set\s+reminder)\s+me\s+(?:to\s+)?(.+?)\s+((?:tomorrow|today|tonight|monday|tuesday|wednesday|thursday|friday|saturday|sunday|next\s+\w+|\d{1,2}(?::\d{2})?\s*(?:am|pm)?))$/i
 ```
@@ -61,6 +67,7 @@ time: ""                                    (empty - "tuesday" not recognized)
 ### What Changed
 
 Now the regex recognizes:
+
 - ✅ "tomorrow"
 - ✅ "today"
 - ✅ "tonight"
@@ -79,12 +86,14 @@ Now the regex recognizes:
 **Command**: "Remind me to attend the meeting Tuesday"
 
 **Entity Extraction Result**:
+
 ```
 description: "attend the meeting"  (correct!)
 time: "tuesday"                     (recognized!)
 ```
 
 **Then in convertToISOTimestamp()**:
+
 - Receives: `text="attend the meeting"`, `timeStr="tuesday"`
 - Looks for day names in the timeStr
 - Finds "tuesday" ✅
@@ -95,6 +104,7 @@ time: "tuesday"                     (recognized!)
 ## Test Cases
 
 ### Test 1: Day Name Only
+
 ```
 Command: "Remind me to attend the meeting Tuesday"
 Expected: Reminder for next Tuesday at current time + 1 hour
@@ -102,6 +112,7 @@ Status: ✅ FIXED
 ```
 
 ### Test 2: Day Name with Time
+
 ```
 Command: "Remind me to attend the meeting Tuesday at 3 PM"
 Expected: Reminder for next Tuesday at 3:00 PM
@@ -109,6 +120,7 @@ Status: ✅ FIXED
 ```
 
 ### Test 3: All Day Names
+
 ```
 Commands:
 - "Remind me Monday"
@@ -124,6 +136,7 @@ Status: ✅ FIXED
 ```
 
 ### Test 4: Backward Compatibility
+
 ```
 Commands:
 - "Remind me tomorrow at 5 PM"
@@ -137,18 +150,22 @@ Status: ✅ BACKWARD COMPATIBLE
 ## Verification Steps
 
 ### Step 1: Restart Dev Server
+
 ```bash
 npm run dev
 ```
 
 ### Step 2: Test Voice Command
+
 1. Go to http://localhost:3002/test-lara
 2. Click Start
 3. Say "Hey Lara"
 4. Say "Remind me to attend the meeting Tuesday"
 
 ### Step 3: Check Console Logs
+
 Press F12 and look for:
+
 ```
 📌 Description: attend the meeting Length: 18
 📌 Time: tuesday Length: 7
@@ -158,12 +175,14 @@ Press F12 and look for:
 ```
 
 ### Step 4: Verify in UI
+
 - Go to /reminders page
 - Reminder should appear in "Upcoming" section
 - Date should be next Tuesday
 - NOT in "Overdue" section
 
 ### Step 5: Verify in Database
+
 1. Go to Supabase dashboard
 2. Check "reminders" table
 3. Find the reminder
@@ -200,6 +219,7 @@ Press F12 and look for:
 **Day name reminders are now fully functional!**
 
 Users can now create reminders using natural day names:
+
 - "Remind me Tuesday"
 - "Remind me to attend the meeting Tuesday"
 - "Remind me Tuesday at 3 PM"
@@ -212,4 +232,3 @@ The system correctly extracts the day name, calculates the next upcoming occurre
 1. `DEBUG_DAY_NAMES_ISSUE.md` - Detailed debugging guide
 2. `TEST_REGEX_FIX.md` - Regex pattern comparison and tests
 3. `DAY_NAMES_BUG_FIX_SUMMARY.md` - This file (summary)
-

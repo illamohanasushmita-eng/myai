@@ -1,4 +1,3 @@
-
 import { Button } from "@/components/ui/button";
 import Link from "next/link";
 import BottomNav from "@/components/layout/bottom-nav";
@@ -10,19 +9,23 @@ export default function InsightsPage() {
       <div className="flex flex-col min-h-screen bg-[#D6EAF8]">
         <header className="sticky top-0 bg-transparent backdrop-blur-sm z-10">
           <div className="flex items-center p-4">
-            <Button asChild variant="ghost" className="p-2 rounded-full hover:bg-primary/10">
-                <Link href="/dashboard">
-                    <svg
-                    className="text-gray-800"
-                    fill="currentColor"
-                    height="24"
-                    viewBox="0 0 256 256"
-                    width="24"
-                    xmlns="http://www.w3.org/2000/svg"
-                    >
-                    <path d="M224,128a8,8,0,0,1-8,8H40a8,8,0,0,1,0-16H216A8,8,0,0,1,224,128ZM40,72H216a8,8,0,0,0,0-16H40a8,8,0,0,0,0,16ZM216,184H40a8,8,0,0,0,0,16H216a8,8,0,0,0,0-16Z"></path>
-                    </svg>
-                </Link>
+            <Button
+              asChild
+              variant="ghost"
+              className="p-2 rounded-full hover:bg-primary/10"
+            >
+              <Link href="/dashboard">
+                <svg
+                  className="text-gray-800"
+                  fill="currentColor"
+                  height="24"
+                  viewBox="0 0 256 256"
+                  width="24"
+                  xmlns="http://www.w3.org/2000/svg"
+                >
+                  <path d="M224,128a8,8,0,0,1-8,8H40a8,8,0,0,1,0-16H216A8,8,0,0,1,224,128ZM40,72H216a8,8,0,0,0,0-16H40a8,8,0,0,0,0,16ZM216,184H40a8,8,0,0,0,0,16H216a8,8,0,0,0,0-16Z"></path>
+                </svg>
+              </Link>
             </Button>
             <h1 className="text-lg font-bold text-center flex-1 pr-10 text-gray-800">
               Insights
@@ -129,7 +132,10 @@ export default function InsightsPage() {
                     Set specific times for tasks to improve focus.
                   </p>
                 </div>
-                <Button variant="link" className="ml-auto text-accent-teal font-bold text-sm">
+                <Button
+                  variant="link"
+                  className="ml-auto text-accent-teal font-bold text-sm"
+                >
                   Try It
                 </Button>
               </div>
@@ -152,7 +158,10 @@ export default function InsightsPage() {
                     Check your weekly progress and stay motivated.
                   </p>
                 </div>
-                <Button variant="link" className="ml-auto text-accent-orange font-bold text-sm">
+                <Button
+                  variant="link"
+                  className="ml-auto text-accent-orange font-bold text-sm"
+                >
                   Review
                 </Button>
               </div>

@@ -1,8 +1,8 @@
-'use client';
+"use client";
 
-import { useState } from 'react';
-import { Button } from '@/components/ui/button';
-import { Input } from '@/components/ui/input';
+import { useState } from "react";
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
 import {
   Dialog,
   DialogContent,
@@ -10,8 +10,8 @@ import {
   DialogHeader,
   DialogTitle,
   DialogFooter,
-} from '@/components/ui/dialog';
-import { createSmartDevice } from '@/lib/services/smartHomeService';
+} from "@/components/ui/dialog";
+import { createSmartDevice } from "@/lib/services/smartHomeService";
 
 interface AddDeviceModalProps {
   isOpen: boolean;
@@ -20,35 +20,39 @@ interface AddDeviceModalProps {
 }
 
 const DEVICE_TYPES = [
-  { id: 'light', label: 'Light', icon: 'lightbulb' },
-  { id: 'thermostat', label: 'Thermostat', icon: 'thermostat' },
-  { id: 'tv', label: 'TV', icon: 'tv' },
-  { id: 'speaker', label: 'Speaker', icon: 'speaker' },
-  { id: 'camera', label: 'Camera', icon: 'videocam' },
-  { id: 'lock', label: 'Smart Lock', icon: 'lock' },
-  { id: 'plug', label: 'Smart Plug', icon: 'power' },
-  { id: 'other', label: 'Other', icon: 'devices' },
+  { id: "light", label: "Light", icon: "lightbulb" },
+  { id: "thermostat", label: "Thermostat", icon: "thermostat" },
+  { id: "tv", label: "TV", icon: "tv" },
+  { id: "speaker", label: "Speaker", icon: "speaker" },
+  { id: "camera", label: "Camera", icon: "videocam" },
+  { id: "lock", label: "Smart Lock", icon: "lock" },
+  { id: "plug", label: "Smart Plug", icon: "power" },
+  { id: "other", label: "Other", icon: "devices" },
 ];
 
-export function AddDeviceModal({ isOpen, onClose, onSuccess }: AddDeviceModalProps) {
-  const [deviceName, setDeviceName] = useState('');
-  const [deviceType, setDeviceType] = useState('light');
-  const [location, setLocation] = useState('');
+export function AddDeviceModal({
+  isOpen,
+  onClose,
+  onSuccess,
+}: AddDeviceModalProps) {
+  const [deviceName, setDeviceName] = useState("");
+  const [deviceType, setDeviceType] = useState("light");
+  const [location, setLocation] = useState("");
   const [isLoading, setIsLoading] = useState(false);
-  const [error, setError] = useState('');
+  const [error, setError] = useState("");
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    setError('');
+    setError("");
 
     if (!deviceName.trim()) {
-      setError('Device name is required');
+      setError("Device name is required");
       return;
     }
 
-    const userId = localStorage.getItem('userId');
+    const userId = localStorage.getItem("userId");
     if (!userId) {
-      setError('User not authenticated');
+      setError("User not authenticated");
       return;
     }
 
@@ -59,19 +63,19 @@ export function AddDeviceModal({ isOpen, onClose, onSuccess }: AddDeviceModalPro
         device_type: deviceType,
         location: location || undefined,
         is_active: true,
-        status: 'online',
+        status: "online",
       });
 
       // Reset form
-      setDeviceName('');
-      setDeviceType('light');
-      setLocation('');
+      setDeviceName("");
+      setDeviceType("light");
+      setLocation("");
 
       onClose();
       onSuccess?.();
     } catch (err) {
-      console.error('Error creating device:', err);
-      setError('Failed to create device. Please try again.');
+      console.error("Error creating device:", err);
+      setError("Failed to create device. Please try again.");
     } finally {
       setIsLoading(false);
     }
@@ -90,7 +94,9 @@ export function AddDeviceModal({ isOpen, onClose, onSuccess }: AddDeviceModalPro
         <form onSubmit={handleSubmit} className="space-y-4">
           {/* Device Name */}
           <div>
-            <label className="block text-sm font-medium mb-2">Device Name *</label>
+            <label className="block text-sm font-medium mb-2">
+              Device Name *
+            </label>
             <Input
               placeholder="e.g., Living Room Light"
               value={deviceName}
@@ -101,7 +107,9 @@ export function AddDeviceModal({ isOpen, onClose, onSuccess }: AddDeviceModalPro
 
           {/* Device Type */}
           <div>
-            <label className="block text-sm font-medium mb-2">Device Type *</label>
+            <label className="block text-sm font-medium mb-2">
+              Device Type *
+            </label>
             <div className="grid grid-cols-4 gap-2">
               {DEVICE_TYPES.map((type) => (
                 <button
@@ -110,12 +118,14 @@ export function AddDeviceModal({ isOpen, onClose, onSuccess }: AddDeviceModalPro
                   onClick={() => setDeviceType(type.id)}
                   className={`p-3 rounded-lg border-2 transition-all flex flex-col items-center gap-1 ${
                     deviceType === type.id
-                      ? 'border-primary bg-primary/10'
-                      : 'border-border-light dark:border-border-dark hover:border-primary/50'
+                      ? "border-primary bg-primary/10"
+                      : "border-border-light dark:border-border-dark hover:border-primary/50"
                   }`}
                   disabled={isLoading}
                 >
-                  <span className="material-symbols-outlined text-lg">{type.icon}</span>
+                  <span className="material-symbols-outlined text-lg">
+                    {type.icon}
+                  </span>
                   <span className="text-xs text-center">{type.label}</span>
                 </button>
               ))}
@@ -124,7 +134,9 @@ export function AddDeviceModal({ isOpen, onClose, onSuccess }: AddDeviceModalPro
 
           {/* Location */}
           <div>
-            <label className="block text-sm font-medium mb-2">Location (Optional)</label>
+            <label className="block text-sm font-medium mb-2">
+              Location (Optional)
+            </label>
             <Input
               placeholder="e.g., Living Room"
               value={location}
@@ -150,7 +162,7 @@ export function AddDeviceModal({ isOpen, onClose, onSuccess }: AddDeviceModalPro
               Cancel
             </Button>
             <Button type="submit" disabled={isLoading}>
-              {isLoading ? 'Creating...' : 'Add Device'}
+              {isLoading ? "Creating..." : "Add Device"}
             </Button>
           </DialogFooter>
         </form>
@@ -158,4 +170,3 @@ export function AddDeviceModal({ isOpen, onClose, onSuccess }: AddDeviceModalPro
     </Dialog>
   );
 }
-

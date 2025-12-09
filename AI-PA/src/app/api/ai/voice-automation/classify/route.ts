@@ -3,23 +3,23 @@
  * Uses OpenAI to classify voice commands into intents
  */
 
-import { NextRequest, NextResponse } from 'next/server';
-import OpenAI from 'openai';
-import { z } from 'zod';
+import { NextRequest, NextResponse } from "next/server";
+import OpenAI from "openai";
+import { z } from "zod";
 
 const RequestSchema = z.object({
-  text: z.string().min(1, 'Text is required'),
+  text: z.string().min(1, "Text is required"),
 });
 
 const IntentSchema = z.object({
   intent: z.enum([
-    'play_music',
-    'add_task',
-    'show_tasks',
-    'add_reminder',
-    'show_reminders',
-    'navigate',
-    'general_query',
+    "play_music",
+    "add_task",
+    "show_tasks",
+    "add_reminder",
+    "show_reminders",
+    "navigate",
+    "general_query",
   ]),
   query: z.string(),
   navigationTarget: z.string().optional(),
@@ -41,10 +41,10 @@ export async function POST(request: NextRequest) {
     const { text } = RequestSchema.parse(body);
 
     const response = await openai.chat.completions.create({
-      model: 'gpt-4o-mini',
+      model: "gpt-4o-mini",
       messages: [
         {
-          role: 'system',
+          role: "system",
           content: `You are an AI assistant that classifies voice commands for a personal assistant application called "Lara".
 
 Analyze the user's voice command and classify it into one of these intents:
@@ -71,7 +71,7 @@ Respond with a JSON object containing:
 Be precise and extract all relevant information from the command. Return ONLY valid JSON.`,
         },
         {
-          role: 'user',
+          role: "user",
           content: `Classify this command: ${text}`,
         },
       ],
@@ -84,9 +84,9 @@ Be precise and extract all relevant information from the command. Return ONLY va
       return NextResponse.json(
         {
           success: false,
-          error: 'Failed to classify intent',
+          error: "Failed to classify intent",
         },
-        { status: 500 }
+        { status: 500 },
       );
     }
 
@@ -98,26 +98,25 @@ Be precise and extract all relevant information from the command. Return ONLY va
       intent: validatedIntent,
     });
   } catch (error) {
-    console.error('Intent classification error:', error);
+    console.error("Intent classification error:", error);
 
     if (error instanceof z.ZodError) {
       return NextResponse.json(
         {
           success: false,
-          error: 'Invalid request',
+          error: "Invalid request",
           details: error.errors,
         },
-        { status: 400 }
+        { status: 400 },
       );
     }
 
     return NextResponse.json(
       {
         success: false,
-        error: 'Internal server error',
+        error: "Internal server error",
       },
-      { status: 500 }
+      { status: 500 },
     );
   }
 }
-

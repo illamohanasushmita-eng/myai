@@ -1,6 +1,6 @@
-'use client';
+"use client";
 
-import { useCallback, useState } from 'react';
+import { useCallback, useState } from "react";
 
 interface UseSpeechRecognitionOptions {
   onTranscriptionStart?: () => void;
@@ -19,7 +19,7 @@ interface UseSpeechRecognitionReturn {
  * Converts audio blobs to text
  */
 export function useSpeechRecognition(
-  options: UseSpeechRecognitionOptions = {}
+  options: UseSpeechRecognitionOptions = {},
 ): UseSpeechRecognitionReturn {
   const [isTranscribing, setIsTranscribing] = useState(false);
   const [transcribedText, setTranscribedText] = useState<string | null>(null);
@@ -32,11 +32,11 @@ export function useSpeechRecognition(
 
         // Create FormData for multipart upload
         const formData = new FormData();
-        formData.append('audio', audioBlob, 'audio.webm');
+        formData.append("audio", audioBlob, "audio.webm");
 
         // Call our API endpoint
-        const response = await fetch('/api/ai/transcribe', {
-          method: 'POST',
+        const response = await fetch("/api/ai/transcribe", {
+          method: "POST",
           body: formData,
         });
 
@@ -47,25 +47,26 @@ export function useSpeechRecognition(
         const data = await response.json();
 
         if (!data.success) {
-          throw new Error(data.error || 'Transcription failed');
+          throw new Error(data.error || "Transcription failed");
         }
 
         const text = data.text;
         setTranscribedText(text);
         options.onTranscriptionComplete?.(text);
 
-        console.log('✅ Transcribed:', text);
+        console.log("✅ Transcribed:", text);
         return text;
       } catch (error) {
-        const errorMessage = error instanceof Error ? error.message : 'Transcription error';
-        console.error('❌ Transcription error:', errorMessage);
+        const errorMessage =
+          error instanceof Error ? error.message : "Transcription error";
+        console.error("❌ Transcription error:", errorMessage);
         options.onError?.(errorMessage);
         return null;
       } finally {
         setIsTranscribing(false);
       }
     },
-    [options]
+    [options],
   );
 
   return {
@@ -74,4 +75,3 @@ export function useSpeechRecognition(
     transcribeAudio,
   };
 }
-

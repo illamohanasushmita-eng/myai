@@ -1,6 +1,6 @@
-import { NextRequest, NextResponse } from 'next/server';
-import OpenAI from 'openai';
-import { z } from 'zod';
+import { NextRequest, NextResponse } from "next/server";
+import OpenAI from "openai";
+import { z } from "zod";
 
 /**
  * Speech-to-Text API endpoint
@@ -14,31 +14,36 @@ export async function POST(request: NextRequest) {
     });
 
     const formData = await request.formData();
-    const audioFile = formData.get('audio') as File;
+    const audioFile = formData.get("audio") as File;
 
     if (!audioFile) {
       return NextResponse.json(
-        { error: 'No audio file provided' },
-        { status: 400 }
+        { error: "No audio file provided" },
+        { status: 400 },
       );
     }
 
-    console.log('🎤 Received audio file:', audioFile.name, audioFile.size, 'bytes');
+    console.log(
+      "🎤 Received audio file:",
+      audioFile.name,
+      audioFile.size,
+      "bytes",
+    );
 
     // Use OpenAI Whisper to transcribe audio
     const transcription = await openai.audio.transcriptions.create({
       file: audioFile,
-      model: 'whisper-1',
+      model: "whisper-1",
     });
 
     if (!transcription.text) {
       return NextResponse.json(
-        { error: 'Failed to transcribe audio' },
-        { status: 500 }
+        { error: "Failed to transcribe audio" },
+        { status: 500 },
       );
     }
 
-    console.log('✅ Transcribed text:', transcription.text);
+    console.log("✅ Transcribed text:", transcription.text);
 
     return NextResponse.json({
       success: true,
@@ -46,16 +51,15 @@ export async function POST(request: NextRequest) {
       confidence: 0.95,
     });
   } catch (error) {
-    console.error('❌ STT error:', error);
+    console.error("❌ STT error:", error);
 
     return NextResponse.json(
       {
         success: false,
-        error: 'Failed to process audio',
-        details: error instanceof Error ? error.message : 'Unknown error',
+        error: "Failed to process audio",
+        details: error instanceof Error ? error.message : "Unknown error",
       },
-      { status: 500 }
+      { status: 500 },
     );
   }
 }
-

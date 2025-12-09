@@ -31,12 +31,14 @@ Made `openUriScheme()` return a `Promise<void>` instead of `void`, so the code w
 ## Why This Works
 
 **Before:**
+
 ```
 Call searchInSpotifyApp() → Returns immediately → Code continues
 [Meanwhile, iframe is trying to open app, but page is already moving on]
 ```
 
 **After:**
+
 ```
 Call searchInSpotifyApp() → Waits for URI scheme attempt → Returns
 [App has time to open or timeout to trigger before code continues]
@@ -45,6 +47,7 @@ Call searchInSpotifyApp() → Waits for URI scheme attempt → Returns
 ## Testing
 
 ### Quick Test
+
 ```bash
 Say: "play telugu songs"
 Expected: Native app opens (if installed)
@@ -52,6 +55,7 @@ Fallback: Web player opens after 2.5s (if app not installed)
 ```
 
 ### Console Logs
+
 ```
 ✅ Success: "Spotify app opened (page lost focus)"
 🌐 Fallback: "Spotify app not found on Android after 2500ms"
@@ -71,4 +75,3 @@ Fallback: Web player opens after 2.5s (if app not installed)
 ## Deployment
 
 Ready to deploy immediately.
-

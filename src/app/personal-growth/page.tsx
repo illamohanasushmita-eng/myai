@@ -1,4 +1,3 @@
-
 "use client";
 
 import { Button } from "@/components/ui/button";
@@ -13,7 +12,10 @@ import {
 import { useState, useEffect } from "react";
 import { cn } from "@/lib/utils";
 import { AddGoalModal } from "@/components/modals/AddGoalModal";
-import { getUserGrowthGoals, deleteGrowthGoal } from "@/lib/services/habitService";
+import {
+  getUserGrowthGoals,
+  deleteGrowthGoal,
+} from "@/lib/services/habitService";
 import { GrowthGoal } from "@/lib/types/database";
 import { VoiceAssistantWrapper } from "@/components/layout/VoiceAssistantWrapper";
 import { useToast } from "@/hooks/use-toast";
@@ -45,13 +47,13 @@ export default function PersonalGrowthPage() {
   const loadGoals = async () => {
     try {
       setIsLoading(true);
-      const userId = localStorage.getItem('userId');
+      const userId = localStorage.getItem("userId");
       if (userId) {
         const fetchedGoals = await getUserGrowthGoals(userId);
         setGoals(fetchedGoals);
       }
     } catch (error) {
-      console.error('Error loading goals:', error);
+      console.error("Error loading goals:", error);
     } finally {
       setIsLoading(false);
     }
@@ -74,7 +76,7 @@ export default function PersonalGrowthPage() {
 
   // Handle delete goal
   const handleDeleteGoal = async (goalId: string) => {
-    if (!confirm('Are you sure you want to delete this goal?')) return;
+    if (!confirm("Are you sure you want to delete this goal?")) return;
 
     try {
       await deleteGrowthGoal(goalId);
@@ -84,7 +86,7 @@ export default function PersonalGrowthPage() {
       });
       loadGoals();
     } catch (error) {
-      console.error('Error deleting goal:', error);
+      console.error("Error deleting goal:", error);
       toast({
         title: "Error deleting goal",
         description: "Failed to delete the goal. Please try again.",
@@ -96,20 +98,48 @@ export default function PersonalGrowthPage() {
   // Helper function to get category icon and color
   const getCategoryIcon = (category?: string) => {
     switch (category?.toLowerCase()) {
-      case 'skill-acquisition':
-        return { icon: 'code', color: 'bg-purple-100 dark:bg-purple-900/50', textColor: 'text-purple-500 dark:text-purple-400' };
-      case 'reading-list':
-        return { icon: 'book', color: 'bg-yellow-100 dark:bg-yellow-900/50', textColor: 'text-yellow-500 dark:text-yellow-400' };
-      case 'habit-formation':
-        return { icon: 'repeat', color: 'bg-green-100 dark:bg-green-900/50', textColor: 'text-green-500 dark:text-green-400' };
-      case 'fitness':
-        return { icon: 'fitness_center', color: 'bg-red-100 dark:bg-red-900/50', textColor: 'text-red-500 dark:text-red-400' };
-      case 'career':
-        return { icon: 'work', color: 'bg-blue-100 dark:bg-blue-900/50', textColor: 'text-blue-500 dark:text-blue-400' };
-      case 'personal':
-        return { icon: 'person', color: 'bg-pink-100 dark:bg-pink-900/50', textColor: 'text-pink-500 dark:text-pink-400' };
+      case "skill-acquisition":
+        return {
+          icon: "code",
+          color: "bg-purple-100 dark:bg-purple-900/50",
+          textColor: "text-purple-500 dark:text-purple-400",
+        };
+      case "reading-list":
+        return {
+          icon: "book",
+          color: "bg-yellow-100 dark:bg-yellow-900/50",
+          textColor: "text-yellow-500 dark:text-yellow-400",
+        };
+      case "habit-formation":
+        return {
+          icon: "repeat",
+          color: "bg-green-100 dark:bg-green-900/50",
+          textColor: "text-green-500 dark:text-green-400",
+        };
+      case "fitness":
+        return {
+          icon: "fitness_center",
+          color: "bg-red-100 dark:bg-red-900/50",
+          textColor: "text-red-500 dark:text-red-400",
+        };
+      case "career":
+        return {
+          icon: "work",
+          color: "bg-blue-100 dark:bg-blue-900/50",
+          textColor: "text-blue-500 dark:text-blue-400",
+        };
+      case "personal":
+        return {
+          icon: "person",
+          color: "bg-pink-100 dark:bg-pink-900/50",
+          textColor: "text-pink-500 dark:text-pink-400",
+        };
       default:
-        return { icon: 'star', color: 'bg-gray-100 dark:bg-gray-900/50', textColor: 'text-gray-500 dark:text-gray-400' };
+        return {
+          icon: "star",
+          color: "bg-gray-100 dark:bg-gray-900/50",
+          textColor: "text-gray-500 dark:text-gray-400",
+        };
     }
   };
 
@@ -198,10 +228,17 @@ export default function PersonalGrowthPage() {
                 goals.map((goal) => {
                   const categoryInfo = getCategoryIcon(goal.category);
                   return (
-                    <div key={goal.goal_id} className="bg-card-light dark:bg-card-dark p-4 rounded-xl shadow-sm frosted-glass border border-white/30 dark:border-white/10">
+                    <div
+                      key={goal.goal_id}
+                      className="bg-card-light dark:bg-card-dark p-4 rounded-xl shadow-sm frosted-glass border border-white/30 dark:border-white/10"
+                    >
                       <div className="flex items-center mb-3">
-                        <div className={`w-10 h-10 flex-shrink-0 ${categoryInfo.color} rounded-full flex items-center justify-center mr-3`}>
-                          <span className={`material-symbols-outlined ${categoryInfo.textColor}`}>
+                        <div
+                          className={`w-10 h-10 flex-shrink-0 ${categoryInfo.color} rounded-full flex items-center justify-center mr-3`}
+                        >
+                          <span
+                            className={`material-symbols-outlined ${categoryInfo.textColor}`}
+                          >
                             {categoryInfo.icon}
                           </span>
                         </div>
@@ -210,7 +247,7 @@ export default function PersonalGrowthPage() {
                             {goal.title}
                           </h3>
                           <p className="text-xs text-subtle-light dark:text-subtle-dark">
-                            {goal.category || 'Other'}
+                            {goal.category || "Other"}
                           </p>
                         </div>
                         <DropdownMenu>
@@ -226,8 +263,17 @@ export default function PersonalGrowthPage() {
                             </Button>
                           </DropdownMenuTrigger>
                           <DropdownMenuContent align="end">
-                            <DropdownMenuItem onClick={() => handleEditGoal(goal.goal_id)}>Edit</DropdownMenuItem>
-                            <DropdownMenuItem className="text-destructive" onClick={() => handleDeleteGoal(goal.goal_id)}>Delete</DropdownMenuItem>
+                            <DropdownMenuItem
+                              onClick={() => handleEditGoal(goal.goal_id)}
+                            >
+                              Edit
+                            </DropdownMenuItem>
+                            <DropdownMenuItem
+                              className="text-destructive"
+                              onClick={() => handleDeleteGoal(goal.goal_id)}
+                            >
+                              Delete
+                            </DropdownMenuItem>
                           </DropdownMenuContent>
                         </DropdownMenu>
                       </div>

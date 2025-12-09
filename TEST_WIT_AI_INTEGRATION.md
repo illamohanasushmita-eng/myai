@@ -55,6 +55,7 @@
 ## Supported Fallback Commands
 
 ### Music Commands
+
 ```
 "play a song"
 "play [song name]"
@@ -64,6 +65,7 @@
 ```
 
 ### Task Commands
+
 ```
 "show my tasks"
 "what are my tasks"
@@ -74,6 +76,7 @@
 ```
 
 ### Reminder Commands
+
 ```
 "show my reminders"
 "what are my reminders"
@@ -83,6 +86,7 @@
 ```
 
 ### Navigation Commands
+
 ```
 "go to professional page"
 "open personal growth page"
@@ -108,6 +112,7 @@ Open terminal where dev server is running and look for:
 ### Check Browser Console
 
 Open DevTools (F12) and check:
+
 1. Network tab → Look for `/api/intent` requests
 2. Console tab → Look for logs from lara-assistant.ts
 
@@ -120,6 +125,7 @@ curl -X POST http://localhost:3002/api/intent \
 ```
 
 Expected response:
+
 ```json
 {
   "intent": "show_tasks",
@@ -146,31 +152,40 @@ Expected response:
 ## Troubleshooting
 
 ### Problem: Intent returns null
+
 **Check**:
+
 1. Is the text being sent to the API?
 2. Are the regex patterns matching?
 3. Check console for "Fallback intent detected"
 
 **Solution**:
+
 - Try exact phrases from the supported commands list
 - Check regex patterns in `src/lib/lara/witai-fallback.ts`
 
 ### Problem: Wrong intent detected
+
 **Check**:
+
 1. Which intent was detected?
 2. Does it match the command?
 
 **Solution**:
+
 - Update regex patterns in `witai-fallback.ts`
 - Or train Wit.ai with more utterances
 
 ### Problem: Microphone not working
+
 **Check**:
+
 1. Browser console for errors
 2. Microphone permissions
 3. Network tab for API errors
 
 **Solution**:
+
 - Allow microphone access
 - Check browser console for specific errors
 - Restart dev server
@@ -212,4 +227,3 @@ Once fallback is working, train Wit.ai:
 2. ✅ Verify microphone button works
 3. ⏭️ Train Wit.ai for better accuracy
 4. ⏭️ Add more custom patterns if needed
-

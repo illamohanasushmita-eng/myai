@@ -1,5 +1,4 @@
-
-"use client"
+"use client";
 import { Button } from "@/components/ui/button";
 import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
 import { Label } from "@/components/ui/label";
@@ -25,13 +24,18 @@ export default function VoiceCommandsPage() {
     setIsEditingPhrase(false);
   };
 
-
   return (
     <div className="flex flex-col h-screen bg-background-light dark:bg-background-dark text-foreground-light dark:text-foreground-dark">
       <header className="flex items-center justify-between p-4 border-b border-white/20 dark:border-black/20">
-        <Button asChild variant="ghost" className="p-2 rounded-full hover:bg-primary/10">
+        <Button
+          asChild
+          variant="ghost"
+          className="p-2 rounded-full hover:bg-primary/10"
+        >
           <Link href="/settings">
-            <span className="material-symbols-outlined text-foreground-light dark:text-foreground-dark">arrow_back_ios_new</span>
+            <span className="material-symbols-outlined text-foreground-light dark:text-foreground-dark">
+              arrow_back_ios_new
+            </span>
           </Link>
         </Button>
         <h1 className="text-lg font-bold">Voice Commands</h1>
@@ -40,7 +44,11 @@ export default function VoiceCommandsPage() {
       <main className="flex-grow p-6 space-y-8">
         <div>
           <h2 className="font-semibold mb-2">Voice Assistant</h2>
-          <RadioGroup value={voice} onValueChange={setVoice} className="p-4 rounded-lg bg-card-light dark:bg-card-dark space-y-2">
+          <RadioGroup
+            value={voice}
+            onValueChange={setVoice}
+            className="p-4 rounded-lg bg-card-light dark:bg-card-dark space-y-2"
+          >
             <div className="flex items-center space-x-2">
               <RadioGroupItem value="assistant-1" id="r1" />
               <Label htmlFor="r1">Default Assistant (Female)</Label>
@@ -57,14 +65,14 @@ export default function VoiceCommandsPage() {
         </div>
         <div>
           <h2 className="font-semibold mb-2">Speech Speed</h2>
-           <div className="p-4 rounded-lg bg-card-light dark:bg-card-dark">
+          <div className="p-4 rounded-lg bg-card-light dark:bg-card-dark">
             <Slider value={speed} onValueChange={setSpeed} max={100} step={1} />
-           </div>
+          </div>
         </div>
         <div>
           <h2 className="font-semibold mb-2">Activation Phrase</h2>
           <div className="p-4 rounded-lg bg-card-light dark:bg-card-dark flex justify-between items-center">
-          {isEditingPhrase ? (
+            {isEditingPhrase ? (
               <div className="flex w-full items-center gap-2">
                 <Input
                   type="text"
@@ -72,13 +80,25 @@ export default function VoiceCommandsPage() {
                   onChange={(e) => setTempPhrase(e.target.value)}
                   className="bg-input-light dark:bg-input-dark"
                 />
-                <Button onClick={handleSavePhrase} size="sm">Save</Button>
-                <Button onClick={handleCancelEdit} variant="ghost" size="sm">Cancel</Button>
+                <Button onClick={handleSavePhrase} size="sm">
+                  Save
+                </Button>
+                <Button onClick={handleCancelEdit} variant="ghost" size="sm">
+                  Cancel
+                </Button>
               </div>
             ) : (
               <>
                 <p>"{activationPhrase}"</p>
-                <Button variant="ghost" onClick={() => { setIsEditingPhrase(true); setTempPhrase(activationPhrase); }}>Change</Button>
+                <Button
+                  variant="ghost"
+                  onClick={() => {
+                    setIsEditingPhrase(true);
+                    setTempPhrase(activationPhrase);
+                  }}
+                >
+                  Change
+                </Button>
               </>
             )}
           </div>

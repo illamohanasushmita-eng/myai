@@ -1,12 +1,12 @@
-'use client';
+"use client";
 
-import { useCallback, useEffect, useState } from 'react';
-import { useVoskRecognizer } from '@/hooks/useVoskRecognizer';
+import { useCallback, useEffect, useState } from "react";
+import { useVoskRecognizer } from "@/hooks/useVoskRecognizer";
 
 /**
  * VoskVoiceButton Component
  * Demonstrates Vosk wake-word detection and speech recognition
- * 
+ *
  * Features:
  * - Start/stop listening
  * - Wake-word detection ("hey lara")
@@ -17,33 +17,33 @@ import { useVoskRecognizer } from '@/hooks/useVoskRecognizer';
 
 export function VoskVoiceButton() {
   const [wakeWordDetected, setWakeWordDetected] = useState(false);
-  const [recognizedText, setRecognizedText] = useState('');
-  const [partialText, setPartialText] = useState('');
-  const [feedback, setFeedback] = useState('');
+  const [recognizedText, setRecognizedText] = useState("");
+  const [partialText, setPartialText] = useState("");
+  const [feedback, setFeedback] = useState("");
 
   // Initialize Vosk recognizer
   const { start, stop, isRunning, isLoading, error } = useVoskRecognizer({
     autoStart: false,
-    modelPath: '/vosk/model.zip',
+    modelPath: "/vosk/model.zip",
     onWakeWord: () => {
-      console.log('✅ Wake word detected!');
+      console.log("✅ Wake word detected!");
       setWakeWordDetected(true);
-      setFeedback('Wake word detected! Listening for command...');
-      
+      setFeedback("Wake word detected! Listening for command...");
+
       // Speak feedback
-      speakText('Yes, how can I help?');
+      speakText("Yes, how can I help?");
     },
     onRecognize: (text) => {
-      console.log('🎤 Recognized:', text);
+      console.log("🎤 Recognized:", text);
       setRecognizedText(text);
       setFeedback(`Recognized: ${text}`);
     },
     onPartialResult: (partial) => {
-      console.log('🎤 Partial:', partial);
+      console.log("🎤 Partial:", partial);
       setPartialText(partial);
     },
     onError: (err) => {
-      console.error('❌ Error:', err);
+      console.error("❌ Error:", err);
       setFeedback(`Error: ${err}`);
     },
   });
@@ -51,29 +51,29 @@ export function VoskVoiceButton() {
   // Handle start button
   const handleStart = useCallback(async () => {
     try {
-      console.log('🎤 Starting Vosk recognizer...');
-      setFeedback('Starting...');
+      console.log("🎤 Starting Vosk recognizer...");
+      setFeedback("Starting...");
       await start();
       setFeedback('Listening for "Hey Lara"...');
     } catch (err) {
-      console.error('Failed to start:', err);
-      setFeedback('Failed to start listening');
+      console.error("Failed to start:", err);
+      setFeedback("Failed to start listening");
     }
   }, [start]);
 
   // Handle stop button
   const handleStop = useCallback(() => {
-    console.log('🎤 Stopping Vosk recognizer...');
+    console.log("🎤 Stopping Vosk recognizer...");
     stop();
-    setFeedback('Stopped');
+    setFeedback("Stopped");
     setWakeWordDetected(false);
-    setRecognizedText('');
-    setPartialText('');
+    setRecognizedText("");
+    setPartialText("");
   }, [stop]);
 
   // Speak text using Web Speech API
   const speakText = (text: string) => {
-    if ('speechSynthesis' in window) {
+    if ("speechSynthesis" in window) {
       const utterance = new SpeechSynthesisUtterance(text);
       utterance.rate = 1;
       utterance.pitch = 1;
@@ -95,7 +95,9 @@ export function VoskVoiceButton() {
     <div className="flex flex-col gap-4 p-6 bg-gradient-to-br from-slate-900 to-slate-800 rounded-lg border border-slate-700">
       {/* Title */}
       <div className="text-center">
-        <h2 className="text-2xl font-bold text-white mb-2">🎤 Vosk Voice Control</h2>
+        <h2 className="text-2xl font-bold text-white mb-2">
+          🎤 Vosk Voice Control
+        </h2>
         <p className="text-sm text-slate-400">Say "Hey Lara" to activate</p>
       </div>
 
@@ -104,20 +106,20 @@ export function VoskVoiceButton() {
         <div
           className={`w-4 h-4 rounded-full transition-all ${
             isRunning
-              ? 'bg-green-500 animate-pulse'
+              ? "bg-green-500 animate-pulse"
               : wakeWordDetected
-              ? 'bg-blue-500 animate-pulse'
-              : 'bg-slate-600'
+                ? "bg-blue-500 animate-pulse"
+                : "bg-slate-600"
           }`}
         />
         <span className="text-sm font-medium text-slate-300">
           {isLoading
-            ? 'Loading...'
+            ? "Loading..."
             : isRunning
-            ? 'Listening'
-            : wakeWordDetected
-            ? 'Wake Word Detected'
-            : 'Stopped'}
+              ? "Listening"
+              : wakeWordDetected
+                ? "Wake Word Detected"
+                : "Stopped"}
         </span>
       </div>
 
@@ -159,7 +161,7 @@ export function VoskVoiceButton() {
           disabled={isRunning || isLoading}
           className="px-6 py-2 bg-green-600 hover:bg-green-700 disabled:bg-slate-600 text-white font-medium rounded transition-colors"
         >
-          {isLoading ? 'Loading...' : 'Start'}
+          {isLoading ? "Loading..." : "Start"}
         </button>
         <button
           onClick={handleStop}
@@ -173,9 +175,8 @@ export function VoskVoiceButton() {
       {/* Info */}
       <div className="text-xs text-slate-500 text-center">
         <p>Model: Vosk • Sample Rate: 16000 Hz</p>
-        <p>Status: {isRunning ? '✅ Active' : '⏸️ Inactive'}</p>
+        <p>Status: {isRunning ? "✅ Active" : "⏸️ Inactive"}</p>
       </div>
     </div>
   );
 }
-

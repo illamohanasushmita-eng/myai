@@ -1,14 +1,14 @@
-'use client';
+"use client";
 
-import { useState, useEffect } from 'react';
-import { useAIIntent } from '@/hooks/useAIIntent';
-import { useSpotifyPlayer } from '@/hooks/useSpotifyPlayer';
-import { useMusicAutomation } from '@/hooks/useMusicAutomation';
-import { useUserPreferences } from '@/hooks/useUserPreferences';
+import { useState, useEffect } from "react";
+import { useAIIntent } from "@/hooks/useAIIntent";
+import { useSpotifyPlayer } from "@/hooks/useSpotifyPlayer";
+import { useMusicAutomation } from "@/hooks/useMusicAutomation";
+import { useUserPreferences } from "@/hooks/useUserPreferences";
 
 /**
  * Complete example showing all Spotify integration features
- * 
+ *
  * Features demonstrated:
  * 1. Intent detection from natural language
  * 2. Spotify track search
@@ -22,16 +22,35 @@ interface MusicAssistantExampleProps {
 }
 
 export function MusicAssistantExample({ userId }: MusicAssistantExampleProps) {
-  const [userInput, setUserInput] = useState('');
+  const [userInput, setUserInput] = useState("");
   const [selectedTrack, setSelectedTrack] = useState<string | null>(null);
   const [showPreferences, setShowPreferences] = useState(false);
   const [showRules, setShowRules] = useState(false);
 
   // Hooks
   const { intent, loading: intentLoading, detectIntent } = useAIIntent();
-  const { searchResults, loading: playerLoading, searchTracks, playTrack } = useSpotifyPlayer();
-  const { rules, loading: automationLoading, fetchRules, createRule, deleteRule, triggerAutomation, lastTrigger } = useMusicAutomation();
-  const { preferences, loading: prefLoading, fetchPreferences, addFavouriteHero, removeFavouriteHero } = useUserPreferences();
+  const {
+    searchResults,
+    loading: playerLoading,
+    searchTracks,
+    playTrack,
+  } = useSpotifyPlayer();
+  const {
+    rules,
+    loading: automationLoading,
+    fetchRules,
+    createRule,
+    deleteRule,
+    triggerAutomation,
+    lastTrigger,
+  } = useMusicAutomation();
+  const {
+    preferences,
+    loading: prefLoading,
+    fetchPreferences,
+    addFavouriteHero,
+    removeFavouriteHero,
+  } = useUserPreferences();
 
   // Initialize
   useEffect(() => {
@@ -58,8 +77,8 @@ export function MusicAssistantExample({ userId }: MusicAssistantExampleProps) {
   };
 
   // Handle automation rule creation
-  const handleCreateRule = async (triggerType: 'night' | 'travel' | 'mood') => {
-    const query = intent?.playlistQuery || 'trending songs';
+  const handleCreateRule = async (triggerType: "night" | "travel" | "mood") => {
+    const query = intent?.playlistQuery || "trending songs";
     await createRule(userId, triggerType, query);
   };
 
@@ -95,7 +114,7 @@ export function MusicAssistantExample({ userId }: MusicAssistantExampleProps) {
             type="text"
             value={userInput}
             onChange={(e) => setUserInput(e.target.value)}
-            onKeyPress={(e) => e.key === 'Enter' && handleSearch()}
+            onKeyPress={(e) => e.key === "Enter" && handleSearch()}
             placeholder="e.g., 'Play my favourite hero songs' or 'Play relaxing songs at night'"
             className="flex-1 px-4 py-2 rounded-lg bg-background-light dark:bg-background-dark border border-border-light dark:border-border-dark focus:outline-none focus:ring-2 focus:ring-primary"
           />
@@ -104,7 +123,7 @@ export function MusicAssistantExample({ userId }: MusicAssistantExampleProps) {
             disabled={intentLoading || !userInput.trim()}
             className="px-6 py-2 bg-primary text-white rounded-lg hover:bg-primary/90 disabled:opacity-50"
           >
-            {intentLoading ? '⏳' : '🔎'}
+            {intentLoading ? "⏳" : "🔎"}
           </button>
         </div>
 
@@ -114,31 +133,42 @@ export function MusicAssistantExample({ userId }: MusicAssistantExampleProps) {
             <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
               {intent.mood && (
                 <div>
-                  <span className="text-subtle-light dark:text-subtle-dark">Mood</span>
+                  <span className="text-subtle-light dark:text-subtle-dark">
+                    Mood
+                  </span>
                   <p className="font-semibold capitalize">{intent.mood}</p>
                 </div>
               )}
               {intent.hero && (
                 <div>
-                  <span className="text-subtle-light dark:text-subtle-dark">Hero</span>
+                  <span className="text-subtle-light dark:text-subtle-dark">
+                    Hero
+                  </span>
                   <p className="font-semibold capitalize">{intent.hero}</p>
                 </div>
               )}
               {intent.timeContext && (
                 <div>
-                  <span className="text-subtle-light dark:text-subtle-dark">Time</span>
-                  <p className="font-semibold capitalize">{intent.timeContext}</p>
+                  <span className="text-subtle-light dark:text-subtle-dark">
+                    Time
+                  </span>
+                  <p className="font-semibold capitalize">
+                    {intent.timeContext}
+                  </p>
                 </div>
               )}
               {intent.language && (
                 <div>
-                  <span className="text-subtle-light dark:text-subtle-dark">Language</span>
+                  <span className="text-subtle-light dark:text-subtle-dark">
+                    Language
+                  </span>
                   <p className="font-semibold capitalize">{intent.language}</p>
                 </div>
               )}
             </div>
             <p className="text-xs text-subtle-light dark:text-subtle-dark mt-3">
-              Query: {intent.playlistQuery} (Confidence: {(intent.confidence * 100).toFixed(0)}%)
+              Query: {intent.playlistQuery} (Confidence:{" "}
+              {(intent.confidence * 100).toFixed(0)}%)
             </p>
           </div>
         )}
@@ -147,7 +177,9 @@ export function MusicAssistantExample({ userId }: MusicAssistantExampleProps) {
       {/* Search Results */}
       {searchResults.length > 0 && (
         <div className="bg-card-light dark:bg-card-dark rounded-xl p-6 shadow-sm border border-white/30 dark:border-white/10">
-          <h2 className="text-lg font-bold mb-4">🎵 Found {searchResults.length} Tracks</h2>
+          <h2 className="text-lg font-bold mb-4">
+            🎵 Found {searchResults.length} Tracks
+          </h2>
           <div className="space-y-2 max-h-96 overflow-y-auto">
             {searchResults.map((track) => (
               <div
@@ -172,11 +204,11 @@ export function MusicAssistantExample({ userId }: MusicAssistantExampleProps) {
                   disabled={playerLoading}
                   className={`px-3 py-1 rounded text-sm font-semibold transition-colors ${
                     selectedTrack === track.id
-                      ? 'bg-primary text-white'
-                      : 'bg-black/10 dark:bg-white/10 hover:bg-black/20 dark:hover:bg-white/20'
+                      ? "bg-primary text-white"
+                      : "bg-black/10 dark:bg-white/10 hover:bg-black/20 dark:hover:bg-white/20"
                   }`}
                 >
-                  {selectedTrack === track.id ? '▶' : 'Play'}
+                  {selectedTrack === track.id ? "▶" : "Play"}
                 </button>
               </div>
             ))}
@@ -191,13 +223,13 @@ export function MusicAssistantExample({ userId }: MusicAssistantExampleProps) {
           <h3 className="font-bold mb-3">⚡ Quick Triggers</h3>
           <div className="space-y-2">
             <button
-              onClick={() => handleTriggerAutomation('night')}
+              onClick={() => handleTriggerAutomation("night")}
               className="w-full px-3 py-2 bg-black/10 dark:bg-white/10 rounded hover:bg-black/20 dark:hover:bg-white/20 text-sm font-semibold transition-colors"
             >
               🌙 Night Mode
             </button>
             <button
-              onClick={() => handleTriggerAutomation('travel')}
+              onClick={() => handleTriggerAutomation("travel")}
               className="w-full px-3 py-2 bg-black/10 dark:bg-white/10 rounded hover:bg-black/20 dark:hover:bg-white/20 text-sm font-semibold transition-colors"
             >
               🚗 Travel Mode
@@ -218,13 +250,18 @@ export function MusicAssistantExample({ userId }: MusicAssistantExampleProps) {
             onClick={() => setShowRules(!showRules)}
             className="w-full px-3 py-2 bg-primary text-white rounded hover:bg-primary/90 text-sm font-semibold transition-colors"
           >
-            {showRules ? 'Hide' : 'Show'} Rules ({rules.length})
+            {showRules ? "Hide" : "Show"} Rules ({rules.length})
           </button>
           {showRules && (
             <div className="mt-3 space-y-2 max-h-48 overflow-y-auto">
               {rules.map((rule) => (
-                <div key={rule.id} className="text-xs bg-black/5 dark:bg-white/5 p-2 rounded">
-                  <p className="font-semibold capitalize">{rule.trigger_type}</p>
+                <div
+                  key={rule.id}
+                  className="text-xs bg-black/5 dark:bg-white/5 p-2 rounded"
+                >
+                  <p className="font-semibold capitalize">
+                    {rule.trigger_type}
+                  </p>
                   <p className="text-subtle-light dark:text-subtle-dark truncate">
                     {rule.playlist_query}
                   </p>
@@ -247,21 +284,21 @@ export function MusicAssistantExample({ userId }: MusicAssistantExampleProps) {
             onClick={() => setShowPreferences(!showPreferences)}
             className="w-full px-3 py-2 bg-primary text-white rounded hover:bg-primary/90 text-sm font-semibold transition-colors"
           >
-            {showPreferences ? 'Hide' : 'Show'} Preferences
+            {showPreferences ? "Hide" : "Show"} Preferences
           </button>
           {showPreferences && preferences && (
             <div className="mt-3 space-y-2">
               <div className="text-xs">
                 <p className="font-semibold mb-1">Favourite Heroes:</p>
                 <div className="flex flex-wrap gap-1">
-                  {['prabhas', 'mahesh', 'ram'].map((hero) => (
+                  {["prabhas", "mahesh", "ram"].map((hero) => (
                     <button
                       key={hero}
                       onClick={() => handleToggleHero(hero)}
                       className={`px-2 py-1 rounded text-xs font-semibold transition-colors ${
                         preferences.favourite_heroes.includes(hero)
-                          ? 'bg-primary text-white'
-                          : 'bg-black/10 dark:bg-white/10'
+                          ? "bg-primary text-white"
+                          : "bg-black/10 dark:bg-white/10"
                       }`}
                     >
                       {hero}
@@ -307,4 +344,3 @@ export function MusicAssistantExample({ userId }: MusicAssistantExampleProps) {
     </div>
   );
 }
-

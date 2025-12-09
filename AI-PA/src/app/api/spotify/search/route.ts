@@ -1,5 +1,5 @@
-import { NextRequest, NextResponse } from 'next/server';
-import { searchSpotifyTracks, searchPlaylist } from '@/lib/spotify/search';
+import { NextRequest, NextResponse } from "next/server";
+import { searchSpotifyTracks, searchPlaylist } from "@/lib/spotify/search";
 
 /**
  * GET /api/spotify/search
@@ -32,29 +32,29 @@ export async function GET(request: NextRequest) {
 
   try {
     const { searchParams } = new URL(request.url);
-    const query = searchParams.get('q');
-    const type = searchParams.get('type') || 'track';
-    const limitParam = searchParams.get('limit') || '5';
-    const userId = searchParams.get('userId');
+    const query = searchParams.get("q");
+    const type = searchParams.get("type") || "track";
+    const limitParam = searchParams.get("limit") || "5";
+    const userId = searchParams.get("userId");
 
-    console.log('🔍 [SPOTIFY SEARCH API] Incoming request:', {
+    console.log("🔍 [SPOTIFY SEARCH API] Incoming request:", {
       query,
       type,
       limit: limitParam,
-      userId: userId ? '***' : 'none',
+      userId: userId ? "***" : "none",
     });
 
     // Validate query parameter
     if (!query || query.trim().length === 0) {
-      console.warn('⚠️ [SPOTIFY SEARCH API] Missing or empty query parameter');
+      console.warn("⚠️ [SPOTIFY SEARCH API] Missing or empty query parameter");
       return NextResponse.json(
         {
           success: false,
-          error: 'Query parameter is required',
+          error: "Query parameter is required",
           tracks: [],
           count: 0,
         },
-        { status: 400 }
+        { status: 400 },
       );
     }
 
@@ -67,33 +67,37 @@ export async function GET(request: NextRequest) {
       limit = 50;
     }
 
-    console.log(`🔍 [SPOTIFY SEARCH API] Searching for: "${query}" (type: ${type}, limit: ${limit})`);
+    console.log(
+      `🔍 [SPOTIFY SEARCH API] Searching for: "${query}" (type: ${type}, limit: ${limit})`,
+    );
 
     let results;
 
     try {
-      if (type === 'playlist') {
-        console.log('📋 [SPOTIFY SEARCH API] Searching playlists...');
+      if (type === "playlist") {
+        console.log("📋 [SPOTIFY SEARCH API] Searching playlists...");
         results = await searchPlaylist(query, userId || undefined, limit);
       } else {
-        console.log('🎵 [SPOTIFY SEARCH API] Searching tracks...');
+        console.log("🎵 [SPOTIFY SEARCH API] Searching tracks...");
         results = await searchSpotifyTracks(query, userId || undefined, limit);
       }
     } catch (searchError) {
-      console.error('❌ [SPOTIFY SEARCH API] Search failed:', searchError);
+      console.error("❌ [SPOTIFY SEARCH API] Search failed:", searchError);
       // Return empty results instead of error for graceful degradation
       results = [];
     }
 
     const elapsedTime = performance.now() - startTime;
-    console.log(`✅ [SPOTIFY SEARCH API] Search completed in ${elapsedTime.toFixed(0)}ms, found ${results.length} results`);
+    console.log(
+      `✅ [SPOTIFY SEARCH API] Search completed in ${elapsedTime.toFixed(0)}ms, found ${results.length} results`,
+    );
 
     // Format response with track details
     const tracks = results.map((track: any) => ({
       id: track.id,
       name: track.name,
       artists: track.artists?.map((a: any) => a.name) || [],
-      album: track.album?.name || 'Unknown Album',
+      album: track.album?.name || "Unknown Album",
     }));
 
     return NextResponse.json({
@@ -103,23 +107,25 @@ export async function GET(request: NextRequest) {
       tracks,
       count: tracks.length,
     });
-
   } catch (error) {
     const elapsedTime = performance.now() - startTime;
-    console.error(`❌ [SPOTIFY SEARCH API] Error after ${elapsedTime.toFixed(0)}ms:`, error);
+    console.error(
+      `❌ [SPOTIFY SEARCH API] Error after ${elapsedTime.toFixed(0)}ms:`,
+      error,
+    );
 
-    const errorMessage = error instanceof Error ? error.message : 'Unknown error';
+    const errorMessage =
+      error instanceof Error ? error.message : "Unknown error";
 
     return NextResponse.json(
       {
         success: false,
-        error: 'Failed to search Spotify',
+        error: "Failed to search Spotify",
         details: errorMessage,
         tracks: [],
         count: 0,
       },
-      { status: 500 }
+      { status: 500 },
     );
   }
 }
-

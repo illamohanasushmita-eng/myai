@@ -1,5 +1,5 @@
-import Link, { LinkProps } from 'next/link';
-import { ReactNode } from 'react';
+import Link, { LinkProps } from "next/link";
+import { ReactNode } from "react";
 
 interface PrefetchedLinkProps extends LinkProps {
   children: ReactNode;
@@ -20,14 +20,8 @@ export default function PrefetchedLink({
   ...props
 }: PrefetchedLinkProps) {
   return (
-    <Link
-      href={href}
-      className={className}
-      prefetch={prefetch}
-      {...props}
-    >
+    <Link href={href} className={className} prefetch={prefetch} {...props}>
       {children}
     </Link>
   );
 }
-

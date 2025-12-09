@@ -19,9 +19,11 @@ When you tried to save a reminder, it showed "reminder saved" but the data was N
 ### **5 Files Created/Updated**
 
 #### **1. `src/app/api/reminders/create/route.ts`** ✅ (NEW)
+
 **Purpose**: Backend API route to create reminders using service role key
 
 **Features**:
+
 - ✅ Validates reminder input (title, reminder_time required)
 - ✅ Sanitizes data (trims whitespace, handles null values)
 - ✅ Uses service role key to bypass RLS policies
@@ -30,6 +32,7 @@ When you tried to save a reminder, it showed "reminder saved" but the data was N
 - ✅ Comprehensive logging with `[REMINDER-CREATE]` prefix
 
 **Key Code**:
+
 ```typescript
 // Validates input
 const validationErrors = validateReminderInput(body);
@@ -39,15 +42,17 @@ const reminderData = prepareReminderData(body);
 
 // Creates using service role (bypasses RLS)
 const { error, data } = await supabaseAdmin
-  .from('reminders')
+  .from("reminders")
   .insert([reminderData])
   .select();
 ```
 
 #### **2. `src/app/api/reminders/route.ts`** ✅ (NEW)
+
 **Purpose**: Backend API route to fetch reminders for a user
 
 **Features**:
+
 - ✅ Accepts userId as query parameter
 - ✅ Uses service role key to bypass RLS
 - ✅ Orders reminders by reminder_time
@@ -55,33 +60,39 @@ const { error, data } = await supabaseAdmin
 - ✅ Comprehensive error handling
 
 **Key Code**:
+
 ```typescript
-const userId = searchParams.get('userId');
+const userId = searchParams.get("userId");
 
 const { data } = await supabaseAdmin
-  .from('reminders')
-  .select('*')
-  .eq('user_id', userId)
-  .order('reminder_time', { ascending: true });
+  .from("reminders")
+  .select("*")
+  .eq("user_id", userId)
+  .order("reminder_time", { ascending: true });
 ```
 
 #### **3. `src/lib/services/reminderApiService.ts`** ✅ (NEW)
+
 **Purpose**: Client-side service to call reminder API routes
 
 **Functions**:
+
 - `createReminderViaAPI()` - Creates reminder via API
 - `getRemindersList()` - Fetches reminders via API
 
 **Features**:
+
 - ✅ Calls `/api/reminders/create` for creation
 - ✅ Calls `/api/reminders` for fetching
 - ✅ Handles errors with user-friendly messages
 - ✅ Comprehensive logging with `[REMINDER-SERVICE]` prefix
 
 #### **4. `src/app/reminders/add/page.tsx`** ✅ (UPDATED)
+
 **Purpose**: Add reminder page with full form handling
 
 **Changes**:
+
 - ✅ Added state management for all form fields
 - ✅ Added form submission handler
 - ✅ Validates required fields (title, date, time)
@@ -92,6 +103,7 @@ const { data } = await supabaseAdmin
 - ✅ Added loading state and disabled buttons during submission
 
 **Form Fields**:
+
 - Title (required)
 - Description (optional)
 - Date (required)
@@ -100,9 +112,11 @@ const { data } = await supabaseAdmin
 - Recurring (checkbox)
 
 #### **5. `src/app/reminders/page.tsx`** ✅ (UPDATED)
+
 **Purpose**: Reminders list page with dynamic data
 
 **Changes**:
+
 - ✅ Changed from static component to client component
 - ✅ Added `useEffect` to fetch reminders on mount
 - ✅ Fetches reminders from `/api/reminders` endpoint
@@ -113,6 +127,7 @@ const { data } = await supabaseAdmin
 - ✅ Shows empty state if no reminders
 
 **Features**:
+
 - ✅ Formats reminder times (Today, Tomorrow, or date)
 - ✅ Shows description if available
 - ✅ Separates upcoming and past reminders
@@ -123,6 +138,7 @@ const { data } = await supabaseAdmin
 ## 🧪 **How to Test**
 
 ### **Test 1: Create a Reminder**
+
 ```
 1. Go to http://localhost:3002/reminders
 2. Click the "+" button
@@ -137,6 +153,7 @@ const { data } = await supabaseAdmin
 ```
 
 ### **Test 2: Verify in Supabase**
+
 ```
 1. Go to https://app.supabase.com
 2. Select your project
@@ -153,6 +170,7 @@ const { data } = await supabaseAdmin
 ```
 
 ### **Test 3: Verify Reminders Display**
+
 ```
 1. Go to http://localhost:3002/reminders
 2. Expected: Your created reminder appears in "Upcoming" section
@@ -161,6 +179,7 @@ const { data } = await supabaseAdmin
 ```
 
 ### **Test 4: Create Multiple Reminders**
+
 ```
 1. Create 3-4 reminders with different dates
 2. Go to /reminders
@@ -174,6 +193,7 @@ const { data } = await supabaseAdmin
 ## 📊 **Data Flow**
 
 ### **Creating a Reminder**
+
 ```
 User fills form
     ↓
@@ -199,6 +219,7 @@ Displays in list
 ```
 
 ### **Fetching Reminders**
+
 ```
 User visits /reminders
     ↓
@@ -224,6 +245,7 @@ Displays in UI
 ## 🔍 **Debugging**
 
 ### **Check Browser Console**
+
 ```
 1. Open DevTools (F12)
 2. Go to Console tab
@@ -232,6 +254,7 @@ Displays in UI
 ```
 
 ### **Check Server Logs**
+
 ```
 1. Look at terminal running npm run dev
 2. Look for [REMINDER-CREATE] logs
@@ -240,6 +263,7 @@ Displays in UI
 ```
 
 ### **Check Supabase**
+
 ```
 1. Go to https://app.supabase.com
 2. Check "reminders" table
@@ -273,6 +297,7 @@ Displays in UI
 ## 🚀 **Next Steps**
 
 1. **Restart Application**
+
    ```bash
    # Press Ctrl+C to stop
    # Run: npm run dev
@@ -299,24 +324,32 @@ Displays in UI
 ## 📞 **Common Issues**
 
 ### **Issue: "User profile not found"**
-**Solution**: 
+
+**Solution**:
+
 - Sign up again
 - Wait a few seconds
 - Try creating reminder again
 
 ### **Issue: "Validation error"**
+
 **Solution**:
+
 - Check all required fields are filled
 - Check date and time are selected
 
 ### **Issue: Reminder not appearing in list**
+
 **Solution**:
+
 - Refresh the page
 - Check browser console for errors
 - Check Supabase to verify reminder was created
 
 ### **Issue: "Failed to fetch reminders"**
+
 **Solution**:
+
 - Check userId is in localStorage
 - Check server logs for errors
 - Verify RLS policies are correct
@@ -325,19 +358,20 @@ Displays in UI
 
 ## 📋 **Files Modified/Created**
 
-| File | Type | Status |
-|------|------|--------|
-| src/app/api/reminders/create/route.ts | Created | ✅ |
-| src/app/api/reminders/route.ts | Created | ✅ |
-| src/lib/services/reminderApiService.ts | Created | ✅ |
-| src/app/reminders/add/page.tsx | Updated | ✅ |
-| src/app/reminders/page.tsx | Updated | ✅ |
+| File                                   | Type    | Status |
+| -------------------------------------- | ------- | ------ |
+| src/app/api/reminders/create/route.ts  | Created | ✅     |
+| src/app/api/reminders/route.ts         | Created | ✅     |
+| src/lib/services/reminderApiService.ts | Created | ✅     |
+| src/app/reminders/add/page.tsx         | Updated | ✅     |
+| src/app/reminders/page.tsx             | Updated | ✅     |
 
 ---
 
 ## 🎊 **Summary**
 
 **What Was Fixed**:
+
 - ✅ Created API route for creating reminders
 - ✅ Created API route for fetching reminders
 - ✅ Created reminder service to call APIs
@@ -357,4 +391,3 @@ Displays in UI
 **Start Here**: Restart application and create a test reminder
 **Time to Complete**: ~5 minutes
 **Expected Result**: Reminders fully functional ✅
-

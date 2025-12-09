@@ -1,31 +1,41 @@
-import { supabase } from '@/lib/supabaseClient';
-import { HealthRecord, Symptom, Medication, Appointment } from '@/lib/types/database';
+import { supabase } from "@/lib/supabaseClient";
+import {
+  HealthRecord,
+  Symptom,
+  Medication,
+  Appointment,
+} from "@/lib/types/database";
 
 // ===== HEALTH RECORDS =====
 
-export async function getUserHealthRecords(userId: string): Promise<HealthRecord[]> {
+export async function getUserHealthRecords(
+  userId: string,
+): Promise<HealthRecord[]> {
   try {
     const { data, error } = await supabase
-      .from('health_records')
-      .select('*')
-      .eq('user_id', userId)
-      .order('record_date', { ascending: false });
+      .from("health_records")
+      .select("*")
+      .eq("user_id", userId)
+      .order("record_date", { ascending: false });
 
     if (error) throw error;
     return data || [];
   } catch (error) {
-    console.error('Error fetching health records:', error);
+    console.error("Error fetching health records:", error);
     throw error;
   }
 }
 
 export async function createHealthRecord(
   userId: string,
-  recordData: Omit<HealthRecord, 'record_id' | 'user_id' | 'created_at' | 'updated_at'>
+  recordData: Omit<
+    HealthRecord,
+    "record_id" | "user_id" | "created_at" | "updated_at"
+  >,
 ): Promise<HealthRecord> {
   try {
     const { data, error } = await supabase
-      .from('health_records')
+      .from("health_records")
       .insert([{ user_id: userId, ...recordData }])
       .select()
       .single();
@@ -33,27 +43,27 @@ export async function createHealthRecord(
     if (error) throw error;
     return data;
   } catch (error) {
-    console.error('Error creating health record:', error);
+    console.error("Error creating health record:", error);
     throw error;
   }
 }
 
 export async function updateHealthRecord(
   recordId: string,
-  updates: Partial<HealthRecord>
+  updates: Partial<HealthRecord>,
 ): Promise<HealthRecord> {
   try {
     const { data, error } = await supabase
-      .from('health_records')
+      .from("health_records")
       .update(updates)
-      .eq('record_id', recordId)
+      .eq("record_id", recordId)
       .select()
       .single();
 
     if (error) throw error;
     return data;
   } catch (error) {
-    console.error('Error updating health record:', error);
+    console.error("Error updating health record:", error);
     throw error;
   }
 }
@@ -61,13 +71,13 @@ export async function updateHealthRecord(
 export async function deleteHealthRecord(recordId: string): Promise<void> {
   try {
     const { error } = await supabase
-      .from('health_records')
+      .from("health_records")
       .delete()
-      .eq('record_id', recordId);
+      .eq("record_id", recordId);
 
     if (error) throw error;
   } catch (error) {
-    console.error('Error deleting health record:', error);
+    console.error("Error deleting health record:", error);
     throw error;
   }
 }
@@ -77,26 +87,29 @@ export async function deleteHealthRecord(recordId: string): Promise<void> {
 export async function getUserSymptoms(userId: string): Promise<Symptom[]> {
   try {
     const { data, error } = await supabase
-      .from('symptoms')
-      .select('*')
-      .eq('user_id', userId)
-      .order('logged_date', { ascending: false });
+      .from("symptoms")
+      .select("*")
+      .eq("user_id", userId)
+      .order("logged_date", { ascending: false });
 
     if (error) throw error;
     return data || [];
   } catch (error) {
-    console.error('Error fetching symptoms:', error);
+    console.error("Error fetching symptoms:", error);
     throw error;
   }
 }
 
 export async function createSymptom(
   userId: string,
-  symptomData: Omit<Symptom, 'symptom_id' | 'user_id' | 'created_at' | 'updated_at'>
+  symptomData: Omit<
+    Symptom,
+    "symptom_id" | "user_id" | "created_at" | "updated_at"
+  >,
 ): Promise<Symptom> {
   try {
     const { data, error } = await supabase
-      .from('symptoms')
+      .from("symptoms")
       .insert([{ user_id: userId, ...symptomData }])
       .select()
       .single();
@@ -104,27 +117,27 @@ export async function createSymptom(
     if (error) throw error;
     return data;
   } catch (error) {
-    console.error('Error creating symptom:', error);
+    console.error("Error creating symptom:", error);
     throw error;
   }
 }
 
 export async function updateSymptom(
   symptomId: string,
-  updates: Partial<Symptom>
+  updates: Partial<Symptom>,
 ): Promise<Symptom> {
   try {
     const { data, error } = await supabase
-      .from('symptoms')
+      .from("symptoms")
       .update(updates)
-      .eq('symptom_id', symptomId)
+      .eq("symptom_id", symptomId)
       .select()
       .single();
 
     if (error) throw error;
     return data;
   } catch (error) {
-    console.error('Error updating symptom:', error);
+    console.error("Error updating symptom:", error);
     throw error;
   }
 }
@@ -132,59 +145,66 @@ export async function updateSymptom(
 export async function deleteSymptom(symptomId: string): Promise<void> {
   try {
     const { error } = await supabase
-      .from('symptoms')
+      .from("symptoms")
       .delete()
-      .eq('symptom_id', symptomId);
+      .eq("symptom_id", symptomId);
 
     if (error) throw error;
   } catch (error) {
-    console.error('Error deleting symptom:', error);
+    console.error("Error deleting symptom:", error);
     throw error;
   }
 }
 
 // ===== MEDICATIONS =====
 
-export async function getUserMedications(userId: string): Promise<Medication[]> {
+export async function getUserMedications(
+  userId: string,
+): Promise<Medication[]> {
   try {
     const { data, error } = await supabase
-      .from('medications')
-      .select('*')
-      .eq('user_id', userId)
-      .order('created_at', { ascending: false });
+      .from("medications")
+      .select("*")
+      .eq("user_id", userId)
+      .order("created_at", { ascending: false });
 
     if (error) throw error;
     return data || [];
   } catch (error) {
-    console.error('Error fetching medications:', error);
+    console.error("Error fetching medications:", error);
     throw error;
   }
 }
 
-export async function getActiveMedications(userId: string): Promise<Medication[]> {
+export async function getActiveMedications(
+  userId: string,
+): Promise<Medication[]> {
   try {
     const { data, error } = await supabase
-      .from('medications')
-      .select('*')
-      .eq('user_id', userId)
-      .eq('is_active', true)
-      .order('created_at', { ascending: false });
+      .from("medications")
+      .select("*")
+      .eq("user_id", userId)
+      .eq("is_active", true)
+      .order("created_at", { ascending: false });
 
     if (error) throw error;
     return data || [];
   } catch (error) {
-    console.error('Error fetching active medications:', error);
+    console.error("Error fetching active medications:", error);
     throw error;
   }
 }
 
 export async function createMedication(
   userId: string,
-  medicationData: Omit<Medication, 'medication_id' | 'user_id' | 'created_at' | 'updated_at'>
+  medicationData: Omit<
+    Medication,
+    "medication_id" | "user_id" | "created_at" | "updated_at"
+  >,
 ): Promise<Medication> {
   try {
     const { data, error } = await supabase
-      .from('medications')
+      .from("medications")
       .insert([{ user_id: userId, ...medicationData }])
       .select()
       .single();
@@ -192,27 +212,27 @@ export async function createMedication(
     if (error) throw error;
     return data;
   } catch (error) {
-    console.error('Error creating medication:', error);
+    console.error("Error creating medication:", error);
     throw error;
   }
 }
 
 export async function updateMedication(
   medicationId: string,
-  updates: Partial<Medication>
+  updates: Partial<Medication>,
 ): Promise<Medication> {
   try {
     const { data, error } = await supabase
-      .from('medications')
+      .from("medications")
       .update(updates)
-      .eq('medication_id', medicationId)
+      .eq("medication_id", medicationId)
       .select()
       .single();
 
     if (error) throw error;
     return data;
   } catch (error) {
-    console.error('Error updating medication:', error);
+    console.error("Error updating medication:", error);
     throw error;
   }
 }
@@ -220,42 +240,47 @@ export async function updateMedication(
 export async function deleteMedication(medicationId: string): Promise<void> {
   try {
     const { error } = await supabase
-      .from('medications')
+      .from("medications")
       .delete()
-      .eq('medication_id', medicationId);
+      .eq("medication_id", medicationId);
 
     if (error) throw error;
   } catch (error) {
-    console.error('Error deleting medication:', error);
+    console.error("Error deleting medication:", error);
     throw error;
   }
 }
 
 // ===== APPOINTMENTS =====
 
-export async function getUserAppointments(userId: string): Promise<Appointment[]> {
+export async function getUserAppointments(
+  userId: string,
+): Promise<Appointment[]> {
   try {
     const { data, error } = await supabase
-      .from('appointments')
-      .select('*')
-      .eq('user_id', userId)
-      .order('appointment_date', { ascending: true });
+      .from("appointments")
+      .select("*")
+      .eq("user_id", userId)
+      .order("appointment_date", { ascending: true });
 
     if (error) throw error;
     return data || [];
   } catch (error) {
-    console.error('Error fetching appointments:', error);
+    console.error("Error fetching appointments:", error);
     throw error;
   }
 }
 
 export async function createAppointment(
   userId: string,
-  appointmentData: Omit<Appointment, 'appointment_id' | 'user_id' | 'created_at' | 'updated_at'>
+  appointmentData: Omit<
+    Appointment,
+    "appointment_id" | "user_id" | "created_at" | "updated_at"
+  >,
 ): Promise<Appointment> {
   try {
     const { data, error } = await supabase
-      .from('appointments')
+      .from("appointments")
       .insert([{ user_id: userId, ...appointmentData }])
       .select()
       .single();
@@ -263,27 +288,27 @@ export async function createAppointment(
     if (error) throw error;
     return data;
   } catch (error) {
-    console.error('Error creating appointment:', error);
+    console.error("Error creating appointment:", error);
     throw error;
   }
 }
 
 export async function updateAppointment(
   appointmentId: string,
-  updates: Partial<Appointment>
+  updates: Partial<Appointment>,
 ): Promise<Appointment> {
   try {
     const { data, error } = await supabase
-      .from('appointments')
+      .from("appointments")
       .update(updates)
-      .eq('appointment_id', appointmentId)
+      .eq("appointment_id", appointmentId)
       .select()
       .single();
 
     if (error) throw error;
     return data;
   } catch (error) {
-    console.error('Error updating appointment:', error);
+    console.error("Error updating appointment:", error);
     throw error;
   }
 }
@@ -291,13 +316,13 @@ export async function updateAppointment(
 export async function deleteAppointment(appointmentId: string): Promise<void> {
   try {
     const { error } = await supabase
-      .from('appointments')
+      .from("appointments")
       .delete()
-      .eq('appointment_id', appointmentId);
+      .eq("appointment_id", appointmentId);
 
     if (error) throw error;
   } catch (error) {
-    console.error('Error deleting appointment:', error);
+    console.error("Error deleting appointment:", error);
     throw error;
   }
 }

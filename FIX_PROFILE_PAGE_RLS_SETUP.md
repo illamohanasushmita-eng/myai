@@ -1,9 +1,11 @@
 # 🔐 Fix Profile Page - Enable RLS Policies
 
 ## Problem
+
 The profile page is showing a 406 error because the RLS (Row Level Security) policies are not properly configured on the `users` table in Supabase.
 
 ## Solution
+
 You need to enable RLS on the users table and create the necessary policies.
 
 ---
@@ -11,12 +13,14 @@ You need to enable RLS on the users table and create the necessary policies.
 ## ✅ Step-by-Step Fix (5 minutes)
 
 ### Step 1: Open Supabase Dashboard
+
 1. Go to https://app.supabase.com
 2. Select your project
 3. Click **SQL Editor** in the left sidebar
 4. Click **New Query**
 
 ### Step 2: Enable RLS on Users Table
+
 Copy and paste this SQL command:
 
 ```sql
@@ -27,6 +31,7 @@ ALTER TABLE users ENABLE ROW LEVEL SECURITY;
 Click **Run** and wait for success ✅
 
 ### Step 3: Create RLS Policies for Users Table
+
 Copy and paste this SQL command:
 
 ```sql
@@ -56,6 +61,7 @@ WITH CHECK (auth.uid() = user_id);
 Click **Run** and wait for success ✅
 
 ### Step 4: Verify RLS is Enabled
+
 1. Go to **Authentication** → **Policies** in Supabase
 2. Select the **users** table
 3. You should see 4 policies:
@@ -76,6 +82,7 @@ Click **Run** and wait for success ✅
    - Console shows clean logs with `[USER-SERVICE]` prefix
 
 ### Console Output (Expected)
+
 ```
 [USER-SERVICE] Fetching user with ID: 020cf70e-5fc8-431a-94ff-bd8b1eec400c
 [USER-SERVICE] User profile not found (PGRST116)
@@ -143,15 +150,15 @@ Default profile created successfully: { user_id: '...', email: '...', ... }
 ✅ **406 Not Acceptable Error** - Resolved by enabling RLS policies  
 ✅ **Profile Not Loading** - Now loads or creates automatically  
 ✅ **Permission Denied Errors** - RLS policies allow authenticated users to access their data  
-✅ **Auto-Profile Creation** - New users get a default profile automatically  
+✅ **Auto-Profile Creation** - New users get a default profile automatically
 
 ---
 
 ## 🎉 Done!
 
 Your profile page should now work perfectly. Users can:
+
 - View their profile
 - Update their profile
 - Auto-create profile if it doesn't exist
 - See clean error logs for debugging
-

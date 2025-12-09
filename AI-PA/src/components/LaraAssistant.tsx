@@ -1,18 +1,18 @@
 /**
  * Lara Voice Assistant Component
- * 
+ *
  * Full voice assistant with wake word detection, command listening,
  * intent parsing, and action execution.
- * 
+ *
  * Usage:
  * <LaraAssistant userId="user-123" />
  */
 
-'use client';
+"use client";
 
-import { useState, useEffect } from 'react';
-import { useLara } from '@/hooks/useLara';
-import { Mic, MicOff, RotateCcw, AlertCircle } from 'lucide-react';
+import { useState, useEffect } from "react";
+import { useLara } from "@/hooks/useLara";
+import { Mic, MicOff, RotateCcw, AlertCircle } from "lucide-react";
 
 export interface LaraAssistantProps {
   userId: string;
@@ -48,7 +48,7 @@ export function LaraAssistant({
             <div className="flex items-center gap-2">
               <div
                 className={`w-3 h-3 rounded-full ${
-                  isRunning ? 'bg-green-500 animate-pulse' : 'bg-gray-400'
+                  isRunning ? "bg-green-500 animate-pulse" : "bg-gray-400"
                 }`}
               />
               <h3 className="font-semibold text-gray-900">Lara Assistant</h3>
@@ -65,7 +65,7 @@ export function LaraAssistant({
           <p className="text-sm text-gray-600 mb-3">
             {isRunning
               ? '🎤 Listening for "Hey Lara"...'
-              : '⏸️ Assistant is paused'}
+              : "⏸️ Assistant is paused"}
           </p>
 
           {/* Error Message */}
@@ -135,8 +135,8 @@ export function LaraAssistant({
           onClick={() => setShowStatus(true)}
           className={`w-14 h-14 rounded-full shadow-lg flex items-center justify-center transition transform hover:scale-110 ${
             isRunning
-              ? 'bg-green-600 hover:bg-green-700'
-              : 'bg-gray-600 hover:bg-gray-700'
+              ? "bg-green-600 hover:bg-green-700"
+              : "bg-gray-600 hover:bg-gray-700"
           }`}
           title="Show Lara status"
         >
@@ -146,4 +146,3 @@ export function LaraAssistant({
     </div>
   );
 }
-

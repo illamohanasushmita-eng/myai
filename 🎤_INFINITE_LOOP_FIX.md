@@ -9,6 +9,7 @@
 ## 🔴 Problem
 
 The wake word listener was stuck in an infinite loop:
+
 ```
 🎤 Wake word recognition ended
 🎤 Restarting wake word listener...
@@ -19,7 +20,7 @@ The wake word listener was stuck in an infinite loop:
 ... (repeats infinitely)
 ```
 
-**Root Cause**: 
+**Root Cause**:
 The `onend` handler was checking the `wakeWordDetected` state, but React's asynchronous state updates meant the state wasn't updated yet when `onend` fired. This caused the listener to always think the wake word wasn't detected and kept restarting.
 
 ---
@@ -33,67 +34,71 @@ Used **refs** instead of state to track wake word detection status. Refs update 
 **File**: `src/hooks/useWakeWord.ts`
 
 #### 1. Added Refs for Synchronous Tracking (Lines 39-40)
+
 ```typescript
 const wakeWordDetectedRef = useRef(false);
 const isStoppingRef = useRef(false);
 ```
 
 #### 2. Updated onresult Handler (Lines 79-80, 103)
+
 ```typescript
 if (lowerTranscript.includes(wakeWord.toLowerCase())) {
-  console.log('✅ Wake word detected:', wakeWord);
-  wakeWordDetectedRef.current = true;  // ← Set ref immediately
-  isStoppingRef.current = true;         // ← Mark as stopping
-  setWakeWordDetected(true);            // ← Also update state
+  console.log("✅ Wake word detected:", wakeWord);
+  wakeWordDetectedRef.current = true; // ← Set ref immediately
+  isStoppingRef.current = true; // ← Mark as stopping
+  setWakeWordDetected(true); // ← Also update state
   // ...
   wakeWordTimeoutRef.current = setTimeout(() => {
     setWakeWordDetected(false);
-    wakeWordDetectedRef.current = false;  // ← Reset ref
+    wakeWordDetectedRef.current = false; // ← Reset ref
   }, 5000);
 }
 ```
 
 #### 3. Fixed onend Handler (Lines 147-169)
+
 ```typescript
 recognition.onend = () => {
-  console.log('🎤 Wake word recognition ended');
+  console.log("🎤 Wake word recognition ended");
   setIsListeningForWakeWord(false);
-  
+
   // Only restart if we didn't detect the wake word and we're not stopping intentionally
   if (enabled && !wakeWordDetectedRef.current && !isStoppingRef.current) {
-    console.log('🎤 Restarting wake word listener...');
+    console.log("🎤 Restarting wake word listener...");
     setTimeout(() => {
       try {
-        console.log('🎤 Starting wake word recognition again');
+        console.log("🎤 Starting wake word recognition again");
         recognition.start();
       } catch (e) {
-        if (e instanceof Error && !e.message.includes('already started')) {
-          console.error('Error restarting wake word listener:', e);
+        if (e instanceof Error && !e.message.includes("already started")) {
+          console.error("Error restarting wake word listener:", e);
         }
       }
     }, 500);
   } else if (isStoppingRef.current) {
-    console.log('🎤 Wake word listener stopped intentionally');
+    console.log("🎤 Wake word listener stopped intentionally");
     isStoppingRef.current = false;
   }
 };
 ```
 
 #### 4. Updated startWakeWordListener (Lines 183-199)
+
 ```typescript
 const startWakeWordListener = useCallback(() => {
   if (!recognitionRef.current || !isSupported) return;
 
   try {
-    console.log('🎤 Starting wake word listener');
+    console.log("🎤 Starting wake word listener");
     setWakeWordDetected(false);
-    wakeWordDetectedRef.current = false;  // ← Reset ref
-    isStoppingRef.current = false;        // ← Reset stopping flag
+    wakeWordDetectedRef.current = false; // ← Reset ref
+    isStoppingRef.current = false; // ← Reset stopping flag
     setError(null);
     recognitionRef.current.start();
   } catch (e) {
-    console.error('Error starting wake word listener:', e);
-    const errorMsg = 'Failed to start wake word listener';
+    console.error("Error starting wake word listener:", e);
+    const errorMsg = "Failed to start wake word listener";
     setError(errorMsg);
     onError?.(errorMsg);
   }
@@ -101,16 +106,17 @@ const startWakeWordListener = useCallback(() => {
 ```
 
 #### 5. Updated stopWakeWordListener (Line 202)
+
 ```typescript
 const stopWakeWordListener = useCallback(() => {
   if (!recognitionRef.current) return;
 
   try {
-    isStoppingRef.current = true;  // ← Mark as stopping
+    isStoppingRef.current = true; // ← Mark as stopping
     recognitionRef.current.stop();
     setIsListeningForWakeWord(false);
   } catch (e) {
-    console.error('Error stopping wake word listener:', e);
+    console.error("Error stopping wake word listener:", e);
   }
 }, []);
 ```
@@ -120,6 +126,7 @@ const stopWakeWordListener = useCallback(() => {
 ## 🔄 How It Works Now
 
 ### Scenario 1: Wake Word Detected
+
 ```
 1. User says "Hey Lara"
 2. onresult fires → Sets wakeWordDetectedRef.current = true
@@ -132,6 +139,7 @@ const stopWakeWordListener = useCallback(() => {
 ```
 
 ### Scenario 2: No Speech Detected
+
 ```
 1. User doesn't speak
 2. Recognition times out
@@ -140,6 +148,7 @@ const stopWakeWordListener = useCallback(() => {
 ```
 
 ### Scenario 3: Intentional Stop
+
 ```
 1. stopWakeWordListener() called
 2. Sets isStoppingRef.current = true
@@ -153,9 +162,11 @@ const stopWakeWordListener = useCallback(() => {
 ## 🧪 Testing
 
 ### Test 1: Wake Word Detection
+
 **Say**: "Hey Lara"
 
 **Expected**:
+
 - ✅ System responds with "Yes, how can I help?"
 - ✅ Indicator shows "Listening..."
 - ✅ Console shows: `✅ Wake word detected: hey lara`
@@ -163,18 +174,22 @@ const stopWakeWordListener = useCallback(() => {
 - ✅ NO infinite restart loop
 
 ### Test 2: Command Execution
+
 **Say**: "Hey Lara, show my tasks"
 
 **Expected**:
+
 - ✅ System navigates to /professional
 - ✅ Indicator hides after navigation
 - ✅ Console shows command execution logs
 - ✅ System ready for next command
 
 ### Test 3: Continuous Listening
+
 **Say**: Multiple commands in sequence
 
 **Expected**:
+
 - ✅ Each command executes properly
 - ✅ System automatically listens for next "Hey Lara"
 - ✅ No manual restart needed
@@ -185,6 +200,7 @@ const stopWakeWordListener = useCallback(() => {
 ## 📊 Console Output (Fixed)
 
 ### Before (Broken)
+
 ```
 🎤 Wake word recognition ended
 🎤 Restarting wake word listener...
@@ -196,6 +212,7 @@ const stopWakeWordListener = useCallback(() => {
 ```
 
 ### After (Fixed)
+
 ```
 🎤 Starting wake word listener
 🎤 Final transcript: hey lara
@@ -217,7 +234,7 @@ const stopWakeWordListener = useCallback(() => {
 **Issue**: ✅ FIXED  
 **Code Quality**: ✅ VERIFIED  
 **Testing**: ✅ READY  
-**Production Ready**: ✅ YES  
+**Production Ready**: ✅ YES
 
 ---
 
@@ -232,5 +249,3 @@ const stopWakeWordListener = useCallback(() => {
 ---
 
 **The infinite loop issue is now fixed!** 🎤
-
-

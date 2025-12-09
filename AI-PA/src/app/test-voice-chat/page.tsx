@@ -1,8 +1,8 @@
-'use client';
+"use client";
 
-import { useState } from 'react';
-import { VoiceChat } from '@/components/VoiceChat';
-import { Mic, MessageSquare, Settings } from 'lucide-react';
+import { useState } from "react";
+import { VoiceChat } from "@/components/VoiceChat";
+import { Mic, MessageSquare, Settings } from "lucide-react";
 
 /**
  * Test page for voice chat feature
@@ -10,7 +10,9 @@ import { Mic, MessageSquare, Settings } from 'lucide-react';
  */
 export default function TestVoiceChatPage() {
   const [showVoiceChat, setShowVoiceChat] = useState(false);
-  const [userId] = useState('test-user-' + Math.random().toString(36).substr(2, 9));
+  const [userId] = useState(
+    "test-user-" + Math.random().toString(36).substr(2, 9),
+  );
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-purple-100 via-blue-100 to-pink-100">
@@ -20,10 +22,13 @@ export default function TestVoiceChatPage() {
           <div className="flex items-center justify-between">
             <div className="flex items-center gap-3">
               <Mic className="w-8 h-8 text-purple-600" />
-              <h1 className="text-3xl font-bold text-gray-900">Voice Chat Test</h1>
+              <h1 className="text-3xl font-bold text-gray-900">
+                Voice Chat Test
+              </h1>
             </div>
             <div className="text-sm text-gray-600">
-              User ID: <code className="bg-gray-100 px-2 py-1 rounded">{userId}</code>
+              User ID:{" "}
+              <code className="bg-gray-100 px-2 py-1 rounded">{userId}</code>
             </div>
           </div>
         </div>
@@ -60,7 +65,9 @@ export default function TestVoiceChatPage() {
 
             {/* Instructions */}
             <div className="bg-white rounded-lg shadow-md p-6">
-              <h2 className="text-xl font-semibold text-gray-900 mb-4">How to Use</h2>
+              <h2 className="text-xl font-semibold text-gray-900 mb-4">
+                How to Use
+              </h2>
               <ol className="space-y-3 text-gray-700">
                 <li className="flex gap-3">
                   <span className="flex-shrink-0 w-6 h-6 bg-purple-600 text-white rounded-full flex items-center justify-center text-sm font-semibold">
@@ -97,7 +104,9 @@ export default function TestVoiceChatPage() {
 
             {/* Example Commands */}
             <div className="bg-white rounded-lg shadow-md p-6">
-              <h2 className="text-xl font-semibold text-gray-900 mb-4">Try These Commands</h2>
+              <h2 className="text-xl font-semibold text-gray-900 mb-4">
+                Try These Commands
+              </h2>
               <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
                 <CommandChip text="Hello Lara" />
                 <CommandChip text="Show my tasks" />
@@ -122,7 +131,9 @@ export default function TestVoiceChatPage() {
 
             {/* Info Cards */}
             <div className="bg-white rounded-lg shadow-md p-6">
-              <h3 className="font-semibold text-gray-900 mb-3">Browser Support</h3>
+              <h3 className="font-semibold text-gray-900 mb-3">
+                Browser Support
+              </h3>
               <ul className="space-y-2 text-sm text-gray-700">
                 <li>✅ Chrome/Chromium</li>
                 <li>✅ Firefox</li>
@@ -144,7 +155,8 @@ export default function TestVoiceChatPage() {
             <div className="bg-blue-50 border border-blue-200 rounded-lg p-6">
               <h3 className="font-semibold text-blue-900 mb-2">💡 Tip</h3>
               <p className="text-sm text-blue-800">
-                For best results, speak clearly and wait for the transcription to complete before speaking again.
+                For best results, speak clearly and wait for the transcription
+                to complete before speaking again.
               </p>
             </div>
           </div>
@@ -155,7 +167,10 @@ export default function TestVoiceChatPage() {
       {showVoiceChat && (
         <div className="fixed inset-0 bg-black/50 flex items-center justify-center p-4 z-50">
           <div className="bg-white rounded-lg shadow-2xl w-full max-w-2xl h-[600px]">
-            <VoiceChat userId={userId} onClose={() => setShowVoiceChat(false)} />
+            <VoiceChat
+              userId={userId}
+              onClose={() => setShowVoiceChat(false)}
+            />
           </div>
         </div>
       )}
@@ -200,4 +215,3 @@ function CommandChip({ text }: { text: string }) {
     </button>
   );
 }
-

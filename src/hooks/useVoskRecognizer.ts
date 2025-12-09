@@ -1,7 +1,7 @@
 /**
  * useVoskRecognizer Hook
  * React hook for Vosk wake-word detection and speech recognition
- * 
+ *
  * Usage:
  * const { start, stop, isRunning } = useVoskRecognizer({
  *   onWakeWord: () => console.log('Wake word detected!'),
@@ -9,9 +9,9 @@
  * });
  */
 
-'use client';
+"use client";
 
-import { useCallback, useEffect, useRef, useState } from 'react';
+import { useCallback, useEffect, useRef, useState } from "react";
 import {
   loadVoskModel,
   startRecognizer,
@@ -19,7 +19,7 @@ import {
   getRecognizerState,
   resetRecognizer,
   VoskRecognizerCallbacks,
-} from '@/lib/voice/vosk-recognizer';
+} from "@/lib/voice/vosk-recognizer";
 
 export interface UseVoskRecognizerOptions extends VoskRecognizerCallbacks {
   autoStart?: boolean;
@@ -36,11 +36,11 @@ export interface UseVoskRecognizerReturn {
 }
 
 export function useVoskRecognizer(
-  options: UseVoskRecognizerOptions = {}
+  options: UseVoskRecognizerOptions = {},
 ): UseVoskRecognizerReturn {
   const {
     autoStart = false,
-    modelPath = '/vosk/model.zip',
+    modelPath = "/vosk/model.zip",
     onWakeWord,
     onRecognize,
     onError,
@@ -58,28 +58,28 @@ export function useVoskRecognizer(
       setIsLoading(true);
       setError(null);
 
-      console.log('🎤 Starting Vosk recognizer hook...');
+      console.log("🎤 Starting Vosk recognizer hook...");
 
       await startRecognizer(
         () => {
-          console.log('✅ Wake word detected in hook');
+          console.log("✅ Wake word detected in hook");
           onWakeWord?.();
         },
         (text) => {
-          console.log('🎤 Recognized text in hook:', text);
+          console.log("🎤 Recognized text in hook:", text);
           onRecognize?.(text);
         },
         (err) => {
-          console.error('❌ Error in hook:', err);
+          console.error("❌ Error in hook:", err);
           if (isMountedRef.current) {
             setError(err);
           }
           onError?.(err);
         },
         (partial) => {
-          console.log('🎤 Partial result in hook:', partial);
+          console.log("🎤 Partial result in hook:", partial);
           onPartialResult?.(partial);
-        }
+        },
       );
 
       if (isMountedRef.current) {
@@ -88,7 +88,7 @@ export function useVoskRecognizer(
       }
     } catch (err) {
       const errorMsg = err instanceof Error ? err.message : String(err);
-      console.error('❌ Failed to start recognizer:', errorMsg);
+      console.error("❌ Failed to start recognizer:", errorMsg);
       if (isMountedRef.current) {
         setError(errorMsg);
         setIsLoading(false);
@@ -100,14 +100,14 @@ export function useVoskRecognizer(
   // Stop recognizer
   const stop = useCallback(() => {
     try {
-      console.log('🎤 Stopping Vosk recognizer hook...');
+      console.log("🎤 Stopping Vosk recognizer hook...");
       stopRecognizer();
       if (isMountedRef.current) {
         setIsRunning(false);
       }
     } catch (err) {
       const errorMsg = err instanceof Error ? err.message : String(err);
-      console.error('❌ Failed to stop recognizer:', errorMsg);
+      console.error("❌ Failed to stop recognizer:", errorMsg);
       if (isMountedRef.current) {
         setError(errorMsg);
       }
@@ -117,7 +117,7 @@ export function useVoskRecognizer(
   // Reset recognizer
   const reset = useCallback(async () => {
     try {
-      console.log('🎤 Resetting Vosk recognizer hook...');
+      console.log("🎤 Resetting Vosk recognizer hook...");
       stop();
       await resetRecognizer();
       if (isMountedRef.current) {
@@ -125,7 +125,7 @@ export function useVoskRecognizer(
       }
     } catch (err) {
       const errorMsg = err instanceof Error ? err.message : String(err);
-      console.error('❌ Failed to reset recognizer:', errorMsg);
+      console.error("❌ Failed to reset recognizer:", errorMsg);
       if (isMountedRef.current) {
         setError(errorMsg);
       }
@@ -153,4 +153,3 @@ export function useVoskRecognizer(
     error,
   };
 }
-

@@ -18,12 +18,12 @@ export interface WakeWordManagerState {
 }
 
 const WAKE_WORD_VARIATIONS = [
-  'hey lara',
-  'hey laura',
-  'hey lora',
-  'hey larra',
-  'hey laira',
-  'hey lera',
+  "hey lara",
+  "hey laura",
+  "hey lora",
+  "hey larra",
+  "hey laira",
+  "hey lera",
 ];
 
 class WakeWordManager {
@@ -45,18 +45,19 @@ class WakeWordManager {
 
   private initializeRecognition() {
     const SpeechRecognition =
-      (window as any).SpeechRecognition || (window as any).webkitSpeechRecognition;
+      (window as any).SpeechRecognition ||
+      (window as any).webkitSpeechRecognition;
 
     if (!SpeechRecognition) {
-      console.error('Speech Recognition not supported');
-      this.config.onError?.('Speech Recognition not supported');
+      console.error("Speech Recognition not supported");
+      this.config.onError?.("Speech Recognition not supported");
       return;
     }
 
     this.recognition = new SpeechRecognition();
     this.recognition.continuous = true;
     this.recognition.interimResults = true;
-    this.recognition.language = this.config.language || 'en-US';
+    this.recognition.language = this.config.language || "en-US";
 
     this.setupEventHandlers();
   }
@@ -65,7 +66,7 @@ class WakeWordManager {
     if (!this.recognition) return;
 
     this.recognition.onstart = () => {
-      console.log('🎤 Wake word manager: listening started');
+      console.log("🎤 Wake word manager: listening started");
       this.state.isListening = true;
       this.state.errorCount = 0;
     };
@@ -73,11 +74,13 @@ class WakeWordManager {
     this.recognition.onresult = (event: any) => {
       for (let i = event.resultIndex; i < event.results.length; i++) {
         if (event.results[i].isFinal) {
-          const transcript = event.results[i][0].transcript.toLowerCase().trim();
-          console.log('🎤 Transcript:', transcript);
+          const transcript = event.results[i][0].transcript
+            .toLowerCase()
+            .trim();
+          console.log("🎤 Transcript:", transcript);
 
           if (this.isWakeWordDetected(transcript)) {
-            console.log('✅ Wake word detected!');
+            console.log("✅ Wake word detected!");
             this.state.lastDetectedAt = Date.now();
             this.state.isProcessing = true;
 
@@ -85,7 +88,7 @@ class WakeWordManager {
             try {
               this.recognition.stop();
             } catch (e) {
-              console.error('Error stopping recognition:', e);
+              console.error("Error stopping recognition:", e);
             }
 
             // Call the callback
@@ -96,44 +99,44 @@ class WakeWordManager {
     };
 
     this.recognition.onerror = (event: any) => {
-      console.error('🎤 Recognition error:', event.error);
+      console.error("🎤 Recognition error:", event.error);
 
-      if (event.error === 'aborted') {
+      if (event.error === "aborted") {
         return;
       }
 
-      if (event.error === 'no-speech') {
-        console.log('🎤 No speech detected, will restart...');
+      if (event.error === "no-speech") {
+        console.log("🎤 No speech detected, will restart...");
         return;
       }
 
       this.state.errorCount++;
       if (this.state.errorCount > 5) {
-        console.error('Too many errors, stopping');
+        console.error("Too many errors, stopping");
         this.config.onError?.(`Too many errors: ${event.error}`);
       }
     };
 
     this.recognition.onend = () => {
-      console.log('🎤 Wake word manager: listening ended');
+      console.log("🎤 Wake word manager: listening ended");
       this.state.isListening = false;
 
       if (!this.isMounted || this.isDisabled) {
-        console.log('🎤 Manager unmounted or disabled, not restarting');
+        console.log("🎤 Manager unmounted or disabled, not restarting");
         return;
       }
 
       // If not processing, restart immediately
       if (!this.state.isProcessing) {
-        console.log('🎤 Restarting wake word listener...');
+        console.log("🎤 Restarting wake word listener...");
         this.start();
       }
     };
   }
 
   private isWakeWordDetected(transcript: string): boolean {
-    return WAKE_WORD_VARIATIONS.some(variation =>
-      transcript.includes(variation)
+    return WAKE_WORD_VARIATIONS.some((variation) =>
+      transcript.includes(variation),
     );
   }
 
@@ -141,15 +144,15 @@ class WakeWordManager {
     if (!this.recognition || this.isDisabled) return;
 
     if (this.state.isListening) {
-      console.log('🎤 Already listening');
+      console.log("🎤 Already listening");
       return;
     }
 
     try {
-      console.log('🎤 Starting wake word listener');
+      console.log("🎤 Starting wake word listener");
       this.recognition.start();
     } catch (e) {
-      console.error('Error starting recognition:', e);
+      console.error("Error starting recognition:", e);
     }
   }
 
@@ -157,16 +160,16 @@ class WakeWordManager {
     if (!this.recognition) return;
 
     try {
-      console.log('🎤 Stopping wake word listener');
+      console.log("🎤 Stopping wake word listener");
       this.recognition.stop();
       this.state.isListening = false;
     } catch (e) {
-      console.error('Error stopping recognition:', e);
+      console.error("Error stopping recognition:", e);
     }
   }
 
   public restart() {
-    console.log('🎤 Restarting wake word listener');
+    console.log("🎤 Restarting wake word listener");
     this.state.isProcessing = false;
 
     if (this.restartTimeoutId) {
@@ -181,19 +184,19 @@ class WakeWordManager {
   }
 
   public disable() {
-    console.log('🎤 Disabling wake word manager');
+    console.log("🎤 Disabling wake word manager");
     this.isDisabled = true;
     this.stop();
   }
 
   public enable() {
-    console.log('🎤 Enabling wake word manager');
+    console.log("🎤 Enabling wake word manager");
     this.isDisabled = false;
     this.start();
   }
 
   public destroy() {
-    console.log('🎤 Destroying wake word manager');
+    console.log("🎤 Destroying wake word manager");
     this.isMounted = false;
     this.stop();
 
@@ -213,7 +216,7 @@ class WakeWordManager {
 let managerInstance: WakeWordManager | null = null;
 
 export function getWakeWordManager(
-  config?: WakeWordManagerConfig
+  config?: WakeWordManagerConfig,
 ): WakeWordManager {
   if (!managerInstance) {
     managerInstance = new WakeWordManager(config);
@@ -227,4 +230,3 @@ export function destroyWakeWordManager() {
     managerInstance = null;
   }
 }
-

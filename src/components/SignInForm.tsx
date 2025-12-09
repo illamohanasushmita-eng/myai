@@ -1,62 +1,65 @@
-'use client';
+"use client";
 
-import { useState } from 'react';
-import { useRouter } from 'next/navigation';
-import { signIn } from '@/lib/services';
-import { Button } from '@/components/ui/button';
-import { Input } from '@/components/ui/input';
-import Link from 'next/link';
+import { useState } from "react";
+import { useRouter } from "next/navigation";
+import { signIn } from "@/lib/services";
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import Link from "next/link";
 
 export default function SignInForm() {
   const router = useRouter();
-  const [email, setEmail] = useState('');
-  const [password, setPassword] = useState('');
+  const [email, setEmail] = useState("");
+  const [password, setPassword] = useState("");
   const [loading, setLoading] = useState(false);
-  const [message, setMessage] = useState('');
-  const [messageType, setMessageType] = useState<'success' | 'error'>('success');
+  const [message, setMessage] = useState("");
+  const [messageType, setMessageType] = useState<"success" | "error">(
+    "success",
+  );
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    setMessage('');
+    setMessage("");
 
     // Validation
     if (!email || !password) {
-      setMessageType('error');
-      setMessage('Please enter email and password');
+      setMessageType("error");
+      setMessage("Please enter email and password");
       return;
     }
 
     setLoading(true);
 
     try {
-      console.log('[SIGNIN-FORM] Attempting sign in...');
+      console.log("[SIGNIN-FORM] Attempting sign in...");
       const result = await signIn(email, password);
 
       if (result.user) {
-        console.log('[SIGNIN-FORM] Sign in successful, storing user data...');
+        console.log("[SIGNIN-FORM] Sign in successful, storing user data...");
         // Store user ID in localStorage
-        localStorage.setItem('userId', result.user.id);
-        localStorage.setItem('userEmail', result.user.email || '');
+        localStorage.setItem("userId", result.user.id);
+        localStorage.setItem("userEmail", result.user.email || "");
 
-        setMessageType('success');
-        setMessage('✅ Sign in successful! Redirecting...');
+        setMessageType("success");
+        setMessage("✅ Sign in successful! Redirecting...");
 
         // Redirect to dashboard after 1 second
         setTimeout(() => {
-          console.log('[SIGNIN-FORM] Redirecting to dashboard...');
-          router.push('/dashboard');
+          console.log("[SIGNIN-FORM] Redirecting to dashboard...");
+          router.push("/dashboard");
         }, 1000);
       } else {
-        console.error('[SIGNIN-FORM] No user data returned');
-        setMessageType('error');
-        setMessage('❌ Sign in failed: No user data returned');
+        console.error("[SIGNIN-FORM] No user data returned");
+        setMessageType("error");
+        setMessage("❌ Sign in failed: No user data returned");
       }
     } catch (error: any) {
-      console.error('[SIGNIN-FORM] Sign in error:', error);
-      setMessageType('error');
-      const errorMessage = error?.message || 'Sign in failed. Please try again.';
+      console.error("[SIGNIN-FORM] Sign in error:", error);
+      setMessageType("error");
+      const errorMessage =
+        error?.message || "Sign in failed. Please try again.";
       setMessage(`❌ ${errorMessage}`);
-      console.error('Sign in error:', error);
+      console.error("Sign in error:", error);
     } finally {
       setLoading(false);
     }
@@ -108,9 +111,9 @@ export default function SignInForm() {
       {message && (
         <div
           className={`p-3 rounded-lg text-sm ${
-            messageType === 'success'
-              ? 'bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-200'
-              : 'bg-red-100 text-red-800 dark:bg-red-900 dark:text-red-200'
+            messageType === "success"
+              ? "bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-200"
+              : "bg-red-100 text-red-800 dark:bg-red-900 dark:text-red-200"
           }`}
         >
           {message}
@@ -124,17 +127,19 @@ export default function SignInForm() {
         className="w-full font-bold py-3 px-5 rounded-lg !mt-6"
         size="lg"
       >
-        {loading ? 'Signing in...' : 'Sign In'}
+        {loading ? "Signing in..." : "Sign In"}
       </Button>
 
       {/* Sign Up Link */}
       <p className="text-center text-sm text-gray-500 dark:text-gray-400 mt-6">
-        Don't have an account?{' '}
-        <Link href="/signup" className="font-medium text-primary hover:underline">
+        Don't have an account?{" "}
+        <Link
+          href="/signup"
+          className="font-medium text-primary hover:underline"
+        >
           Sign Up
         </Link>
       </p>
     </form>
   );
 }
-

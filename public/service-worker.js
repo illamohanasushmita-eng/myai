@@ -1,30 +1,27 @@
 // Service Worker for Weather Scheduler
 // Handles offline caching and push notifications
 
-const CACHE_NAME = 'weather-cache-v1';
-const URLS_TO_CACHE = [
-  '/',
-  '/api/weather',
-];
+const CACHE_NAME = "weather-cache-v1";
+const URLS_TO_CACHE = ["/", "/api/weather"];
 
 // Install event - cache resources
-self.addEventListener('install', (event) => {
-  console.log('🔧 Service Worker installing...');
+self.addEventListener("install", (event) => {
+  console.log("🔧 Service Worker installing...");
   event.waitUntil(
     caches.open(CACHE_NAME).then((cache) => {
-      console.log('📦 Caching resources...');
+      console.log("📦 Caching resources...");
       return cache.addAll(URLS_TO_CACHE).catch((err) => {
-        console.warn('⚠️ Some resources could not be cached:', err);
+        console.warn("⚠️ Some resources could not be cached:", err);
         // Don't fail the install if some resources can't be cached
       });
-    })
+    }),
   );
   self.skipWaiting();
 });
 
 // Activate event - clean up old caches
-self.addEventListener('activate', (event) => {
-  console.log('✅ Service Worker activating...');
+self.addEventListener("activate", (event) => {
+  console.log("✅ Service Worker activating...");
   event.waitUntil(
     caches.keys().then((cacheNames) => {
       return Promise.all(
@@ -33,22 +30,22 @@ self.addEventListener('activate', (event) => {
             console.log(`🗑️ Deleting old cache: ${cacheName}`);
             return caches.delete(cacheName);
           }
-        })
+        }),
       );
-    })
+    }),
   );
   self.clients.claim();
 });
 
 // Fetch event - serve from cache, fallback to network
-self.addEventListener('fetch', (event) => {
+self.addEventListener("fetch", (event) => {
   // Only handle GET requests
-  if (event.request.method !== 'GET') {
+  if (event.request.method !== "GET") {
     return;
   }
 
   // Skip non-http(s) requests
-  if (!event.request.url.startsWith('http')) {
+  if (!event.request.url.startsWith("http")) {
     return;
   }
 
@@ -62,7 +59,11 @@ self.addEventListener('fetch', (event) => {
       return fetch(event.request)
         .then((response) => {
           // Don't cache non-successful responses
-          if (!response || response.status !== 200 || response.type === 'error') {
+          if (
+            !response ||
+            response.status !== 200 ||
+            response.type === "error"
+          ) {
             return response;
           }
 
@@ -79,27 +80,27 @@ self.addEventListener('fetch', (event) => {
         .catch((err) => {
           console.error(`❌ Fetch failed for ${event.request.url}:`, err);
           // Return a custom offline response if needed
-          return new Response('Offline - Resource not available', {
+          return new Response("Offline - Resource not available", {
             status: 503,
-            statusText: 'Service Unavailable',
+            statusText: "Service Unavailable",
             headers: new Headers({
-              'Content-Type': 'text/plain',
+              "Content-Type": "text/plain",
             }),
           });
         });
-    })
+    }),
   );
 });
 
 // Push notification event
-self.addEventListener('push', (event) => {
-  console.log('📢 Push notification received');
+self.addEventListener("push", (event) => {
+  console.log("📢 Push notification received");
 
   let notificationData = {
-    title: 'Weather Update',
-    body: 'Check the latest weather information',
-    icon: '/weather-icon.png',
-    badge: '/weather-badge.png',
+    title: "Weather Update",
+    body: "Check the latest weather information",
+    icon: "/weather-icon.png",
+    badge: "/weather-badge.png",
   };
 
   if (event.data) {
@@ -115,38 +116,37 @@ self.addEventListener('push', (event) => {
       body: notificationData.body,
       icon: notificationData.icon,
       badge: notificationData.badge,
-      tag: 'weather-update',
+      tag: "weather-update",
       requireInteraction: false,
-    })
+    }),
   );
 });
 
 // Notification click event
-self.addEventListener('notificationclick', (event) => {
-  console.log('👆 Notification clicked');
+self.addEventListener("notificationclick", (event) => {
+  console.log("👆 Notification clicked");
   event.notification.close();
 
   event.waitUntil(
-    clients.matchAll({ type: 'window' }).then((clientList) => {
+    clients.matchAll({ type: "window" }).then((clientList) => {
       // Check if there's already a window/tab open with the target URL
       for (let i = 0; i < clientList.length; i++) {
         const client = clientList[i];
-        if (client.url === '/' && 'focus' in client) {
+        if (client.url === "/" && "focus" in client) {
           return client.focus();
         }
       }
       // If not, open a new window/tab with the target URL
       if (clients.openWindow) {
-        return clients.openWindow('/');
+        return clients.openWindow("/");
       }
-    })
+    }),
   );
 });
 
 // Notification close event
-self.addEventListener('notificationclose', (event) => {
-  console.log('❌ Notification closed');
+self.addEventListener("notificationclose", (event) => {
+  console.log("❌ Notification closed");
 });
 
-console.log('✅ Service Worker loaded');
-
+console.log("✅ Service Worker loaded");

@@ -1,6 +1,7 @@
 # Module Resolution Error - Fixed ✅
 
 ## Error Message
+
 ```
 Cannot find module './4586.js'
 Require stack:
@@ -9,10 +10,14 @@ Require stack:
 ```
 
 ## Root Cause
+
 The initial implementation tried to export global functions from the reminders page component:
+
 ```typescript
 // ❌ WRONG - Causes module resolution error
-export function setGlobalAddReminderOptimistically(fn: (reminder: Reminder) => void) {
+export function setGlobalAddReminderOptimistically(
+  fn: (reminder: Reminder) => void,
+) {
   globalAddReminderOptimistically = fn;
 }
 
@@ -24,18 +29,22 @@ export function getGlobalAddReminderOptimistically() {
 This caused Next.js to create additional webpack chunks that couldn't be resolved at runtime.
 
 ## Solution
+
 Changed to a **window-based approach** for client-side function storage:
 
 ### 1. Reminders Page (reminders/page.tsx)
+
 ```typescript
 // ✅ CORRECT - Store function on window object
 useEffect(() => {
-  if (typeof window !== 'undefined') {
+  if (typeof window !== "undefined") {
     (window as any).__addReminderOptimistically = addReminderOptimistically;
-    console.log('📌 [REMINDERS-PAGE] Stored addReminderOptimistically on window');
+    console.log(
+      "📌 [REMINDERS-PAGE] Stored addReminderOptimistically on window",
+    );
   }
   return () => {
-    if (typeof window !== 'undefined') {
+    if (typeof window !== "undefined") {
       delete (window as any).__addReminderOptimistically;
     }
   };
@@ -43,6 +52,7 @@ useEffect(() => {
 ```
 
 ### 2. useLara Hook (useLara.ts)
+
 ```typescript
 // ✅ CORRECT - Retrieve function from window
 onAddReminder: async (text: string, time?: string) => {
@@ -68,6 +78,7 @@ onAddReminder: async (text: string, time?: string) => {
 ## Build Results
 
 ✅ **Build Successful**
+
 - Compiled successfully in 22.7 seconds
 - No module resolution errors
 - All 54 pages generated
@@ -86,6 +97,7 @@ onAddReminder: async (text: string, time?: string) => {
 ## Testing
 
 The fix has been verified:
+
 - ✅ Build completes without errors
 - ✅ Dev server starts successfully
 - ✅ No webpack module resolution errors
@@ -95,8 +107,8 @@ The fix has been verified:
 ## Key Takeaway
 
 When sharing state between components in Next.js:
+
 - ❌ Don't export functions from server components
 - ✅ Use window object for client-side state sharing
 - ✅ Always check `typeof window !== 'undefined'` for SSR safety
 - ✅ Provide graceful fallbacks when state is unavailable
-

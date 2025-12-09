@@ -11,6 +11,7 @@
 Complete Vosk integration for wake-word detection and speech recognition in your AI Personal Assistant "Lara".
 
 **Features**:
+
 - ✅ Load Vosk model from `/public/vosk/model.zip`
 - ✅ Continuous microphone listening
 - ✅ Wake-word detection: "hey lara"
@@ -61,7 +62,7 @@ Complete Vosk integration for wake-word detection and speech recognition in your
 ### Step 1: Import Hook
 
 ```typescript
-import { useVoskRecognizer } from '@/hooks/useVoskRecognizer';
+import { useVoskRecognizer } from "@/hooks/useVoskRecognizer";
 ```
 
 ### Step 2: Initialize in Component
@@ -115,6 +116,7 @@ export function MyVoiceComponent() {
 React hook for Vosk recognizer.
 
 **Options**:
+
 ```typescript
 {
   autoStart?: boolean;           // Auto-start on mount
@@ -127,6 +129,7 @@ React hook for Vosk recognizer.
 ```
 
 **Returns**:
+
 ```typescript
 {
   start: () => Promise<void>,    // Start recognizer
@@ -159,10 +162,10 @@ const { start, stop, isRunning } = useVoskRecognizer({
 ```typescript
 const { start } = useVoskRecognizer({
   onRecognize: (text) => {
-    if (text.includes('tasks')) {
-      router.push('/professional');
-    } else if (text.includes('reminders')) {
-      router.push('/reminders');
+    if (text.includes("tasks")) {
+      router.push("/professional");
+    } else if (text.includes("reminders")) {
+      router.push("/reminders");
     }
   },
 });
@@ -173,7 +176,7 @@ const { start } = useVoskRecognizer({
 ```typescript
 const { start } = useVoskRecognizer({
   onWakeWord: () => {
-    const utterance = new SpeechSynthesisUtterance('Yes, how can I help?');
+    const utterance = new SpeechSynthesisUtterance("Yes, how can I help?");
     window.speechSynthesis.speak(utterance);
   },
 });
@@ -183,8 +186,8 @@ const { start } = useVoskRecognizer({
 
 ```typescript
 const { start, stop } = useVoskRecognizer({
-  autoStart: true,  // Start on mount
-  onWakeWord: () => console.log('Wake word!'),
+  autoStart: true, // Start on mount
+  onWakeWord: () => console.log("Wake word!"),
 });
 ```
 
@@ -195,14 +198,14 @@ const { start, stop } = useVoskRecognizer({
 For advanced usage, use the low-level API directly:
 
 ```typescript
-import { startRecognizer, stopRecognizer } from '@/lib/voice/vosk-recognizer';
+import { startRecognizer, stopRecognizer } from "@/lib/voice/vosk-recognizer";
 
 // Start recognizer
 await startRecognizer(
-  () => console.log('Wake word!'),
-  (text) => console.log('Text:', text),
-  (error) => console.error('Error:', error),
-  (partial) => console.log('Partial:', partial)
+  () => console.log("Wake word!"),
+  (text) => console.log("Text:", text),
+  (error) => console.error("Error:", error),
+  (partial) => console.log("Partial:", partial),
 );
 
 // Stop recognizer
@@ -249,7 +252,7 @@ stopRecognizer();
 
 ```typescript
 const { start } = useVoskRecognizer({
-  onWakeWord: () => console.log('✅ Wake word detected!'),
+  onWakeWord: () => console.log("✅ Wake word detected!"),
 });
 
 await start();
@@ -261,7 +264,7 @@ await start();
 
 ```typescript
 const { start } = useVoskRecognizer({
-  onRecognize: (text) => console.log('Command:', text),
+  onRecognize: (text) => console.log("Command:", text),
 });
 
 await start();
@@ -273,12 +276,12 @@ await start();
 
 ## 🐛 Troubleshooting
 
-| Issue | Solution |
-|-------|----------|
-| Model not loading | Check `/public/vosk/model.zip` exists |
-| No microphone | Grant permission in browser |
-| Wake word not detected | Speak clearly, louder |
-| High CPU usage | Normal during recognition |
+| Issue                  | Solution                              |
+| ---------------------- | ------------------------------------- |
+| Model not loading      | Check `/public/vosk/model.zip` exists |
+| No microphone          | Grant permission in browser           |
+| Wake word not detected | Speak clearly, louder                 |
+| High CPU usage         | Normal during recognition             |
 
 ---
 
@@ -324,5 +327,3 @@ Everything is set up and ready to use. Start by importing the hook and adding it
 **Questions?** Check the documentation files for detailed information.
 
 **Ready to build amazing voice features!** 🎤
-
-

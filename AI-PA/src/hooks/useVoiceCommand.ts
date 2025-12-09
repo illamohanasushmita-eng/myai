@@ -1,12 +1,12 @@
-'use client';
+"use client";
 
-import { useState, useCallback, useRef, useEffect } from 'react';
+import { useState, useCallback, useRef, useEffect } from "react";
 import {
   processVoiceCommand,
   getErrorMessage,
   VoiceCommandResponse,
   VoiceCommandError,
-} from '@/lib/ai/voice-command';
+} from "@/lib/ai/voice-command";
 
 interface UseVoiceCommandOptions {
   onSuccess?: (response: VoiceCommandResponse) => void;
@@ -30,20 +30,24 @@ interface UseVoiceCommandReturn {
 }
 
 export function useVoiceCommand(
-  options: UseVoiceCommandOptions = {}
+  options: UseVoiceCommandOptions = {},
 ): UseVoiceCommandReturn {
   const [isListening, setIsListening] = useState(false);
   const [isProcessing, setIsProcessing] = useState(false);
-  const [transcribedText, setTranscribedText] = useState('');
-  const [lastResponse, setLastResponse] = useState<VoiceCommandResponse | null>(null);
+  const [transcribedText, setTranscribedText] = useState("");
+  const [lastResponse, setLastResponse] = useState<VoiceCommandResponse | null>(
+    null,
+  );
   const [error, setError] = useState<VoiceCommandError | null>(null);
   const [isSupported, setIsSupported] = useState(true);
 
   const recognitionRef = useRef<any>(null);
-  const finalTranscriptRef = useRef('');
+  const finalTranscriptRef = useRef("");
 
   useEffect(() => {
-    const SpeechRecognition = (window as any).SpeechRecognition || (window as any).webkitSpeechRecognition;
+    const SpeechRecognition =
+      (window as any).SpeechRecognition ||
+      (window as any).webkitSpeechRecognition;
 
     if (!SpeechRecognition) {
       setIsSupported(false);
@@ -53,23 +57,23 @@ export function useVoiceCommand(
     const recognition = new SpeechRecognition();
     recognition.continuous = false;
     recognition.interimResults = true;
-    recognition.language = options.language || 'en-US';
+    recognition.language = options.language || "en-US";
 
     recognition.onstart = () => {
       setIsListening(true);
       setError(null);
-      setTranscribedText('');
-      finalTranscriptRef.current = '';
+      setTranscribedText("");
+      finalTranscriptRef.current = "";
     };
 
     recognition.onresult = (event: any) => {
-      let interimTranscript = '';
+      let interimTranscript = "";
 
       for (let i = event.resultIndex; i < event.results.length; i++) {
         const transcript = event.results[i][0].transcript;
 
         if (event.results[i].isFinal) {
-          finalTranscriptRef.current += transcript + ' ';
+          finalTranscriptRef.current += transcript + " ";
         } else {
           interimTranscript += transcript;
         }
@@ -93,12 +97,12 @@ export function useVoiceCommand(
         try {
           const response = await processVoiceCommand(
             finalTranscriptRef.current.trim(),
-            options.userId
+            options.userId,
           );
           setLastResponse(response);
           options.onSuccess?.(response);
         } catch (err) {
-          const errorInfo = getErrorMessage('GEMINI_ERROR');
+          const errorInfo = getErrorMessage("GEMINI_ERROR");
           setError(errorInfo);
           options.onError?.(errorInfo);
         } finally {
@@ -122,7 +126,7 @@ export function useVoiceCommand(
     try {
       recognitionRef.current.start();
     } catch (err) {
-      console.error('Error starting speech recognition:', err);
+      console.error("Error starting speech recognition:", err);
     }
   }, [isSupported]);
 
@@ -132,15 +136,15 @@ export function useVoiceCommand(
     try {
       recognitionRef.current.stop();
     } catch (err) {
-      console.error('Error stopping speech recognition:', err);
+      console.error("Error stopping speech recognition:", err);
     }
   }, []);
 
   const resetState = useCallback(() => {
-    setTranscribedText('');
+    setTranscribedText("");
     setLastResponse(null);
     setError(null);
-    finalTranscriptRef.current = '';
+    finalTranscriptRef.current = "";
   }, []);
 
   const activateFromWakeWord = useCallback(() => {
@@ -162,4 +166,3 @@ export function useVoiceCommand(
     activateFromWakeWord,
   };
 }
-

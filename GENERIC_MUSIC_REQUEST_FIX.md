@@ -5,11 +5,13 @@
 When users said generic music requests like "play telugu songs", "play songs", or "play music", the system was immediately redirecting to the Spotify web player instead of attempting to open the native Spotify app first.
 
 **Expected Behavior:**
+
 - Voice command: "play telugu songs"
 - Result: Attempt to open native Spotify app first
 - Fallback: Only redirect to web player if app not installed (after 2.5s timeout)
 
 **Actual Behavior (Before Fix):**
+
 - Voice command: "play telugu songs"
 - Result: Immediately redirects to Spotify web player
 - No attempt to open native app
@@ -55,15 +57,27 @@ Changed `openUriScheme()` from a synchronous function to an async function that 
 **File: `AI-PA/src/lib/spotify/redirect.ts`**
 
 #### Change 1: Function Signature (Line 81)
+
 ```typescript
 // BEFORE
-function openUriScheme(uri: string, webUrl: string, timeoutMs?: number, onFallback?: (reason: string) => void): void
+function openUriScheme(
+  uri: string,
+  webUrl: string,
+  timeoutMs?: number,
+  onFallback?: (reason: string) => void,
+): void;
 
 // AFTER
-function openUriScheme(uri: string, webUrl: string, timeoutMs?: number, onFallback?: (reason: string) => void): Promise<void>
+function openUriScheme(
+  uri: string,
+  webUrl: string,
+  timeoutMs?: number,
+  onFallback?: (reason: string) => void,
+): Promise<void>;
 ```
 
 #### Change 2: Wrap in Promise (Line 82)
+
 ```typescript
 // BEFORE
 function openUriScheme(...): void {
@@ -79,26 +93,28 @@ function openUriScheme(...): Promise<void> {
 ```
 
 #### Change 3: Resolve Promise on App Open (Line 119)
+
 ```typescript
 // BEFORE
 if (document.hidden) {
   appOpened = true;
-  console.log('✅ [SPOTIFY REDIRECT] Spotify app opened (page lost focus)');
+  console.log("✅ [SPOTIFY REDIRECT] Spotify app opened (page lost focus)");
   clearTimeout(fallbackTimer);
-  document.removeEventListener('visibilitychange', handleVisibilityChange);
+  document.removeEventListener("visibilitychange", handleVisibilityChange);
 }
 
 // AFTER
 if (document.hidden) {
   appOpened = true;
-  console.log('✅ [SPOTIFY REDIRECT] Spotify app opened (page lost focus)');
+  console.log("✅ [SPOTIFY REDIRECT] Spotify app opened (page lost focus)");
   clearTimeout(fallbackTimer);
-  document.removeEventListener('visibilitychange', handleVisibilityChange);
+  document.removeEventListener("visibilitychange", handleVisibilityChange);
   resolve(); // ← NEW: Resolve promise when app opens
 }
 ```
 
 #### Change 4: Resolve Promise on Fallback (Line 133)
+
 ```typescript
 // BEFORE
 const fallbackTimer = setTimeout(() => {
@@ -107,7 +123,7 @@ const fallbackTimer = setTimeout(() => {
     const reason = `Spotify app not found on Android after ${timeout}ms`;
     console.log(`⏱️ [SPOTIFY REDIRECT] ${reason}`);
     console.log(`🌐 [SPOTIFY REDIRECT] Opening web player: ${webUrl}`);
-    document.removeEventListener('visibilitychange', handleVisibilityChange);
+    document.removeEventListener("visibilitychange", handleVisibilityChange);
     onFallback?.(reason);
     window.location.href = webUrl;
   }
@@ -120,7 +136,7 @@ const fallbackTimer = setTimeout(() => {
     const reason = `Spotify app not found on Android after ${timeout}ms`;
     console.log(`⏱️ [SPOTIFY REDIRECT] ${reason}`);
     console.log(`🌐 [SPOTIFY REDIRECT] Opening web player: ${webUrl}`);
-    document.removeEventListener('visibilitychange', handleVisibilityChange);
+    document.removeEventListener("visibilitychange", handleVisibilityChange);
     onFallback?.(reason);
     window.location.href = webUrl;
     resolve(); // ← NEW: Resolve promise when fallback is triggered
@@ -129,6 +145,7 @@ const fallbackTimer = setTimeout(() => {
 ```
 
 #### Change 5: Await in searchInSpotifyApp (Line 305)
+
 ```typescript
 // BEFORE
 openUriScheme(spotifyUri, webUrl, undefined, onFallback);
@@ -169,6 +186,7 @@ Intent Router returns response message
 ## Testing
 
 ### Test 1: With Spotify App Installed
+
 ```bash
 Device: Android phone with Spotify app
 Command: "play telugu songs"
@@ -177,6 +195,7 @@ Console: "✅ Spotify app opened (page lost focus)"
 ```
 
 ### Test 2: Without Spotify App
+
 ```bash
 Device: Android phone without Spotify app
 Command: "play telugu songs"
@@ -185,6 +204,7 @@ Console: "Spotify app not found on Android after 2500ms"
 ```
 
 ### Test 3: Various Generic Queries
+
 ```bash
 "play songs"
 "play music"
@@ -195,6 +215,7 @@ Console: "Spotify app not found on Android after 2500ms"
 ```
 
 ### Test 4: Desktop Platforms
+
 ```bash
 Windows: "play telugu songs" → Opens Spotify Desktop app
 macOS: "play telugu songs" → Opens Spotify Desktop app
@@ -237,4 +258,3 @@ Linux: "play telugu songs" → Opens Spotify Desktop app
 3. Test on Windows/macOS desktop
 4. Monitor console logs for proper flow
 5. Gather user feedback
-

@@ -7,9 +7,11 @@ This guide explains how to set up all the Supabase tables for your AI-PA applica
 ## 🚀 Quick Setup
 
 ### Step 1: Copy the SQL Script
+
 Open the file: `supabase_tables_setup.sql`
 
 ### Step 2: Run in Supabase
+
 1. Go to your Supabase dashboard
 2. Navigate to **SQL Editor**
 3. Click **New Query**
@@ -17,11 +19,13 @@ Open the file: `supabase_tables_setup.sql`
 5. Click **Run**
 
 ### Step 3: Verify Tables
+
 Go to **Table Editor** and verify all 21 tables are created.
 
 ## 📊 Table Structure
 
 ### 1. **Users** (Authentication & Profile)
+
 ```
 - user_id (UUID, Primary Key)
 - email (TEXT, Unique)
@@ -32,6 +36,7 @@ Go to **Table Editor** and verify all 21 tables are created.
 ```
 
 ### 2. **Tasks** (Task Management)
+
 ```
 - task_id (UUID, Primary Key)
 - user_id (UUID, Foreign Key)
@@ -44,6 +49,7 @@ Go to **Table Editor** and verify all 21 tables are created.
 ```
 
 ### 3. **Reminders** (Reminder Management)
+
 ```
 - reminder_id (UUID, Primary Key)
 - user_id (UUID, Foreign Key)
@@ -56,6 +62,7 @@ Go to **Table Editor** and verify all 21 tables are created.
 ```
 
 ### 4. **Health Records** (Daily Health Metrics)
+
 ```
 - record_id (UUID, Primary Key)
 - user_id (UUID, Foreign Key)
@@ -68,6 +75,7 @@ Go to **Table Editor** and verify all 21 tables are created.
 ```
 
 ### 5. **Symptoms** (Symptom Tracking)
+
 ```
 - symptom_id (UUID, Primary Key)
 - user_id (UUID, Foreign Key)
@@ -78,6 +86,7 @@ Go to **Table Editor** and verify all 21 tables are created.
 ```
 
 ### 6. **Medications** (Medication Management)
+
 ```
 - medication_id (UUID, Primary Key)
 - user_id (UUID, Foreign Key)
@@ -90,6 +99,7 @@ Go to **Table Editor** and verify all 21 tables are created.
 ```
 
 ### 7. **Appointments** (Healthcare Appointments)
+
 ```
 - appointment_id (UUID, Primary Key)
 - user_id (UUID, Foreign Key)
@@ -101,6 +111,7 @@ Go to **Table Editor** and verify all 21 tables are created.
 ```
 
 ### 8. **Growth Goals** (Personal Development)
+
 ```
 - goal_id (UUID, Primary Key)
 - user_id (UUID, Foreign Key)
@@ -111,6 +122,7 @@ Go to **Table Editor** and verify all 21 tables are created.
 ```
 
 ### 9. **Habits** (Habit Tracking)
+
 ```
 - habit_id (UUID, Primary Key)
 - user_id (UUID, Foreign Key)
@@ -121,6 +133,7 @@ Go to **Table Editor** and verify all 21 tables are created.
 ```
 
 ### 10. **Habit Logs** (Daily Habit Records)
+
 ```
 - log_id (UUID, Primary Key)
 - habit_id (UUID, Foreign Key)
@@ -132,6 +145,7 @@ Go to **Table Editor** and verify all 21 tables are created.
 ```
 
 ### 11. **Learning Modules** (Educational Content)
+
 ```
 - module_id (UUID, Primary Key)
 - user_id (UUID, Foreign Key)
@@ -142,6 +156,7 @@ Go to **Table Editor** and verify all 21 tables are created.
 ```
 
 ### 12. **Vehicles** (Vehicle Management)
+
 ```
 - vehicle_id (UUID, Primary Key)
 - user_id (UUID, Foreign Key)
@@ -153,6 +168,7 @@ Go to **Table Editor** and verify all 21 tables are created.
 ```
 
 ### 13. **Maintenance Logs** (Vehicle Maintenance)
+
 ```
 - maintenance_id (UUID, Primary Key)
 - vehicle_id (UUID, Foreign Key)
@@ -164,6 +180,7 @@ Go to **Table Editor** and verify all 21 tables are created.
 ```
 
 ### 14. **Routes** (Favorite Routes)
+
 ```
 - route_id (UUID, Primary Key)
 - user_id (UUID, Foreign Key)
@@ -174,6 +191,7 @@ Go to **Table Editor** and verify all 21 tables are created.
 ```
 
 ### 15. **Smart Devices** (IoT Devices)
+
 ```
 - device_id (UUID, Primary Key)
 - user_id (UUID, Foreign Key)
@@ -184,6 +202,7 @@ Go to **Table Editor** and verify all 21 tables are created.
 ```
 
 ### 16. **Device Logs** (Device Activity)
+
 ```
 - log_id (UUID, Primary Key)
 - device_id (UUID, Foreign Key)
@@ -193,6 +212,7 @@ Go to **Table Editor** and verify all 21 tables are created.
 ```
 
 ### 17. **Professional Notes** (Work Notes)
+
 ```
 - note_id (UUID, Primary Key)
 - user_id (UUID, Foreign Key)
@@ -202,6 +222,7 @@ Go to **Table Editor** and verify all 21 tables are created.
 ```
 
 ### 18. **Settings** (User Preferences)
+
 ```
 - setting_id (UUID, Primary Key)
 - user_id (UUID, Foreign Key, Unique)
@@ -212,6 +233,7 @@ Go to **Table Editor** and verify all 21 tables are created.
 ```
 
 ### 19. **Notifications** (User Notifications)
+
 ```
 - notification_id (UUID, Primary Key)
 - user_id (UUID, Foreign Key)
@@ -223,6 +245,7 @@ Go to **Table Editor** and verify all 21 tables are created.
 ```
 
 ### 20. **AI Logs** (AI Interaction History)
+
 ```
 - log_id (UUID, Primary Key)
 - user_id (UUID, Foreign Key)
@@ -232,6 +255,7 @@ Go to **Table Editor** and verify all 21 tables are created.
 ```
 
 ### 21. **Insights** (Generated Insights)
+
 ```
 - insight_id (UUID, Primary Key)
 - user_id (UUID, Foreign Key)
@@ -243,6 +267,7 @@ Go to **Table Editor** and verify all 21 tables are created.
 ## 🔍 Indexes Created
 
 Indexes are automatically created for:
+
 - All `user_id` foreign keys (for fast filtering)
 - Status fields (for quick lookups)
 - Date fields (for range queries)
@@ -253,6 +278,7 @@ Indexes are automatically created for:
 All tables have RLS enabled. You need to create policies in Supabase:
 
 ### Example Policy (for tasks table):
+
 ```sql
 CREATE POLICY "Users can view their own tasks"
 ON tasks FOR SELECT
@@ -276,6 +302,7 @@ USING (auth.uid()::text = user_id::text);
 All types are defined in: `src/lib/types/database.ts`
 
 Updated interfaces include:
+
 - User, Settings
 - Task, Reminder
 - HealthRecord, Symptom, Medication, Appointment
@@ -290,14 +317,15 @@ Updated interfaces include:
 Update your service files to match the new schema:
 
 ### Example: taskService.ts
+
 ```typescript
 export async function getUserTasks(userId: string): Promise<Task[]> {
   const { data, error } = await supabase
-    .from('tasks')
-    .select('*')
-    .eq('user_id', userId)
-    .order('due_date', { ascending: true });
-  
+    .from("tasks")
+    .select("*")
+    .eq("user_id", userId)
+    .order("due_date", { ascending: true });
+
   if (error) throw error;
   return data || [];
 }
@@ -306,6 +334,7 @@ export async function getUserTasks(userId: string): Promise<Task[]> {
 ## 🔄 Data Migration
 
 If you have existing data:
+
 1. Export data from old tables
 2. Transform to match new schema
 3. Import into new tables
@@ -332,12 +361,15 @@ If you have existing data:
 ## 📞 Troubleshooting
 
 ### Error: "Relation does not exist"
+
 → Ensure all tables are created by running the SQL script
 
 ### Error: "Permission denied"
+
 → Configure RLS policies in Supabase dashboard
 
 ### Error: "Foreign key violation"
+
 → Ensure parent records exist before inserting child records
 
 ## 🎯 Next Steps
@@ -354,4 +386,3 @@ If you have existing data:
 **File**: `supabase_tables_setup.sql`
 **Status**: Ready to use
 **Last Updated**: 2024
-

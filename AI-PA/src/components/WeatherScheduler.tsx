@@ -1,7 +1,7 @@
-'use client';
+"use client";
 
-import { useEffect, useRef, useState } from 'react';
-import { useToast } from '@/hooks/use-toast';
+import { useEffect, useRef, useState } from "react";
+import { useToast } from "@/hooks/use-toast";
 
 interface WeatherData {
   main: string;
@@ -26,72 +26,75 @@ export function WeatherScheduler() {
   const { toast } = useToast();
 
   // Request geolocation
-  const requestGeolocation = async (): Promise<GeolocationCoordinates | null> => {
-    return new Promise((resolve) => {
-      if (!navigator.geolocation) {
-        console.error('❌ Geolocation is not supported in this browser');
-        setError('Geolocation is not supported');
-        resolve(null);
-        return;
-      }
-
-      navigator.geolocation.getCurrentPosition(
-        (position) => {
-          const { latitude, longitude } = position.coords;
-          console.log(`📍 Geolocation obtained: lat=${latitude}, lon=${longitude}`);
-          resolve({ latitude, longitude });
-        },
-        (err) => {
-          console.error('❌ Geolocation error:', err.message);
-          setError(`Geolocation error: ${err.message}`);
-          toast({
-            title: '📍 Geolocation Error',
-            description: err.message,
-            variant: 'destructive',
-          });
+  const requestGeolocation =
+    async (): Promise<GeolocationCoordinates | null> => {
+      return new Promise((resolve) => {
+        if (!navigator.geolocation) {
+          console.error("❌ Geolocation is not supported in this browser");
+          setError("Geolocation is not supported");
           resolve(null);
+          return;
         }
-      );
-    });
-  };
+
+        navigator.geolocation.getCurrentPosition(
+          (position) => {
+            const { latitude, longitude } = position.coords;
+            console.log(
+              `📍 Geolocation obtained: lat=${latitude}, lon=${longitude}`,
+            );
+            resolve({ latitude, longitude });
+          },
+          (err) => {
+            console.error("❌ Geolocation error:", err.message);
+            setError(`Geolocation error: ${err.message}`);
+            toast({
+              title: "📍 Geolocation Error",
+              description: err.message,
+              variant: "destructive",
+            });
+            resolve(null);
+          },
+        );
+      });
+    };
 
   // Generate weather message based on conditions
   const generateWeatherMessage = (data: WeatherData) => {
     const { main, temp, humidity, wind } = data;
 
-    let emoji = '🌤️';
-    let advice = '';
+    let emoji = "🌤️";
+    let advice = "";
 
     switch (main.toLowerCase()) {
-      case 'clear':
-        emoji = '☀️';
-        advice = 'Perfect day for a stroll. Sunglasses? Yes please.';
+      case "clear":
+        emoji = "☀️";
+        advice = "Perfect day for a stroll. Sunglasses? Yes please.";
         break;
-      case 'clouds':
-        emoji = '☁️';
-        advice = 'A light jacket might do the trick.';
+      case "clouds":
+        emoji = "☁️";
+        advice = "A light jacket might do the trick.";
         break;
-      case 'rain':
-      case 'drizzle':
-        emoji = '🌧️';
-        advice = 'Umbrella recommended.';
+      case "rain":
+      case "drizzle":
+        emoji = "🌧️";
+        advice = "Umbrella recommended.";
         break;
-      case 'thunderstorm':
-        emoji = '⚡';
-        advice = 'Stay safe! Avoid open areas.';
+      case "thunderstorm":
+        emoji = "⚡";
+        advice = "Stay safe! Avoid open areas.";
         break;
-      case 'snow':
-        emoji = '❄️';
-        advice = 'Keep warm and take it slow.';
+      case "snow":
+        emoji = "❄️";
+        advice = "Keep warm and take it slow.";
         break;
-      case 'mist':
-      case 'fog':
-        emoji = '🫧';
-        advice = 'Low visibility — drive carefully.';
+      case "mist":
+      case "fog":
+        emoji = "🫧";
+        advice = "Low visibility — drive carefully.";
         break;
       default:
-        emoji = '🌤️';
-        advice = 'Have a great day!';
+        emoji = "🌤️";
+        advice = "Have a great day!";
     }
 
     return {
@@ -104,11 +107,11 @@ export function WeatherScheduler() {
   // Fetch weather data
   const fetchWeather = async (coords: GeolocationCoordinates) => {
     try {
-      console.log('🌤️ Fetching weather data...');
-      const response = await fetch('/api/weather', {
-        method: 'POST',
+      console.log("🌤️ Fetching weather data...");
+      const response = await fetch("/api/weather", {
+        method: "POST",
         headers: {
-          'Content-Type': 'application/json',
+          "Content-Type": "application/json",
         },
         body: JSON.stringify({
           lat: coords.latitude,
@@ -124,7 +127,7 @@ export function WeatherScheduler() {
       setWeatherData(data);
       setError(null);
 
-      console.log('✅ Weather data fetched:', data);
+      console.log("✅ Weather data fetched:", data);
 
       // Show toast notification regardless of tab visibility
       const now = Date.now();
@@ -136,16 +139,16 @@ export function WeatherScheduler() {
           description: message.description,
         });
         lastToastTimeRef.current = now;
-        console.log('📢 Toast notification shown');
+        console.log("📢 Toast notification shown");
       }
     } catch (err) {
-      const errorMessage = err instanceof Error ? err.message : 'Unknown error';
-      console.error('❌ Error fetching weather:', errorMessage);
+      const errorMessage = err instanceof Error ? err.message : "Unknown error";
+      console.error("❌ Error fetching weather:", errorMessage);
       setError(errorMessage);
       toast({
-        title: '❌ Weather Error',
+        title: "❌ Weather Error",
         description: errorMessage,
-        variant: 'destructive',
+        variant: "destructive",
       });
     }
   };
@@ -153,17 +156,17 @@ export function WeatherScheduler() {
   // Initialize weather scheduler on component mount
   useEffect(() => {
     const initializeWeatherScheduler = async () => {
-      console.log('🚀 Initializing Weather Scheduler...');
+      console.log("🚀 Initializing Weather Scheduler...");
 
       // Request geolocation permission
       const coords = await requestGeolocation();
 
       if (!coords) {
-        setError('Unable to get location. Please enable geolocation.');
+        setError("Unable to get location. Please enable geolocation.");
         toast({
-          title: '📍 Location Error',
-          description: 'Unable to get location. Please enable geolocation.',
-          variant: 'destructive',
+          title: "📍 Location Error",
+          description: "Unable to get location. Please enable geolocation.",
+          variant: "destructive",
         });
         return;
       }
@@ -175,7 +178,7 @@ export function WeatherScheduler() {
       const FOUR_HOURS_MS = 4 * 60 * 60 * 1000;
 
       intervalRef.current = setInterval(async () => {
-        console.log('⏰ 4-hour interval triggered, fetching weather...');
+        console.log("⏰ 4-hour interval triggered, fetching weather...");
         await fetchWeather(coords);
       }, FOUR_HOURS_MS);
     };
@@ -186,14 +189,16 @@ export function WeatherScheduler() {
     return () => {
       if (intervalRef.current) {
         clearInterval(intervalRef.current);
-        console.log('🛑 Weather Scheduler stopped');
+        console.log("🛑 Weather Scheduler stopped");
       }
     };
   }, [toast]);
 
   return (
     <div className="weather-scheduler p-4 bg-gradient-to-br from-blue-50 to-blue-100 rounded-lg shadow-md">
-      <h2 className="text-2xl font-bold mb-4 text-blue-900">🌤️ Weather Scheduler</h2>
+      <h2 className="text-2xl font-bold mb-4 text-blue-900">
+        🌤️ Weather Scheduler
+      </h2>
 
       {/* Error Message */}
       {error && (
@@ -208,34 +213,43 @@ export function WeatherScheduler() {
           <div className="grid grid-cols-2 gap-4">
             <div>
               <p className="text-gray-600 text-sm">Condition</p>
-              <p className="text-xl font-bold text-blue-900">{weatherData.main}</p>
+              <p className="text-xl font-bold text-blue-900">
+                {weatherData.main}
+              </p>
             </div>
             <div>
               <p className="text-gray-600 text-sm">Temperature</p>
-              <p className="text-xl font-bold text-blue-900">{weatherData.temp}°C</p>
+              <p className="text-xl font-bold text-blue-900">
+                {weatherData.temp}°C
+              </p>
             </div>
             <div>
               <p className="text-gray-600 text-sm">Feels Like</p>
-              <p className="text-xl font-bold text-blue-900">{weatherData.feels_like}°C</p>
+              <p className="text-xl font-bold text-blue-900">
+                {weatherData.feels_like}°C
+              </p>
             </div>
             <div>
               <p className="text-gray-600 text-sm">Humidity</p>
-              <p className="text-xl font-bold text-blue-900">{weatherData.humidity}%</p>
+              <p className="text-xl font-bold text-blue-900">
+                {weatherData.humidity}%
+              </p>
             </div>
             <div>
               <p className="text-gray-600 text-sm">Wind Speed</p>
-              <p className="text-xl font-bold text-blue-900">{weatherData.wind} m/s</p>
+              <p className="text-xl font-bold text-blue-900">
+                {weatherData.wind} m/s
+              </p>
             </div>
             <div>
               <p className="text-gray-600 text-sm">Description</p>
-              <p className="text-xl font-bold text-blue-900 capitalize">{weatherData.description}</p>
+              <p className="text-xl font-bold text-blue-900 capitalize">
+                {weatherData.description}
+              </p>
             </div>
           </div>
         </div>
       )}
-
-
     </div>
   );
 }
-

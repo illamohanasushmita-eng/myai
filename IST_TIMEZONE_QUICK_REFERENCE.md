@@ -7,53 +7,60 @@ All voice reminders now use **Asia/Kolkata timezone (IST, UTC+5:30)** instead of
 ## Output Format
 
 ### Before ❌
+
 ```
 2025-11-12T04:00:00.000Z  (UTC)
 ```
 
 ### After ✅
+
 ```
 2025-11-12T09:00:00+05:30  (IST)
 ```
 
 ## Default Times (IST)
 
-| Command | Default Time |
-|---------|--------------|
-| "tomorrow" | 09:00 AM |
-| "today" | 09:00 AM |
-| "tonight" | 08:00 PM |
-| "evening" | 07:00 PM |
-| "afternoon" | 03:00 PM |
-| "Monday" (day name) | 09:00 AM |
+| Command             | Default Time |
+| ------------------- | ------------ |
+| "tomorrow"          | 09:00 AM     |
+| "today"             | 09:00 AM     |
+| "tonight"           | 08:00 PM     |
+| "evening"           | 07:00 PM     |
+| "afternoon"         | 03:00 PM     |
+| "Monday" (day name) | 09:00 AM     |
 
 ## Example Commands
 
 ### 1. Tomorrow at default time
+
 ```
 User: "add reminder to write notebook tomorrow"
 Result: 2025-11-12T09:00:00+05:30
 ```
 
 ### 2. Tonight at default time
+
 ```
 User: "add reminder to call mom tonight"
 Result: 2025-11-11T20:00:00+05:30
 ```
 
 ### 3. Tomorrow with explicit time
+
 ```
 User: "add reminder to attend meeting tomorrow at 5 PM"
 Result: 2025-11-12T17:00:00+05:30
 ```
 
 ### 4. Day name with explicit time
+
 ```
 User: "add reminder to call client Monday at 3 PM"
 Result: 2025-11-18T15:00:00+05:30
 ```
 
 ### 5. This afternoon
+
 ```
 User: "add reminder to review proposal this afternoon"
 Result: 2025-11-11T15:00:00+05:30
@@ -71,22 +78,25 @@ Result: 2025-11-11T15:00:00+05:30
 ## Testing
 
 ### Verify IST Format
+
 ```typescript
-const result = convertToISOTimestamp('write notebook tomorrow');
+const result = convertToISOTimestamp("write notebook tomorrow");
 // Should match: /\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}\+05:30$/
 // Should NOT match: /Z$/ or /\+00:00$/
 ```
 
 ### Verify Default Time
+
 ```typescript
-const result = convertToISOTimestamp('write notebook tomorrow');
+const result = convertToISOTimestamp("write notebook tomorrow");
 // Extract time: result.match(/T(\d{2}):(\d{2}):/);
 // Should be: 09:00
 ```
 
 ### Verify Explicit Time
+
 ```typescript
-const result = convertToISOTimestamp('write notebook tomorrow at 5 PM');
+const result = convertToISOTimestamp("write notebook tomorrow at 5 PM");
 // Extract time: result.match(/T(\d{2}):(\d{2}):/);
 // Should be: 17:00
 ```
@@ -118,8 +128,8 @@ VALUES (
 
 ## Timezone Conversion Reference
 
-| IST Time | UTC Time |
-|----------|----------|
+| IST Time     | UTC Time     |
+| ------------ | ------------ |
 | 09:00 AM IST | 03:30 AM UTC |
 | 12:00 PM IST | 06:30 AM UTC |
 | 03:00 PM IST | 09:30 AM UTC |
@@ -129,15 +139,19 @@ VALUES (
 ## Common Issues & Solutions
 
 ### Issue: Timestamp shows Z instead of +05:30
+
 **Solution:** Use `convertToISOTimestamp()` function, not `toISOString()`
 
 ### Issue: Time is off by 5.5 hours
+
 **Solution:** Verify IST offset is being applied correctly in calculations
 
 ### Issue: "tonight" reminder appears in past
+
 **Solution:** System auto-adjusts to tomorrow if time has passed
 
 ### Issue: Day name shows wrong date
+
 **Solution:** Verify `getNextDayOfWeek()` is calculating correctly for IST
 
 ## Files to Reference
@@ -149,7 +163,7 @@ VALUES (
 ## Support
 
 For questions or issues with IST timezone implementation:
+
 1. Check console logs for detailed timestamp conversion info
 2. Review test cases in `reminder-automation.test.ts`
 3. Verify database stores timestamps with +05:30 offset
-

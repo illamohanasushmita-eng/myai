@@ -1,9 +1,9 @@
-'use client';
+"use client";
 
-import { useState } from 'react';
-import { Button } from '@/components/ui/button';
-import { Input } from '@/components/ui/input';
-import { Textarea } from '@/components/ui/textarea';
+import { useState } from "react";
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import { Textarea } from "@/components/ui/textarea";
 import {
   Dialog,
   DialogContent,
@@ -11,15 +11,15 @@ import {
   DialogHeader,
   DialogTitle,
   DialogFooter,
-} from '@/components/ui/dialog';
+} from "@/components/ui/dialog";
 import {
   Select,
   SelectContent,
   SelectItem,
   SelectTrigger,
   SelectValue,
-} from '@/components/ui/select';
-import { createProfessionalNote } from '@/lib/services/professionalService';
+} from "@/components/ui/select";
+import { createProfessionalNote } from "@/lib/services/professionalService";
 
 interface AddTaskModalProps {
   isOpen: boolean;
@@ -29,33 +29,38 @@ interface AddTaskModalProps {
 }
 
 const CATEGORY_OPTIONS = [
-  { id: 'meeting', label: 'Meeting' },
-  { id: 'project', label: 'Project' },
-  { id: 'task', label: 'Task' },
-  { id: 'note', label: 'Note' },
-  { id: 'other', label: 'Other' },
+  { id: "meeting", label: "Meeting" },
+  { id: "project", label: "Project" },
+  { id: "task", label: "Task" },
+  { id: "note", label: "Note" },
+  { id: "other", label: "Other" },
 ];
 
-export function AddTaskModal({ isOpen, onClose, onSuccess, category = 'Professional' }: AddTaskModalProps) {
-  const [title, setTitle] = useState('');
-  const [content, setContent] = useState('');
-  const [noteCategory, setNoteCategory] = useState('task');
-  const [tags, setTags] = useState('');
+export function AddTaskModal({
+  isOpen,
+  onClose,
+  onSuccess,
+  category = "Professional",
+}: AddTaskModalProps) {
+  const [title, setTitle] = useState("");
+  const [content, setContent] = useState("");
+  const [noteCategory, setNoteCategory] = useState("task");
+  const [tags, setTags] = useState("");
   const [isLoading, setIsLoading] = useState(false);
-  const [error, setError] = useState('');
+  const [error, setError] = useState("");
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    setError('');
+    setError("");
 
     if (!title.trim()) {
-      setError('Note title is required');
+      setError("Note title is required");
       return;
     }
 
-    const userId = localStorage.getItem('userId');
+    const userId = localStorage.getItem("userId");
     if (!userId) {
-      setError('User not authenticated');
+      setError("User not authenticated");
       return;
     }
 
@@ -69,16 +74,20 @@ export function AddTaskModal({ isOpen, onClose, onSuccess, category = 'Professio
       });
 
       // Reset form
-      setTitle('');
-      setContent('');
-      setNoteCategory('task');
-      setTags('');
+      setTitle("");
+      setContent("");
+      setNoteCategory("task");
+      setTags("");
 
       onClose();
       onSuccess?.();
     } catch (err) {
-      console.error('Error creating professional note:', err);
-      setError(err instanceof Error ? err.message : 'Failed to create note. Please try again.');
+      console.error("Error creating professional note:", err);
+      setError(
+        err instanceof Error
+          ? err.message
+          : "Failed to create note. Please try again.",
+      );
     } finally {
       setIsLoading(false);
     }
@@ -86,11 +95,11 @@ export function AddTaskModal({ isOpen, onClose, onSuccess, category = 'Professio
 
   const handleClose = () => {
     if (!isLoading) {
-      setTitle('');
-      setContent('');
-      setNoteCategory('task');
-      setTags('');
-      setError('');
+      setTitle("");
+      setContent("");
+      setNoteCategory("task");
+      setTags("");
+      setError("");
       onClose();
     }
   };
@@ -141,10 +150,17 @@ export function AddTaskModal({ isOpen, onClose, onSuccess, category = 'Professio
           </div>
 
           <div>
-            <label htmlFor="category" className="block text-sm font-medium mb-1">
+            <label
+              htmlFor="category"
+              className="block text-sm font-medium mb-1"
+            >
               Category
             </label>
-            <Select value={noteCategory} onValueChange={setNoteCategory} disabled={isLoading}>
+            <Select
+              value={noteCategory}
+              onValueChange={setNoteCategory}
+              disabled={isLoading}
+            >
               <SelectTrigger className="rounded-lg">
                 <SelectValue />
               </SelectTrigger>
@@ -182,12 +198,8 @@ export function AddTaskModal({ isOpen, onClose, onSuccess, category = 'Professio
             >
               Cancel
             </Button>
-            <Button
-              type="submit"
-              disabled={isLoading}
-              className="rounded-lg"
-            >
-              {isLoading ? 'Creating...' : 'Create Note'}
+            <Button type="submit" disabled={isLoading} className="rounded-lg">
+              {isLoading ? "Creating..." : "Create Note"}
             </Button>
           </DialogFooter>
         </form>
@@ -195,4 +207,3 @@ export function AddTaskModal({ isOpen, onClose, onSuccess, category = 'Professio
     </Dialog>
   );
 }
-

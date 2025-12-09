@@ -1,37 +1,40 @@
-import { supabase } from '@/lib/supabaseClient';
-import { Mood } from '@/lib/types/database';
+import { supabase } from "@/lib/supabaseClient";
+import { Mood } from "@/lib/types/database";
 
 // Get all moods for a user
 export async function getUserMoods(userId: string): Promise<Mood[]> {
   try {
     const { data, error } = await supabase
-      .from('moods')
-      .select('*')
-      .eq('user_id', userId)
-      .order('date', { ascending: false });
+      .from("moods")
+      .select("*")
+      .eq("user_id", userId)
+      .order("date", { ascending: false });
 
     if (error) throw error;
     return data || [];
   } catch (error) {
-    console.error('Error fetching moods:', error);
+    console.error("Error fetching moods:", error);
     throw error;
   }
 }
 
 // Get mood for a specific date
-export async function getMoodByDate(userId: string, date: string): Promise<Mood | null> {
+export async function getMoodByDate(
+  userId: string,
+  date: string,
+): Promise<Mood | null> {
   try {
     const { data, error } = await supabase
-      .from('moods')
-      .select('*')
-      .eq('user_id', userId)
-      .eq('date', date)
+      .from("moods")
+      .select("*")
+      .eq("user_id", userId)
+      .eq("date", date)
       .single();
 
-    if (error && error.code !== 'PGRST116') throw error;
+    if (error && error.code !== "PGRST116") throw error;
     return data || null;
   } catch (error) {
-    console.error('Error fetching mood by date:', error);
+    console.error("Error fetching mood by date:", error);
     throw error;
   }
 }
@@ -39,11 +42,11 @@ export async function getMoodByDate(userId: string, date: string): Promise<Mood 
 // Create a new mood entry
 export async function createMood(
   userId: string,
-  moodData: Omit<Mood, 'mood_id' | 'user_id'>
+  moodData: Omit<Mood, "mood_id" | "user_id">,
 ): Promise<Mood> {
   try {
     const { data, error } = await supabase
-      .from('moods')
+      .from("moods")
       .insert([
         {
           user_id: userId,
@@ -56,7 +59,7 @@ export async function createMood(
     if (error) throw error;
     return data;
   } catch (error) {
-    console.error('Error creating mood:', error);
+    console.error("Error creating mood:", error);
     throw error;
   }
 }
@@ -64,20 +67,20 @@ export async function createMood(
 // Update a mood entry
 export async function updateMood(
   moodId: string,
-  updates: Partial<Mood>
+  updates: Partial<Mood>,
 ): Promise<Mood> {
   try {
     const { data, error } = await supabase
-      .from('moods')
+      .from("moods")
       .update(updates)
-      .eq('mood_id', moodId)
+      .eq("mood_id", moodId)
       .select()
       .single();
 
     if (error) throw error;
     return data;
   } catch (error) {
-    console.error('Error updating mood:', error);
+    console.error("Error updating mood:", error);
     throw error;
   }
 }
@@ -86,13 +89,13 @@ export async function updateMood(
 export async function deleteMood(moodId: string): Promise<void> {
   try {
     const { error } = await supabase
-      .from('moods')
+      .from("moods")
       .delete()
-      .eq('mood_id', moodId);
+      .eq("mood_id", moodId);
 
     if (error) throw error;
   } catch (error) {
-    console.error('Error deleting mood:', error);
+    console.error("Error deleting mood:", error);
     throw error;
   }
 }
@@ -101,22 +104,21 @@ export async function deleteMood(moodId: string): Promise<void> {
 export async function getMoodsInRange(
   userId: string,
   startDate: string,
-  endDate: string
+  endDate: string,
 ): Promise<Mood[]> {
   try {
     const { data, error } = await supabase
-      .from('moods')
-      .select('*')
-      .eq('user_id', userId)
-      .gte('date', startDate)
-      .lte('date', endDate)
-      .order('date', { ascending: true });
+      .from("moods")
+      .select("*")
+      .eq("user_id", userId)
+      .gte("date", startDate)
+      .lte("date", endDate)
+      .order("date", { ascending: true });
 
     if (error) throw error;
     return data || [];
   } catch (error) {
-    console.error('Error fetching moods in range:', error);
+    console.error("Error fetching moods in range:", error);
     throw error;
   }
 }
-

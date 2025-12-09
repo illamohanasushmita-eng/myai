@@ -3,61 +3,75 @@
 ## Quick Test Cases
 
 ### Test 1: Monday Reminder (Next Upcoming)
+
 **Command**: "Remind me to call my mom Monday"
 **Expected**: Reminder set for next Monday at current time + 1 hour
 **Check**:
+
 - [ ] Reminder appears in "Upcoming" section
 - [ ] Date is Monday
 - [ ] Date is in the future (not past)
 - [ ] Console shows `[GET-NEXT-DAY]` logs
 
 ### Test 2: Monday with Time
+
 **Command**: "Remind me to call my mom Monday at 5 PM"
 **Expected**: Reminder set for next Monday at 5:00 PM
 **Check**:
+
 - [ ] Reminder appears in "Upcoming" section
 - [ ] Date is Monday
 - [ ] Time is 5:00 PM
 - [ ] Console shows both `[GET-NEXT-DAY]` and time parsing logs
 
 ### Test 3: Friday Reminder
+
 **Command**: "Remind me to call my mom Friday at 3 PM"
 **Expected**: Reminder set for next Friday at 3:00 PM
 **Check**:
+
 - [ ] Reminder appears in "Upcoming" section
 - [ ] Date is Friday
 - [ ] Time is 3:00 PM
 - [ ] Never shows as overdue
 
 ### Test 4: Today is Monday, Say Monday
+
 **Command**: "Remind me to call my mom Monday"
 **Today**: Monday
 **Expected**: Reminder set for NEXT Monday (7 days from now), NOT today
 **Check**:
+
 - [ ] Reminder date is 7 days from today
 - [ ] NOT today's date
 - [ ] Console shows `daysToAdd: 7`
 
 ### Test 5: Multiple Day Names (Uses First)
+
 **Command**: "Remind me to call my mom Monday or Tuesday"
 **Expected**: Reminder set for Monday (first match)
 **Check**:
+
 - [ ] Reminder date is Monday
 - [ ] NOT Tuesday
 - [ ] Console shows "Day name detected: monday"
 
 ### Test 6: Backward Compatibility - Tomorrow
+
 **Command**: "Remind me to call my mom tomorrow at 5 PM"
 **Expected**: Reminder set for tomorrow at 5:00 PM
 **Check**:
+
 - [ ] Still works as before
 - [ ] Date is tomorrow
 - [ ] Time is 5:00 PM
 
 ### Test 7: Backward Compatibility - Today
+
 **Command**: "Remind me to call my mom today at 5 PM"
 **Expected**: Reminder set for today at 5:00 PM
 **Check**:
+
 - [ ] Still works as before
 - [ ] Date is today
 - [ ] Time is 5:00 PM
@@ -65,26 +79,32 @@
 ## How to Run Tests
 
 ### Step 1: Start Dev Server
+
 ```bash
 npm run dev
 ```
 
 ### Step 2: Open Test Page
+
 Go to: http://localhost:3002/test-lara
 
 ### Step 3: Run Each Test
+
 1. Click "Start" button
 2. Say "Hey Lara"
 3. Say the test command
 4. Check the results
 
 ### Step 4: Verify in Console
+
 Press F12 to open browser console and look for:
+
 - `📌 [CONVERT-TIMESTAMP]` logs
 - `📌 [GET-NEXT-DAY]` logs
 - `📌 [REMINDER-VOICE]` logs
 
 ### Step 5: Verify in Database
+
 1. Go to Supabase dashboard
 2. Check "reminders" table
 3. Verify the reminder_time is correct
@@ -114,21 +134,25 @@ Press F12 to open browser console and look for:
 ## Debugging Tips
 
 ### If reminder shows as overdue:
+
 - Check the reminder_time in database
 - Should be in the future
 - If in the past, the date calculation is wrong
 
 ### If day name not recognized:
+
 - Check console for `[GET-NEXT-DAY]` logs
 - Should show the day name detected
 - If not, the regex might not be matching
 
 ### If time not parsed:
+
 - Check console for time parsing logs
 - Should show `[CONVERT-TIMESTAMP] Parsed time from text: HH:MM`
 - If not, the time format might not be recognized
 
 ### If reminder not created:
+
 - Check API response status
 - Should be 200
 - Check for error messages in console
@@ -137,6 +161,7 @@ Press F12 to open browser console and look for:
 ## Success Criteria
 
 ✅ All tests pass when:
+
 - [ ] Day names are recognized (Monday-Sunday)
 - [ ] Next upcoming occurrence is calculated
 - [ ] Never returns past dates
@@ -147,13 +172,13 @@ Press F12 to open browser console and look for:
 
 ## Troubleshooting
 
-| Issue | Solution |
-|-------|----------|
-| Day name not recognized | Check regex in cohere-intent.ts |
-| Past date returned | Check getNextDayOfWeek logic |
-| Time not parsed | Check parseTimeFromText function |
-| Reminder not created | Check API response and database |
-| Console logs missing | Check browser console (F12) |
+| Issue                   | Solution                         |
+| ----------------------- | -------------------------------- |
+| Day name not recognized | Check regex in cohere-intent.ts  |
+| Past date returned      | Check getNextDayOfWeek logic     |
+| Time not parsed         | Check parseTimeFromText function |
+| Reminder not created    | Check API response and database  |
+| Console logs missing    | Check browser console (F12)      |
 
 ## Notes
 
@@ -161,4 +186,3 @@ Press F12 to open browser console and look for:
 - The system should never create reminders with past dates
 - Day names should always resolve to the next upcoming occurrence
 - Time parsing should support multiple formats (5 PM, 5:30 PM, 17:00, etc.)
-

@@ -7,6 +7,7 @@ Your Next.js voice assistant now properly opens the native Spotify Android app w
 ## The Problem
 
 The original code used `window.location.href` with Intent URLs on Android, which:
+
 1. Caused full page navigation/reload
 2. Didn't allow proper fallback handling
 3. Wasn't reliable for detecting if the app opened
@@ -15,6 +16,7 @@ The original code used `window.location.href` with Intent URLs on Android, which
 ## The Solution
 
 Implemented an **iframe-based approach** that:
+
 1. ✅ Attempts URI scheme without page navigation
 2. ✅ Properly detects when app opens (via visibility change)
 3. ✅ Falls back to web player if app not installed
@@ -84,6 +86,7 @@ Implemented an **iframe-based approach** that:
 ## Key Technical Details
 
 ### URI Scheme Format
+
 ```
 Standard Spotify URI schemes:
 - spotify:track:{ID}           → Play specific track
@@ -94,6 +97,7 @@ Standard Spotify URI schemes:
 ```
 
 ### Iframe Approach Benefits
+
 ```
 ✅ No page navigation
 ✅ Prevents browser error dialogs
@@ -103,6 +107,7 @@ Standard Spotify URI schemes:
 ```
 
 ### Timeout Configuration
+
 ```
 Android: 2.5 seconds (longer to allow app launch)
 iOS: 2.0 seconds
@@ -112,6 +117,7 @@ Desktop: 2.0 seconds
 ## Testing Instructions
 
 ### Test 1: With Spotify App Installed
+
 ```bash
 1. Open your app on Android device
 2. Say: "play prabhas songs"
@@ -120,6 +126,7 @@ Desktop: 2.0 seconds
 ```
 
 ### Test 2: Without Spotify App
+
 ```bash
 1. Uninstall Spotify app (or use emulator without it)
 2. Say: "play prabhas songs"
@@ -128,6 +135,7 @@ Desktop: 2.0 seconds
 ```
 
 ### Test 3: Various Queries
+
 ```bash
 - "play telugu songs"
 - "play favorite songs"
@@ -136,6 +144,7 @@ Desktop: 2.0 seconds
 ```
 
 ### Console Logs to Expect
+
 ```
 🔗 [SPOTIFY REDIRECT] Attempting to open URI: spotify:search:prabhas%20songs
 📱 [SPOTIFY REDIRECT] Platform: Android
@@ -155,6 +164,7 @@ Desktop: 2.0 seconds
 ## Backward Compatibility
 
 ✅ **No breaking changes:**
+
 - All callback parameters are optional
 - Existing code without callbacks still works
 - Function signatures unchanged
@@ -171,6 +181,7 @@ Desktop: 2.0 seconds
 ## Browser Support
 
 ✅ Works on:
+
 - Chrome Android
 - Firefox Android
 - Samsung Internet
@@ -184,19 +195,25 @@ Desktop: 2.0 seconds
 ## Troubleshooting
 
 ### Issue: Still opening web player
+
 **Check:**
+
 1. Is Spotify app installed? (Check Settings → Apps)
 2. Is Spotify app up to date?
 3. Check browser console for error logs
 4. Try clearing browser cache
 
 ### Issue: Slow to open app
+
 **Note:** This is normal - takes 1-2 seconds for app to launch
+
 - Timeout is set to 2.5 seconds to allow time
 - If consistently slower, increase timeout value
 
 ### Issue: App opens but doesn't search
+
 **Check:**
+
 1. Verify query is properly encoded
 2. Update Spotify app to latest version
 3. Check if Spotify app has search permission
@@ -213,4 +230,3 @@ Desktop: 2.0 seconds
 
 - `ANDROID_SPOTIFY_FIX_GUIDE.md` - Detailed technical guide
 - `ANDROID_SPOTIFY_CODE_CHANGES.md` - Exact code changes with before/after
-

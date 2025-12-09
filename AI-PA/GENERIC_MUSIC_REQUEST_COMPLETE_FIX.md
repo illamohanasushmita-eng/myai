@@ -44,13 +44,19 @@ The `openUriScheme()` function was **synchronous** (returned `void`):
 
 ```typescript
 // BEFORE - Synchronous
-function openUriScheme(uri: string, webUrl: string, timeoutMs?: number, onFallback?: (reason: string) => void): void {
+function openUriScheme(
+  uri: string,
+  webUrl: string,
+  timeoutMs?: number,
+  onFallback?: (reason: string) => void,
+): void {
   // Creates iframe and sets up timeout
   // Returns immediately without waiting
 }
 ```
 
 This caused a **race condition**:
+
 - The function returns immediately
 - The calling code continues without waiting
 - The iframe attempt happens in the background
@@ -66,7 +72,12 @@ Changed `openUriScheme()` to return a **Promise** that resolves when the URI sch
 
 ```typescript
 // AFTER - Asynchronous
-function openUriScheme(uri: string, webUrl: string, timeoutMs?: number, onFallback?: (reason: string) => void): Promise<void> {
+function openUriScheme(
+  uri: string,
+  webUrl: string,
+  timeoutMs?: number,
+  onFallback?: (reason: string) => void,
+): Promise<void> {
   return new Promise((resolve) => {
     // Creates iframe and sets up timeout
     // Resolves promise when app opens or timeout triggers
@@ -120,7 +131,7 @@ openUriScheme: Wait for promise to resolve
   → searchInSpotifyApp returns
   → Intent Router returns
   → ✅ Native app is open
-    
+
 [If app not installed]
   → Timeout triggers (2.5s)
   → Web player opens
@@ -135,6 +146,7 @@ openUriScheme: Wait for promise to resolve
 ## Testing Instructions
 
 ### Test 1: With Spotify App Installed
+
 ```bash
 Device: Android phone with Spotify app
 Command: "play telugu songs"
@@ -143,6 +155,7 @@ Console: "✅ Spotify app opened (page lost focus)"
 ```
 
 ### Test 2: Without Spotify App
+
 ```bash
 Device: Android phone without Spotify app
 Command: "play telugu songs"
@@ -151,6 +164,7 @@ Console: "Spotify app not found on Android after 2500ms"
 ```
 
 ### Test 3: Various Generic Queries
+
 ```bash
 "play songs"
 "play music"
@@ -162,6 +176,7 @@ Console: "Spotify app not found on Android after 2500ms"
 ```
 
 ### Test 4: Desktop Platforms
+
 ```bash
 Windows: "play telugu songs" → Opens Spotify Desktop app
 macOS: "play telugu songs" → Opens Spotify Desktop app
@@ -173,18 +188,21 @@ Linux: "play telugu songs" → Opens Spotify Desktop app
 ## Impact Analysis
 
 ### What's Fixed
+
 - ✅ Generic music requests now properly attempt native app opening
 - ✅ Works on all platforms (Android, iOS, Windows, macOS, Linux)
 - ✅ Proper timeout handling (2.5s for Android, 2s for others)
 - ✅ Reliable fallback to web player
 
 ### What's Not Changed
+
 - ✅ No breaking changes to API
 - ✅ All callback parameters remain optional
 - ✅ Function signatures compatible
 - ✅ Backward compatible with existing code
 
 ### Performance Impact
+
 - Minimal - Just adds Promise wrapper
 - No additional API calls
 - Same timeout values (2.5s Android, 2s others)
@@ -194,6 +212,7 @@ Linux: "play telugu songs" → Opens Spotify Desktop app
 ## Build Status
 
 ✅ **Build successful**
+
 - No compilation errors
 - No type errors
 - All tests pass
@@ -237,4 +256,3 @@ Linux: "play telugu songs" → Opens Spotify Desktop app
 This fix ensures that generic music requests like "play telugu songs" properly attempt to open the native Spotify app before falling back to the web player. The solution is simple, elegant, and maintains full backward compatibility.
 
 **Status: Ready for immediate deployment** ✅
-

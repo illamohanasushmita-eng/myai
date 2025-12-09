@@ -14,20 +14,24 @@ You can now say **"Hey Lara"** to activate the voice assistant without clicking 
 ## 🚀 Getting Started (30 seconds)
 
 ### 1. Go to Dashboard
+
 ```
 http://localhost:3002/dashboard
 ```
 
 ### 2. Look for Blue Pulsing Animation
+
 - Microphone button has a blue pulsing border
 - Feedback box shows "Listening for 'Hey Lara'..."
 
 ### 3. Say the Wake Word
+
 ```
 "Hey Lara"
 ```
 
 ### 4. Say Your Command
+
 ```
 "Show my tasks"
 "Add a reminder"
@@ -35,6 +39,7 @@ http://localhost:3002/dashboard
 ```
 
 ### 5. Watch It Execute
+
 - Command is processed
 - You're automatically navigated
 
@@ -43,6 +48,7 @@ http://localhost:3002/dashboard
 ## 🎯 Example Interactions
 
 ### Example 1: Show Tasks
+
 ```
 User: "Hey Lara"
 System: [Blue pulse] "Listening for 'Hey Lara'..."
@@ -55,6 +61,7 @@ Result: Navigates to /professional
 ```
 
 ### Example 2: Add Reminder
+
 ```
 User: "Hey Lara"
 System: [Wake word detected]
@@ -64,6 +71,7 @@ Result: Navigates to /reminders/add
 ```
 
 ### Example 3: Play Music
+
 ```
 User: "Hey Lara"
 System: [Wake word detected]
@@ -77,24 +85,29 @@ Result: Music player opens
 ## 🎨 Visual Indicators
 
 ### Blue Pulsing (Wake Word Listening)
+
 - System is waiting for "Hey Lara"
 - Blue animated bars in feedback box
 - "Listening for 'Hey Lara'..." text
 
 ### Red Pulsing (Command Listening)
+
 - System is waiting for your command
 - Red animated bars in feedback box
 - "Listening..." text
 
 ### Bouncing Dots (Processing)
+
 - Gemini is processing your command
 - "Processing your command..." text
 
 ### Green Checkmark (Success)
+
 - Command recognized and executed
 - Success message displayed
 
 ### Red Error (Error)
+
 - Something went wrong
 - Error message displayed
 
@@ -105,33 +118,40 @@ Result: Music player opens
 After saying "Hey Lara", you can say:
 
 ### Tasks
+
 - "Show my tasks"
 - "Add a task"
 - "Create a new task"
 
 ### Reminders
+
 - "Show my reminders"
 - "Add a reminder"
 - "Set a reminder for tomorrow"
 
 ### Health
+
 - "Show my health data"
 - "Display fitness information"
 
 ### Work
+
 - "Show my work"
 - "Display projects"
 - "Show meetings"
 
 ### Home
+
 - "Show home tasks"
 - "Display chores"
 
 ### Personal Growth
+
 - "Show personal growth"
 - "Display learning goals"
 
 ### Music
+
 - "Play my favorite song"
 - "Play music"
 
@@ -177,7 +197,7 @@ After saying "Hey Lara", you can say:
 
 ```typescript
 const { startWakeWordListener } = useWakeWord({
-  language: 'es-ES',  // Spanish
+  language: "es-ES", // Spanish
 });
 ```
 
@@ -189,7 +209,7 @@ const { startWakeWordListener } = useWakeWord({
 ✅ Edge (v79+)  
 ✅ Safari (v14.1+)  
 ✅ Opera (v27+)  
-⚠️ Firefox (limited)  
+⚠️ Firefox (limited)
 
 ---
 
@@ -197,29 +217,33 @@ const { startWakeWordListener } = useWakeWord({
 
 ✅ iOS Safari (14.5+)  
 ✅ Android Chrome  
-✅ Android Firefox  
+✅ Android Firefox
 
 ---
 
 ## 🐛 Troubleshooting
 
 ### "I don't see the blue pulsing animation"
+
 - Check if wake word is enabled
 - Refresh the page
 - Check browser permissions
 
 ### "Wake word not detected"
+
 - Speak clearly and naturally
 - Reduce background noise
 - Check microphone is working
 - Try a different browser
 
 ### "Microphone permission denied"
+
 - Check browser settings
 - Allow microphone access
 - Reload the page
 
 ### "No feedback"
+
 - Open DevTools (F12)
 - Check Console for errors
 - Check Network tab
@@ -230,21 +254,24 @@ const { startWakeWordListener } = useWakeWord({
 ## 💡 Tips & Tricks
 
 ### Best Practices
+
 ✅ Speak clearly and naturally  
 ✅ Use complete sentences  
 ✅ Reduce background noise  
-✅ Wait for "Listening..." prompt  
+✅ Wait for "Listening..." prompt
 
 ### What Works Well
+
 - "Hey Lara, show my tasks"
 - "Hey Lara, add a reminder"
 - "Hey Lara, play my favorite songs"
 
 ### What Doesn't Work
+
 ❌ Mumbling or unclear speech  
 ❌ Very short commands  
 ❌ Speaking too fast  
-❌ Heavy background noise  
+❌ Heavy background noise
 
 ---
 
@@ -254,7 +281,7 @@ const { startWakeWordListener } = useWakeWord({
 ✅ No audio recording  
 ✅ Microphone permission required  
 ✅ User-controlled activation  
-✅ Clear listening indicators  
+✅ Clear listening indicators
 
 ---
 
@@ -270,17 +297,17 @@ const { startWakeWordListener } = useWakeWord({
 
 ## 🎯 Supported Intents
 
-| Command | Intent | Navigation |
-|---------|--------|------------|
-| "Show my tasks" | show_tasks | /professional |
-| "Add a task" | add_task | /tasks/add |
-| "Show reminders" | show_reminders | /reminders |
-| "Add reminder" | add_reminder | /reminders/add |
-| "Show health" | show_health | /healthcare |
-| "Show work" | show_professional | /professional |
-| "Show home" | show_home | /at-home |
-| "Show growth" | show_growth | /personal-growth |
-| "Play music" | play_music | (in-app) |
+| Command          | Intent            | Navigation       |
+| ---------------- | ----------------- | ---------------- |
+| "Show my tasks"  | show_tasks        | /professional    |
+| "Add a task"     | add_task          | /tasks/add       |
+| "Show reminders" | show_reminders    | /reminders       |
+| "Add reminder"   | add_reminder      | /reminders/add   |
+| "Show health"    | show_health       | /healthcare      |
+| "Show work"      | show_professional | /professional    |
+| "Show home"      | show_home         | /at-home         |
+| "Show growth"    | show_growth       | /personal-growth |
+| "Play music"     | play_music        | (in-app)         |
 
 ---
 
@@ -306,11 +333,13 @@ const { startWakeWordListener } = useWakeWord({
 ## 📞 Support
 
 ### Documentation
+
 - Full guide: `WAKE_WORD_IMPLEMENTATION.md`
 - Voice commands: `VOICE_COMMAND_IMPLEMENTATION.md`
 - Quick start: `VOICE_COMMAND_QUICK_START.md`
 
 ### Debugging
+
 1. Open DevTools (F12)
 2. Check Console for errors
 3. Check Network for API calls
@@ -327,7 +356,7 @@ const { startWakeWordListener } = useWakeWord({
 ✅ Multi-language support  
 ✅ Browser compatibility  
 ✅ Mobile support  
-✅ Privacy-focused  
+✅ Privacy-focused
 
 ---
 
@@ -347,4 +376,3 @@ Wake word feature is ready to use!
 **Status**: ✅ READY TO USE  
 **Version**: 1.0  
 **Last Updated**: 2025-11-07
-

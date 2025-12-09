@@ -33,6 +33,7 @@ WITH CHECK (auth.role() = 'service_role');
 ### **Step 2: Restart Application** (1 minute)
 
 In your terminal:
+
 ```bash
 Ctrl + C  # Stop current app
 npm run dev  # Restart
@@ -62,12 +63,15 @@ Wait for "ready - started server on 0.0.0.0:3002" message.
 ### **Step 4: Verify** (1 minute)
 
 #### Check Browser Console (F12):
+
 Look for:
+
 ```
 [SIGNUP] User profile and settings created successfully
 ```
 
 #### Check Supabase Dashboard:
+
 1. Go to https://app.supabase.com
 2. Select project
 3. Click **Table Editor**
@@ -92,6 +96,7 @@ All of these should be true:
 ## **🚨 If Something Goes Wrong**
 
 ### **Error: "Failed to create user profile"**
+
 ```
 1. Check RLS policies were added (run SQL again)
 2. Restart app: Ctrl + C, npm run dev
@@ -99,6 +104,7 @@ All of these should be true:
 ```
 
 ### **Error: "Missing SUPABASE_SERVICE_ROLE_KEY"**
+
 ```
 1. Check .env.local has the key
 2. Restart app: Ctrl + C, npm run dev
@@ -106,6 +112,7 @@ All of these should be true:
 ```
 
 ### **User Created but No Profile**
+
 ```
 1. Check browser console (F12) for errors
 2. Check server terminal for errors
@@ -118,6 +125,7 @@ All of these should be true:
 ## **📚 Detailed Guides**
 
 For more information, see:
+
 - **USER_REGISTRATION_FIX_COMPLETE.md** - Complete fix instructions
 - **DEBUGGING_USER_REGISTRATION.md** - Troubleshooting guide
 - **REGISTRATION_FLOW_DIAGRAM.md** - Visual flow diagrams
@@ -127,13 +135,13 @@ For more information, see:
 
 ## **⏱️ Timeline**
 
-| Step | Time | Status |
-|------|------|--------|
-| Update RLS Policies | 2 min | ⏳ TODO |
-| Restart App | 1 min | ⏳ TODO |
-| Test Signup | 2 min | ⏳ TODO |
-| Verify Data | 1 min | ⏳ TODO |
-| **TOTAL** | **6 min** | ⏳ TODO |
+| Step                | Time      | Status  |
+| ------------------- | --------- | ------- |
+| Update RLS Policies | 2 min     | ⏳ TODO |
+| Restart App         | 1 min     | ⏳ TODO |
+| Test Signup         | 2 min     | ⏳ TODO |
+| Verify Data         | 1 min     | ⏳ TODO |
+| **TOTAL**           | **6 min** | ⏳ TODO |
 
 ---
 
@@ -144,4 +152,3 @@ After these 4 simple steps, your user registration will be fully functional!
 **Status**: ✅ Ready to implement
 **Time**: ~5 minutes
 **Result**: User registration working ✅
-

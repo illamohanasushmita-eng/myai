@@ -5,6 +5,7 @@
 ### Change 1: Add Import (Line 20)
 
 **ADDED:**
+
 ```typescript
 import { getUser } from "@/lib/services/userService";
 ```
@@ -16,6 +17,7 @@ import { getUser } from "@/lib/services/userService";
 ### Change 2: Add State (Line 34)
 
 **ADDED:**
+
 ```typescript
 const [userName, setUserName] = useState<string>("User");
 ```
@@ -23,10 +25,11 @@ const [userName, setUserName] = useState<string>("User");
 **Location:** After `const [loading, setLoading] = useState(true);`
 
 **Full Context:**
+
 ```typescript
 const [dailyPlan, setDailyPlan] = useState<DailyPlan | null>(null);
 const [loading, setLoading] = useState(true);
-const [userName, setUserName] = useState<string>("User");  // ← NEW
+const [userName, setUserName] = useState<string>("User"); // ← NEW
 ```
 
 ---
@@ -34,22 +37,26 @@ const [userName, setUserName] = useState<string>("User");  // ← NEW
 ### Change 3: Enhance useEffect (Lines 36-70)
 
 **REPLACED:**
+
 ```typescript
 // Get authenticated user ID from Supabase and store in localStorage
 useEffect(() => {
   const getAuthenticatedUser = async () => {
     try {
-      const { data: { user }, error } = await supabase.auth.getUser();
+      const {
+        data: { user },
+        error,
+      } = await supabase.auth.getUser();
       if (error) {
-        console.error('Error getting user:', error);
+        console.error("Error getting user:", error);
         return;
       }
       if (user) {
         // Store in localStorage for other components (including VoiceAssistantWrapper)
-        localStorage.setItem('userId', user.id);
+        localStorage.setItem("userId", user.id);
       }
     } catch (error) {
-      console.error('Error fetching authenticated user:', error);
+      console.error("Error fetching authenticated user:", error);
     }
   };
 
@@ -58,19 +65,23 @@ useEffect(() => {
 ```
 
 **WITH:**
+
 ```typescript
 // Get authenticated user ID from Supabase and fetch user name
 useEffect(() => {
   const getAuthenticatedUser = async () => {
     try {
-      const { data: { user }, error } = await supabase.auth.getUser();
+      const {
+        data: { user },
+        error,
+      } = await supabase.auth.getUser();
       if (error) {
-        console.error('Error getting user:', error);
+        console.error("Error getting user:", error);
         return;
       }
       if (user) {
         // Store in localStorage for other components (including VoiceAssistantWrapper)
-        localStorage.setItem('userId', user.id);
+        localStorage.setItem("userId", user.id);
 
         // Fetch user profile to get the name
         try {
@@ -82,13 +93,13 @@ useEffect(() => {
             setUserName("User");
           }
         } catch (error) {
-          console.error('Error fetching user profile:', error);
+          console.error("Error fetching user profile:", error);
           // Keep the default "User" fallback
           setUserName("User");
         }
       }
     } catch (error) {
-      console.error('Error fetching authenticated user:', error);
+      console.error("Error fetching authenticated user:", error);
     }
   };
 
@@ -97,6 +108,7 @@ useEffect(() => {
 ```
 
 **Key Additions:**
+
 - Fetch user profile using `getUser(user.id)`
 - Extract name from user profile
 - Set `userName` state with fetched name
@@ -108,16 +120,19 @@ useEffect(() => {
 ### Change 4: Update Greeting Display (Line 121)
 
 **REPLACED:**
+
 ```typescript
 <h1 className="text-lg font-bold">Hello, Alex!</h1>
 ```
 
 **WITH:**
+
 ```typescript
 <h1 className="text-lg font-bold">Hello, {userName}!</h1>
 ```
 
 **Full Context:**
+
 ```typescript
 <div className="flex flex-col items-center">
   <h1 className="text-lg font-bold">Hello, {userName}!</h1>  {/* ← CHANGED */}
@@ -131,12 +146,12 @@ useEffect(() => {
 
 ## Summary of Changes
 
-| Line(s) | Type | Change |
-|---------|------|--------|
-| 20 | Import | Added `getUser` import |
-| 34 | State | Added `userName` state |
-| 36-70 | Logic | Enhanced useEffect to fetch user profile |
-| 121 | Display | Changed greeting to use `{userName}` |
+| Line(s) | Type    | Change                                   |
+| ------- | ------- | ---------------------------------------- |
+| 20      | Import  | Added `getUser` import                   |
+| 34      | State   | Added `userName` state                   |
+| 36-70   | Logic   | Enhanced useEffect to fetch user profile |
+| 121     | Display | Changed greeting to use `{userName}`     |
 
 ---
 
@@ -152,6 +167,7 @@ useEffect(() => {
 ## Verification
 
 ### Before
+
 ```typescript
 const [dailyPlan, setDailyPlan] = useState<DailyPlan | null>(null);
 const [loading, setLoading] = useState(true);
@@ -163,6 +179,7 @@ const [loading, setLoading] = useState(true);
 ```
 
 ### After
+
 ```typescript
 const [dailyPlan, setDailyPlan] = useState<DailyPlan | null>(null);
 const [loading, setLoading] = useState(true);
@@ -210,4 +227,3 @@ const [userName, setUserName] = useState<string>("User");
 - No breaking changes
 - Fully backward compatible
 - Comprehensive error handling included
-

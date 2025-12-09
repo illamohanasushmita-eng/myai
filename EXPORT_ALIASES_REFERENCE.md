@@ -9,6 +9,7 @@ All conflicting exports have been resolved by using **service-specific aliases**
 ## 🏥 Health Services
 
 ### Health Record Service
+
 ```typescript
 import {
   getHealthRecordsFromHealthRecordService,
@@ -27,10 +28,11 @@ import {
   createAppointment,
   updateAppointment,
   deleteAppointment,
-} from '@/lib/services';
+} from "@/lib/services";
 ```
 
 ### Health Service
+
 ```typescript
 import {
   getHealthRecordsFromHealthService,
@@ -41,7 +43,7 @@ import {
   createSymptomFromHealthService,
   updateSymptomFromHealthService,
   deleteSymptomFromHealthService,
-} from '@/lib/services';
+} from "@/lib/services";
 ```
 
 ---
@@ -49,6 +51,7 @@ import {
 ## ⚙️ Settings & Notifications
 
 ### Settings Service
+
 ```typescript
 import {
   getUserSettings,
@@ -60,15 +63,16 @@ import {
   updateSettingsNotification,
   deleteSettingsNotification,
   getPendingNotifications,
-} from '@/lib/services';
+} from "@/lib/services";
 ```
 
 ### Professional Service (Notifications)
+
 ```typescript
 import {
   getProfessionalUserNotifications,
   createProfessionalNotification,
-} from '@/lib/services';
+} from "@/lib/services";
 ```
 
 ---
@@ -76,6 +80,7 @@ import {
 ## 🚗 Automotive Services
 
 ### Automotive Service
+
 ```typescript
 import {
   getAutomotiveUserVehicles,
@@ -88,10 +93,11 @@ import {
   getFavoriteRoutes,
   createAutomotiveRoute,
   updateRoute,
-} from '@/lib/services';
+} from "@/lib/services";
 ```
 
 ### General Service (Automotive Functions)
+
 ```typescript
 import {
   getGeneralUserVehicles,
@@ -100,7 +106,7 @@ import {
   createGeneralRoute,
   getGeneralMaintenanceLogs,
   createGeneralMaintenanceLog,
-} from '@/lib/services';
+} from "@/lib/services";
 ```
 
 ---
@@ -108,6 +114,7 @@ import {
 ## 🤖 AI & Professional Services
 
 ### Professional Service
+
 ```typescript
 import {
   getUserProfessionalNotes,
@@ -122,17 +129,18 @@ import {
   createProfessionalAILog,
   getUserInsights,
   createInsight,
-} from '@/lib/services';
+} from "@/lib/services";
 ```
 
 ### General Service (AI Functions)
+
 ```typescript
 import {
   getGeneralUserAILogs,
   createGeneralAILog,
   getUserAIRecommendations,
   createAIRecommendation,
-} from '@/lib/services';
+} from "@/lib/services";
 ```
 
 ---
@@ -140,6 +148,7 @@ import {
 ## 📚 Learning & Habits
 
 ### Habit Service
+
 ```typescript
 import {
   getUserHabits,
@@ -153,15 +162,16 @@ import {
   createGrowthGoal,
   // Note: habitService also exports learning modules
   // but they're aliased in general service
-} from '@/lib/services';
+} from "@/lib/services";
 ```
 
 ### General Service (Learning Modules)
+
 ```typescript
 import {
   getGeneralUserLearningModules,
   createGeneralLearningModule,
-} from '@/lib/services';
+} from "@/lib/services";
 ```
 
 ---
@@ -169,6 +179,7 @@ import {
 ## 📅 Calendar & Devices
 
 ### General Service
+
 ```typescript
 import {
   getUserCalendarEvents,
@@ -177,7 +188,7 @@ import {
   createVoiceCommand,
   getUserDevices,
   createDevice,
-} from '@/lib/services';
+} from "@/lib/services";
 ```
 
 ---
@@ -185,6 +196,7 @@ import {
 ## 💡 Usage Examples
 
 ### Example 1: Get Health Records
+
 ```typescript
 // Using Health Record Service
 const records = await getHealthRecordsFromHealthRecordService(userId);
@@ -194,6 +206,7 @@ const records = await getHealthRecordsFromHealthService(userId);
 ```
 
 ### Example 2: Get Vehicles
+
 ```typescript
 // Using Automotive Service
 const vehicles = await getAutomotiveUserVehicles(userId);
@@ -203,6 +216,7 @@ const vehicles = await getGeneralUserVehicles(userId);
 ```
 
 ### Example 3: Get AI Logs
+
 ```typescript
 // Using Professional Service
 const logs = await getProfessionalUserAILogs(userId);
@@ -212,6 +226,7 @@ const logs = await getGeneralUserAILogs(userId);
 ```
 
 ### Example 4: Get Notifications
+
 ```typescript
 // Using Settings Service
 const notifications = await getSettingsUserNotifications(userId);
@@ -226,15 +241,15 @@ const notifications = await getProfessionalUserNotifications(userId);
 
 When you have multiple options, choose based on your use case:
 
-| Function | Service 1 | Service 2 | When to Use |
-|---|---|---|---|
-| Health Records | `HealthRecordService` | `HealthService` | Use HealthRecordService for comprehensive health data (includes medications, appointments) |
-| Vehicles | `AutomotiveService` | `GeneralService` | Use AutomotiveService for detailed vehicle management |
-| Routes | `AutomotiveService` | `GeneralService` | Use AutomotiveService for route optimization features |
-| Maintenance Logs | `AutomotiveService` | `GeneralService` | Use AutomotiveService for maintenance tracking |
-| AI Logs | `ProfessionalService` | `GeneralService` | Use ProfessionalService for professional context |
-| Learning Modules | `HabitService` | `GeneralService` | Use HabitService for habit-related learning |
-| Notifications | `SettingsService` | `ProfessionalService` | Use SettingsService for user preferences, ProfessionalService for professional alerts |
+| Function         | Service 1             | Service 2             | When to Use                                                                                |
+| ---------------- | --------------------- | --------------------- | ------------------------------------------------------------------------------------------ |
+| Health Records   | `HealthRecordService` | `HealthService`       | Use HealthRecordService for comprehensive health data (includes medications, appointments) |
+| Vehicles         | `AutomotiveService`   | `GeneralService`      | Use AutomotiveService for detailed vehicle management                                      |
+| Routes           | `AutomotiveService`   | `GeneralService`      | Use AutomotiveService for route optimization features                                      |
+| Maintenance Logs | `AutomotiveService`   | `GeneralService`      | Use AutomotiveService for maintenance tracking                                             |
+| AI Logs          | `ProfessionalService` | `GeneralService`      | Use ProfessionalService for professional context                                           |
+| Learning Modules | `HabitService`        | `GeneralService`      | Use HabitService for habit-related learning                                                |
+| Notifications    | `SettingsService`     | `ProfessionalService` | Use SettingsService for user preferences, ProfessionalService for professional alerts      |
 
 ---
 
@@ -243,13 +258,14 @@ When you have multiple options, choose based on your use case:
 All functions are still available! They just have service-specific names to avoid conflicts. Your existing code will continue to work if you:
 
 1. Import from specific service files directly:
+
    ```typescript
-   import { getUserVehicles } from '@/lib/services/automotiveService';
+   import { getUserVehicles } from "@/lib/services/automotiveService";
    ```
 
 2. Or use the new aliased names from the index:
    ```typescript
-   import { getAutomotiveUserVehicles } from '@/lib/services';
+   import { getAutomotiveUserVehicles } from "@/lib/services";
    ```
 
 ---
@@ -265,4 +281,3 @@ All functions are still available! They just have service-specific names to avoi
 ---
 
 **Status**: ✅ All exports properly aliased and conflict-free
-

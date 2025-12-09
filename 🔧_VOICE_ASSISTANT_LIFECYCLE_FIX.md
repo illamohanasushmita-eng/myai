@@ -12,21 +12,25 @@ The voice assistant had critical lifecycle issues:
 ## Root Causes Identified
 
 ### Issue A: Callback Stale Closure
+
 - `onWakeWordDetected` callback was defined before `useWakeWord` hook
 - Callback captured stale references to `stopWakeWordListener` and `startWakeWordListener`
 - **Fix**: Use `callbackRef` to store and update callback dynamically
 
 ### Issue B: Premature Listener Ending
+
 - `onend` handler was restarting too aggressively
 - Multiple restart attempts caused race conditions
 - **Fix**: Use `pendingRestartRef` to prevent duplicate restarts
 
 ### Issue C: Timing Issues
+
 - Restart timeout was 1000ms, causing delays
 - No explicit restart function for pipeline completion
 - **Fix**: Reduce timeout to 500ms, add explicit `restartWakeWordListener()` function
 
 ### Issue D: No Persistent State
+
 - Listener state was tied to component lifecycle
 - Hot reload would break the listener
 - **Fix**: Add `wakeWordManager.ts` for persistent, component-independent listening
@@ -36,6 +40,7 @@ The voice assistant had critical lifecycle issues:
 ### 1. useWakeWord.ts - Enhanced Hook
 
 **Key Changes:**
+
 - Added `callbackRef` to store callback dynamically
 - Added `pendingRestartRef` to prevent duplicate restarts
 - Added `restartWakeWordListener()` function for explicit restarts
@@ -43,6 +48,7 @@ The voice assistant had critical lifecycle issues:
 - Refactored `onend` to use pending flag and shorter timeout (500ms)
 
 **New Return Value:**
+
 ```typescript
 {
   isListeningForWakeWord,
@@ -58,12 +64,14 @@ The voice assistant had critical lifecycle issues:
 ### 2. useLaraAssistant.ts - Fixed Pipeline
 
 **Key Changes:**
+
 - Import `restartWakeWordListener` from `useWakeWord`
 - Use explicit `restartWakeWordListener()` in finally block
 - Reduced restart delay from 1000ms to 300ms
 - Added logging for pipeline callback trigger
 
 **Pipeline Flow:**
+
 ```
 Wake Word Detected
   ↓
@@ -87,6 +95,7 @@ Back to Wake Mode
 **Purpose:** Provide component-independent persistent listening
 
 **Features:**
+
 - Singleton pattern for single instance
 - Automatic restart on listener end
 - Processing state to prevent restart during action execution
@@ -94,17 +103,22 @@ Back to Wake Mode
 - Explicit `start()`, `stop()`, `restart()`, `disable()`, `enable()` methods
 
 **Usage:**
+
 ```typescript
-import { getWakeWordManager } from '@/lib/ai/wakeWordManager';
+import { getWakeWordManager } from "@/lib/ai/wakeWordManager";
 
 const manager = getWakeWordManager({
-  onWakeWordDetected: () => { /* ... */ },
-  onError: (err) => { /* ... */ },
+  onWakeWordDetected: () => {
+    /* ... */
+  },
+  onError: (err) => {
+    /* ... */
+  },
 });
 
 manager.start();
-manager.restart();  // After processing
-manager.destroy();  // On cleanup
+manager.restart(); // After processing
+manager.destroy(); // On cleanup
 ```
 
 ## Lifecycle Diagram
@@ -209,4 +223,3 @@ manager.destroy();  // On cleanup
 3. Add audio level visualization
 4. Support multiple wake words
 5. Add wake word training/customization
-

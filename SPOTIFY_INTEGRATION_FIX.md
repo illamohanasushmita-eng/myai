@@ -12,38 +12,48 @@ When users asked Lara to "play telugu songs", the following errors occurred:
 ## Root Causes
 
 ### 1. Incorrect Android Intent URL Format
+
 The original code converted `spotify:search:query` to `intent://search/query#Intent;...` but this format was incorrect. The Intent URL should properly convert colons to slashes:
+
 - **Before**: `intent://search/telugu%20songs#Intent;...` (malformed)
 - **After**: `intent://search/telugu%20songs#Intent;...` (properly formatted with colon-to-slash conversion)
 
 ### 2. Missing Desktop Platform Support
+
 The code only had logic for Android and iOS, treating all desktop platforms (Windows, Mac, Linux) as "other" and using iframe approach, which doesn't work for desktop Spotify apps.
 
 ### 3. Silent Fallback Without User Feedback
+
 When the native app wasn't found, the code silently redirected to the web player without informing the user or logging the reason.
 
 ## Solutions Implemented
 
 ### 1. Fixed Android Intent URL Format (redirect.ts)
+
 ```typescript
 // Convert spotify:search:query to intent://search/query
-const path = uri.substring('spotify:'.length).replace(/:/g, '/');
+const path = uri.substring("spotify:".length).replace(/:/g, "/");
 intentUrl = `intent://${path}#Intent;scheme=spotify;package=com.spotify.music;end`;
 ```
 
 ### 2. Added Desktop Platform Detection (redirect.ts)
+
 Added three new platform detection functions:
+
 - `isWindowsDesktop()`: Detects Windows desktop
-- `isMacDesktop()`: Detects macOS desktop  
+- `isMacDesktop()`: Detects macOS desktop
 - `isLinuxDesktop()`: Detects Linux desktop
 
 ### 3. Implemented Platform-Specific URI Handling (redirect.ts)
+
 - **Android**: Uses Intent URL format (no permission prompts)
 - **Desktop (Windows/Mac/Linux)**: Uses direct navigation with URI scheme
 - **iOS**: Uses iframe approach (doesn't navigate away)
 
 ### 4. Added Fallback Callback for Error Tracking (redirect.ts)
+
 Added `onFallback` callback parameter to:
+
 - `openUriScheme()`: Core function
 - `playInSpotifyApp()`: Track playback
 - `searchInSpotifyApp()`: Search functionality
@@ -51,7 +61,9 @@ Added `onFallback` callback parameter to:
 This allows callers to know when fallback to web player occurs and why.
 
 ### 5. Improved Intent Router Error Handling (intentRouter.ts)
+
 Updated music playback intent handler to:
+
 - Track when URI scheme fallback occurs
 - Attempt auto-play as secondary fallback if available
 - Log all fallback reasons for debugging
@@ -59,18 +71,21 @@ Updated music playback intent handler to:
 ## Expected Behavior After Fix
 
 ### Windows Desktop
+
 1. User says: "play telugu songs"
 2. App attempts: `spotify:search:telugu%20songs` URI scheme
 3. If Spotify app is installed: Opens native Spotify app and searches
 4. If Spotify app is NOT installed: Falls back to web player after 2 seconds
 
 ### Android
+
 1. User says: "play telugu songs"
 2. App attempts: `intent://search/telugu%20songs#Intent;scheme=spotify;package=com.spotify.music;end`
 3. If Spotify app is installed: Opens native Spotify app and searches
 4. If Spotify app is NOT installed: Falls back to web player after 2.5 seconds
 
 ### iOS
+
 1. User says: "play telugu songs"
 2. App attempts: `spotify:search:telugu%20songs` via iframe
 3. If Spotify app is installed: Opens native Spotify app and searches
@@ -100,6 +115,7 @@ Updated music playback intent handler to:
 ## Console Output Examples
 
 ### Successful Native App Opening
+
 ```
 🔗 [SPOTIFY REDIRECT] Attempting to open URI: spotify:search:telugu songs
 📱 [SPOTIFY REDIRECT] Platform: Windows
@@ -109,6 +125,7 @@ Updated music playback intent handler to:
 ```
 
 ### Fallback to Web Player
+
 ```
 🔗 [SPOTIFY REDIRECT] Attempting to open URI: spotify:search:telugu songs
 📱 [SPOTIFY REDIRECT] Platform: Windows
@@ -117,4 +134,3 @@ Updated music playback intent handler to:
 ⏱️ [SPOTIFY REDIRECT] Spotify app not found on Windows after 2000ms
 🌐 [SPOTIFY REDIRECT] Opening web player: https://open.spotify.com/search/telugu%20songs
 ```
-

@@ -1,16 +1,16 @@
-'use client';
+"use client";
 
-import { useState, useEffect } from 'react';
-import { useWakeWord } from '@/hooks/useWakeWord';
-import { useVoiceCommand } from '@/hooks/useVoiceCommand';
+import { useState, useEffect } from "react";
+import { useWakeWord } from "@/hooks/useWakeWord";
+import { useVoiceCommand } from "@/hooks/useVoiceCommand";
 
 interface VoiceActivatedMusicProps {
   userId: string;
 }
 
 export function VoiceActivatedMusic({ userId }: VoiceActivatedMusicProps) {
-  const [status, setStatus] = useState('Ready');
-  const [lastCommand, setLastCommand] = useState('');
+  const [status, setStatus] = useState("Ready");
+  const [lastCommand, setLastCommand] = useState("");
 
   // Wake word detection
   const {
@@ -21,13 +21,13 @@ export function VoiceActivatedMusic({ userId }: VoiceActivatedMusicProps) {
   } = useWakeWord({
     enabled: true,
     onWakeWordDetected: () => {
-      console.log('🎤 Wake word detected!');
-      setStatus('Wake word detected! Listening for command...');
+      console.log("🎤 Wake word detected!");
+      setStatus("Wake word detected! Listening for command...");
       stopWakeWordListener();
       startVoiceCommand();
     },
     onError: (error) => {
-      console.error('Wake word error:', error);
+      console.error("Wake word error:", error);
       setStatus(`Wake word error: ${error}`);
     },
   });
@@ -42,9 +42,9 @@ export function VoiceActivatedMusic({ userId }: VoiceActivatedMusicProps) {
   } = useVoiceCommand({
     userId,
     onSuccess: (response) => {
-      console.log('✅ Command processed:', response);
+      console.log("✅ Command processed:", response);
       setStatus(`Executed: ${response.intent.action}`);
-      setLastCommand(response.transcribedText || '');
+      setLastCommand(response.transcribedText || "");
 
       // Restart wake word listener after command
       setTimeout(() => {
@@ -53,9 +53,9 @@ export function VoiceActivatedMusic({ userId }: VoiceActivatedMusicProps) {
       }, 2000);
     },
     onError: (error) => {
-      console.error('Voice command error:', error);
+      console.error("Voice command error:", error);
       setStatus(`Command error: ${error.message}`);
-      
+
       // Restart wake word listener on error
       setTimeout(() => {
         startWakeWordListener();
@@ -83,19 +83,21 @@ export function VoiceActivatedMusic({ userId }: VoiceActivatedMusicProps) {
   return (
     <div className="bg-white border rounded-lg p-6 shadow-lg">
       <h3 className="text-lg font-semibold mb-4">🎤 Voice-Activated Music</h3>
-      
+
       {/* Status Indicator */}
       <div className="mb-4">
-        <div className={`inline-flex items-center px-3 py-1 rounded-full text-sm ${
-          isListeningForWakeWord 
-            ? 'bg-blue-100 text-blue-800' 
-            : isListening 
-            ? 'bg-green-100 text-green-800'
-            : 'bg-gray-100 text-gray-800'
-        }`}>
-          {isListeningForWakeWord && '🔵 Listening for wake word'}
-          {isListening && '🟢 Listening for command'}
-          {!isListeningForWakeWord && !isListening && '⚪ Inactive'}
+        <div
+          className={`inline-flex items-center px-3 py-1 rounded-full text-sm ${
+            isListeningForWakeWord
+              ? "bg-blue-100 text-blue-800"
+              : isListening
+                ? "bg-green-100 text-green-800"
+                : "bg-gray-100 text-gray-800"
+          }`}
+        >
+          {isListeningForWakeWord && "🔵 Listening for wake word"}
+          {isListening && "🟢 Listening for command"}
+          {!isListeningForWakeWord && !isListening && "⚪ Inactive"}
         </div>
       </div>
 
@@ -130,7 +132,7 @@ export function VoiceActivatedMusic({ userId }: VoiceActivatedMusicProps) {
         >
           Start Wake Word
         </button>
-        
+
         <button
           onClick={stopWakeWordListener}
           disabled={!isListeningForWakeWord}
@@ -142,7 +144,9 @@ export function VoiceActivatedMusic({ userId }: VoiceActivatedMusicProps) {
 
       {/* Usage Instructions */}
       <div className="mt-4 text-sm text-gray-500">
-        <p><strong>Usage:</strong></p>
+        <p>
+          <strong>Usage:</strong>
+        </p>
         <p>1. Say "Hey Lara" to activate</p>
         <p>2. Say commands like "play romantic songs" or "play hero songs"</p>
         <p>3. System will automatically search and play music</p>

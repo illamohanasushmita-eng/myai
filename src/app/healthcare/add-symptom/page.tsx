@@ -32,9 +32,9 @@ const symptomSchema = z.object({
 type SymptomFormData = z.infer<typeof symptomSchema>;
 
 const SEVERITY_OPTIONS = [
-  { id: 'mild', label: 'Mild' },
-  { id: 'moderate', label: 'Moderate' },
-  { id: 'severe', label: 'Severe' },
+  { id: "mild", label: "Mild" },
+  { id: "moderate", label: "Moderate" },
+  { id: "severe", label: "Severe" },
 ];
 
 export default function AddSymptomPage() {
@@ -61,7 +61,7 @@ export default function AddSymptomPage() {
   const selectedSeverity = watch("severity");
 
   const onSubmit = async (data: SymptomFormData) => {
-    const userId = localStorage.getItem('userId');
+    const userId = localStorage.getItem("userId");
     if (!userId) {
       toast({
         title: "Authentication Error",
@@ -77,7 +77,9 @@ export default function AddSymptomPage() {
         severity: data.severity,
         description: data.description?.trim() || undefined,
         logged_date: new Date().toISOString(),
-        duration_hours: data.durationHours ? parseInt(data.durationHours) : undefined,
+        duration_hours: data.durationHours
+          ? parseInt(data.durationHours)
+          : undefined,
         notes: data.notes?.trim() || undefined,
       });
 
@@ -86,12 +88,15 @@ export default function AddSymptomPage() {
         description: "Your symptom has been logged.",
       });
 
-      router.push('/healthcare');
+      router.push("/healthcare");
     } catch (err) {
-      console.error('Error creating symptom:', err);
+      console.error("Error creating symptom:", err);
       toast({
         title: "Error",
-        description: err instanceof Error ? err.message : 'Failed to log symptom. Please try again.',
+        description:
+          err instanceof Error
+            ? err.message
+            : "Failed to log symptom. Please try again.",
         variant: "destructive",
       });
     }
@@ -102,7 +107,9 @@ export default function AddSymptomPage() {
       <header className="sticky top-0 z-10 flex items-center justify-between border-b border-gray-200/50 bg-background-light/80 p-4 backdrop-blur-sm dark:border-gray-800/50 dark:bg-background-dark/80">
         <Button asChild variant="ghost" size="icon">
           <Link href="/healthcare">
-            <span className="material-symbols-outlined">arrow_back_ios_new</span>
+            <span className="material-symbols-outlined">
+              arrow_back_ios_new
+            </span>
           </Link>
         </Button>
         <h1 className="text-lg font-bold">Log Symptom</h1>
@@ -113,7 +120,8 @@ export default function AddSymptomPage() {
         <div className="max-w-md mx-auto">
           <div className="bg-card-light dark:bg-card-dark rounded-xl p-6 shadow-md frosted-glass border border-white/30 dark:border-white/10">
             <p className="text-sm text-subtle-light dark:text-subtle-dark mb-6 text-center">
-              Record a symptom you're experiencing. This helps track your health patterns.
+              Record a symptom you're experiencing. This helps track your health
+              patterns.
             </p>
 
             <form onSubmit={handleSubmit(onSubmit)} className="space-y-4">
@@ -125,7 +133,9 @@ export default function AddSymptomPage() {
                   className={errors.symptomName ? "border-red-500" : ""}
                 />
                 {errors.symptomName && (
-                  <p className="text-sm text-red-500">{errors.symptomName.message}</p>
+                  <p className="text-sm text-red-500">
+                    {errors.symptomName.message}
+                  </p>
                 )}
               </div>
 
@@ -133,7 +143,12 @@ export default function AddSymptomPage() {
                 <label className="text-sm font-medium">Severity *</label>
                 <Select
                   value={selectedSeverity}
-                  onValueChange={(value) => setValue("severity", value as "mild" | "moderate" | "severe")}
+                  onValueChange={(value) =>
+                    setValue(
+                      "severity",
+                      value as "mild" | "moderate" | "severe",
+                    )
+                  }
                 >
                   <SelectTrigger>
                     <SelectValue />
@@ -147,7 +162,9 @@ export default function AddSymptomPage() {
                   </SelectContent>
                 </Select>
                 {errors.severity && (
-                  <p className="text-sm text-red-500">{errors.severity.message}</p>
+                  <p className="text-sm text-red-500">
+                    {errors.severity.message}
+                  </p>
                 )}
               </div>
 
@@ -180,8 +197,12 @@ export default function AddSymptomPage() {
               </div>
 
               <div className="flex flex-col sm:flex-row gap-4 pt-4">
-                <Button type="submit" disabled={isSubmitting} className="w-full sm:w-1/2">
-                  {isSubmitting ? 'Logging...' : 'Log Symptom'}
+                <Button
+                  type="submit"
+                  disabled={isSubmitting}
+                  className="w-full sm:w-1/2"
+                >
+                  {isSubmitting ? "Logging..." : "Log Symptom"}
                 </Button>
                 <Button asChild variant="secondary" className="w-full sm:w-1/2">
                   <Link href="/healthcare">Cancel / Back</Link>

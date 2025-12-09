@@ -27,23 +27,28 @@ http://localhost:3002/test-lara
 ## 🎤 Voice Commands
 
 ### Music
+
 - "Play a song"
 - "Play [artist/song name]"
 
 ### Tasks
+
 - "Show my tasks"
 - "Add a task"
 
 ### Reminders
+
 - "Show my reminders"
 - "Add a reminder"
 
 ### Navigation
+
 - "Go to home page"
 - "Open professional page"
 - "Open personal growth page"
 
 ### Generic
+
 - "Tell me something"
 - "Search [anything]"
 
@@ -51,19 +56,20 @@ http://localhost:3002/test-lara
 
 ## 📁 Key Files
 
-| File | Purpose |
-|------|---------|
-| `src/lib/voice/lara-assistant.ts` | Main module |
-| `src/app/api/ai/parse-intent/route.ts` | Intent API |
-| `src/hooks/useLara.ts` | React hook |
-| `src/components/LaraAssistant.tsx` | UI component |
-| `src/app/test-lara/page.tsx` | Test page |
+| File                                   | Purpose      |
+| -------------------------------------- | ------------ |
+| `src/lib/voice/lara-assistant.ts`      | Main module  |
+| `src/app/api/ai/parse-intent/route.ts` | Intent API   |
+| `src/hooks/useLara.ts`                 | React hook   |
+| `src/components/LaraAssistant.tsx`     | UI component |
+| `src/app/test-lara/page.tsx`           | Test page    |
 
 ---
 
 ## 🔧 Integration
 
 ### Add to Your Page
+
 ```typescript
 import { LaraAssistant } from '@/components/LaraAssistant';
 
@@ -71,8 +77,9 @@ import { LaraAssistant } from '@/components/LaraAssistant';
 ```
 
 ### Use Hook
+
 ```typescript
-import { useLara } from '@/hooks/useLara';
+import { useLara } from "@/hooks/useLara";
 
 const { isRunning, start, stop } = useLara({ userId });
 ```
@@ -82,21 +89,25 @@ const { isRunning, start, stop } = useLara({ userId });
 ## 🐛 Troubleshooting
 
 ### Microphone Not Working
+
 - Check browser permissions
 - Check microphone is connected
 - Verify volume is not muted
 
 ### No Sound Output
+
 - Check speaker is connected
 - Check volume is not muted
 - Verify browser volume
 
 ### Intent Not Recognized
+
 - Speak more clearly
 - Use exact command phrases
 - Check OpenAI API key
 
 ### Navigation Not Working
+
 - Check page exists
 - Verify route is correct
 - Check browser console
@@ -119,25 +130,25 @@ const { isRunning, start, stop } = useLara({ userId });
 
 ## 🔗 Important Links
 
-| Link | Purpose |
-|------|---------|
-| http://localhost:3002/test-lara | Test page |
-| http://localhost:3002/dashboard | Home |
-| http://localhost:3002/professional | Tasks |
-| http://localhost:3002/reminders | Reminders |
+| Link                               | Purpose   |
+| ---------------------------------- | --------- |
+| http://localhost:3002/test-lara    | Test page |
+| http://localhost:3002/dashboard    | Home      |
+| http://localhost:3002/professional | Tasks     |
+| http://localhost:3002/reminders    | Reminders |
 
 ---
 
 ## 📚 Documentation
 
-| Document | Time |
-|----------|------|
-| 🎉_LARA_READY_TO_USE.md | 5 min |
-| 🎤_LARA_QUICK_START.md | 2 min |
+| Document                            | Time   |
+| ----------------------------------- | ------ |
+| 🎉_LARA_READY_TO_USE.md             | 5 min  |
+| 🎤_LARA_QUICK_START.md              | 2 min  |
 | 🎤_LARA_VOICE_ASSISTANT_COMPLETE.md | 30 min |
-| 🧪_LARA_TESTING_GUIDE.md | 1 hour |
-| 🔧_LARA_TROUBLESHOOTING.md | 30 min |
-| 🚀_LARA_DEPLOYMENT_GUIDE.md | 1 hour |
+| 🧪_LARA_TESTING_GUIDE.md            | 1 hour |
+| 🔧_LARA_TROUBLESHOOTING.md          | 30 min |
+| 🚀_LARA_DEPLOYMENT_GUIDE.md         | 1 hour |
 
 ---
 
@@ -180,16 +191,19 @@ SUPABASE_SERVICE_ROLE_KEY=...
 ## 🚀 Deployment
 
 ### Vercel (Recommended)
+
 ```bash
 vercel deploy --prod
 ```
 
 ### Netlify
+
 ```bash
 netlify deploy --prod
 ```
 
 ### Docker
+
 ```bash
 docker build -t lara .
 docker run -p 3002:3002 lara
@@ -200,18 +214,21 @@ docker run -p 3002:3002 lara
 ## 📞 Debug Commands
 
 ### Browser Console
+
 ```javascript
 // Test microphone
-navigator.mediaDevices.getUserMedia({ audio: true })
-  .then(() => console.log('Microphone works!'))
-  .catch(err => console.error('Error:', err));
+navigator.mediaDevices
+  .getUserMedia({ audio: true })
+  .then(() => console.log("Microphone works!"))
+  .catch((err) => console.error("Error:", err));
 
 // Test text-to-speech
-const utterance = new SpeechSynthesisUtterance('Hello');
+const utterance = new SpeechSynthesisUtterance("Hello");
 window.speechSynthesis.speak(utterance);
 ```
 
 ### Terminal
+
 ```bash
 # Build
 npm run build
@@ -252,14 +269,14 @@ Loop back to listening
 
 ## 📊 Performance
 
-| Metric | Value |
-|--------|-------|
-| Wake word detection | < 1 sec |
-| Command recording | 2-5 sec |
-| Intent parsing | 1-2 sec |
-| Action execution | < 1 sec |
-| Voice response | 1-3 sec |
-| Total cycle | 5-12 sec |
+| Metric              | Value    |
+| ------------------- | -------- |
+| Wake word detection | < 1 sec  |
+| Command recording   | 2-5 sec  |
+| Intent parsing      | 1-2 sec  |
+| Action execution    | < 1 sec  |
+| Voice response      | 1-3 sec  |
+| Total cycle         | 5-12 sec |
 
 ---
 
@@ -306,4 +323,3 @@ Loop back to listening
 **Ready to use Lara! 🎤✨**
 
 **Start now**: `npm run dev` → `/test-lara` → Say "Hey Lara"
-

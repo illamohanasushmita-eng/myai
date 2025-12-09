@@ -47,10 +47,11 @@
 
 ```typescript
 // Loads from /public/vosk/model.zip
-const model = await loadVoskModel('/vosk/model.zip');
+const model = await loadVoskModel("/vosk/model.zip");
 ```
 
 **Features**:
+
 - ✅ Async loading
 - ✅ Error handling
 - ✅ Caching
@@ -73,6 +74,7 @@ processor.onaudioprocess = (event) => {
 ```
 
 **Specs**:
+
 - ✅ Sample Rate: 16000 Hz
 - ✅ Buffer Size: 4096 samples
 - ✅ Channels: Mono (1)
@@ -82,12 +84,13 @@ processor.onaudioprocess = (event) => {
 
 ```typescript
 // Detects "hey lara" in recognized text
-if (recognizedText.toLowerCase().includes('hey lara')) {
+if (recognizedText.toLowerCase().includes("hey lara")) {
   onWakeWord?.();
 }
 ```
 
 **Features**:
+
 - ✅ Case-insensitive matching
 - ✅ Partial matching support
 - ✅ Timeout handling
@@ -109,6 +112,7 @@ processor.onaudioprocess = (event) => {
 ```
 
 **Features**:
+
 - ✅ Real-time partial results
 - ✅ Final result handling
 - ✅ Confidence scoring
@@ -123,7 +127,7 @@ processor.onaudioprocess = (event) => {
 Loads Vosk model from ZIP file.
 
 ```typescript
-const model = await loadVoskModel('/vosk/model.zip');
+const model = await loadVoskModel("/vosk/model.zip");
 ```
 
 ### `startRecognizer(onWakeWord?, onRecognize?, onError?, onPartialResult?): Promise<void>`
@@ -132,10 +136,10 @@ Starts continuous listening.
 
 ```typescript
 await startRecognizer(
-  () => console.log('Wake word!'),
-  (text) => console.log('Text:', text),
-  (error) => console.error('Error:', error),
-  (partial) => console.log('Partial:', partial)
+  () => console.log("Wake word!"),
+  (text) => console.log("Text:", text),
+  (error) => console.error("Error:", error),
+  (partial) => console.log("Partial:", partial),
 );
 ```
 
@@ -173,17 +177,17 @@ await workflow.start();
 
 ## 📊 Code Statistics
 
-| Metric | Value |
-|--------|-------|
-| Total Files | 4 implementation + 2 docs |
-| Total Lines | ~900 lines |
-| Core Module | 300 lines |
-| React Hook | 150 lines |
-| Workflow | 250 lines |
-| Component | 200 lines |
-| TypeScript | 100% |
-| Error Handling | Comprehensive |
-| Documentation | Complete |
+| Metric         | Value                     |
+| -------------- | ------------------------- |
+| Total Files    | 4 implementation + 2 docs |
+| Total Lines    | ~900 lines                |
+| Core Module    | 300 lines                 |
+| React Hook     | 150 lines                 |
+| Workflow       | 250 lines                 |
+| Component      | 200 lines                 |
+| TypeScript     | 100%                      |
+| Error Handling | Comprehensive             |
+| Documentation  | Complete                  |
 
 ---
 
@@ -193,7 +197,7 @@ await workflow.start();
 
 ```typescript
 const { start } = useVoskRecognizer({
-  onWakeWord: () => console.log('✅ Wake word detected!'),
+  onWakeWord: () => console.log("✅ Wake word detected!"),
 });
 
 await start();
@@ -205,7 +209,7 @@ await start();
 
 ```typescript
 const { start } = useVoskRecognizer({
-  onRecognize: (text) => console.log('Command:', text),
+  onRecognize: (text) => console.log("Command:", text),
 });
 
 await start();
@@ -217,7 +221,7 @@ await start();
 
 ```typescript
 const { start } = useVoskRecognizer({
-  onPartialResult: (text) => console.log('Partial:', text),
+  onPartialResult: (text) => console.log("Partial:", text),
 });
 
 await start();
@@ -229,7 +233,7 @@ await start();
 
 ```typescript
 const { start, error } = useVoskRecognizer({
-  onError: (err) => console.error('Error:', err),
+  onError: (err) => console.error("Error:", err),
 });
 
 // Without microphone permission
@@ -245,21 +249,22 @@ await start();
 ✅ **No Cloud Upload**: Audio never sent to external servers  
 ✅ **Client-Side Model**: Vosk model runs entirely locally  
 ✅ **User Permission**: Microphone access requires explicit permission  
-✅ **HTTPS Required**: Secure connection for microphone access  
+✅ **HTTPS Required**: Secure connection for microphone access
 
 ---
 
 ## ⚙️ Browser Support
 
-| Browser | Support |
-|---------|---------|
-| Chrome | ✅ Full |
-| Firefox | ✅ Full |
-| Safari | ✅ iOS 14.5+ |
-| Edge | ✅ Full |
-| Opera | ✅ Full |
+| Browser | Support      |
+| ------- | ------------ |
+| Chrome  | ✅ Full      |
+| Firefox | ✅ Full      |
+| Safari  | ✅ iOS 14.5+ |
+| Edge    | ✅ Full      |
+| Opera   | ✅ Full      |
 
 **Requirements**:
+
 - HTTPS (or localhost)
 - Web Audio API
 - getUserMedia API
@@ -269,13 +274,13 @@ await start();
 
 ## 📈 Performance
 
-| Metric | Value |
-|--------|-------|
-| Model Load Time | 2-5 seconds |
-| Recognition Latency | 100-500ms |
-| CPU Usage | 5-15% |
-| Memory Usage | 50-100 MB |
-| Accuracy | 85-95% |
+| Metric              | Value       |
+| ------------------- | ----------- |
+| Model Load Time     | 2-5 seconds |
+| Recognition Latency | 100-500ms   |
+| CPU Usage           | 5-15%       |
+| Memory Usage        | 50-100 MB   |
+| Accuracy            | 85-95%      |
 
 ---
 
@@ -286,11 +291,11 @@ await start();
 ```typescript
 const { start } = useVoskRecognizer({
   onWakeWord: () => {
-    console.log('Wake word detected!');
+    console.log("Wake word detected!");
     activateCommandMode();
   },
   onRecognize: (text) => {
-    console.log('Processing command:', text);
+    console.log("Processing command:", text);
     processVoiceCommand(text);
   },
 });
@@ -301,7 +306,7 @@ const { start } = useVoskRecognizer({
 ```typescript
 const { start } = useVoskRecognizer({
   onWakeWord: () => {
-    speakText('Yes, how can I help?');
+    speakText("Yes, how can I help?");
   },
 });
 
@@ -316,10 +321,10 @@ function speakText(text: string) {
 ```typescript
 const { start } = useVoskRecognizer({
   onRecognize: (text) => {
-    if (text.includes('tasks')) {
-      router.push('/professional');
-    } else if (text.includes('reminders')) {
-      router.push('/reminders');
+    if (text.includes("tasks")) {
+      router.push("/professional");
+    } else if (text.includes("reminders")) {
+      router.push("/reminders");
     }
   },
 });
@@ -354,20 +359,27 @@ const { start } = useVoskRecognizer({
 ## 🎯 Next Steps
 
 1. **Test the implementation**
+
    ```bash
    npm run dev
    ```
 
 2. **Import in your component**
+
    ```typescript
-   import { useVoskRecognizer } from '@/hooks/useVoskRecognizer';
+   import { useVoskRecognizer } from "@/hooks/useVoskRecognizer";
    ```
 
 3. **Add callbacks**
+
    ```typescript
    const { start, stop } = useVoskRecognizer({
-     onWakeWord: () => { /* handle wake word */ },
-     onRecognize: (text) => { /* handle text */ },
+     onWakeWord: () => {
+       /* handle wake word */
+     },
+     onRecognize: (text) => {
+       /* handle text */
+     },
    });
    ```
 
@@ -387,17 +399,17 @@ const { start } = useVoskRecognizer({
 
 ## ✅ Status
 
-| Component | Status |
-|-----------|--------|
-| Model Loading | ✅ Complete |
-| Audio Capture | ✅ Complete |
+| Component           | Status      |
+| ------------------- | ----------- |
+| Model Loading       | ✅ Complete |
+| Audio Capture       | ✅ Complete |
 | Wake-Word Detection | ✅ Complete |
-| Speech Recognition | ✅ Complete |
-| React Integration | ✅ Complete |
-| Error Handling | ✅ Complete |
-| Documentation | ✅ Complete |
-| Testing | ✅ Ready |
-| Production Ready | ✅ YES |
+| Speech Recognition  | ✅ Complete |
+| React Integration   | ✅ Complete |
+| Error Handling      | ✅ Complete |
+| Documentation       | ✅ Complete |
+| Testing             | ✅ Ready    |
+| Production Ready    | ✅ YES      |
 
 ---
 
@@ -406,6 +418,7 @@ const { start } = useVoskRecognizer({
 **Vosk integration is complete and production-ready!**
 
 All required functionality has been implemented:
+
 - ✅ Wake-word detection ("hey lara")
 - ✅ Continuous listening
 - ✅ Speech recognition
@@ -416,5 +429,3 @@ All required functionality has been implemented:
 - ✅ Comprehensive documentation
 
 **Ready to use in your AI Personal Assistant!** 🎤
-
-

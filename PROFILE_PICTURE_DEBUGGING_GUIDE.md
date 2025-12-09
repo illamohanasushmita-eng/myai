@@ -9,6 +9,7 @@ Open your browser's Developer Tools (F12) and go to the **Console** tab.
 **Expected Log Sequence:**
 
 1. **On Page Load:**
+
    ```
    [USER-SERVICE] Fetching user with ID: <user-id>
    [USER-SERVICE] User fetched successfully
@@ -19,6 +20,7 @@ Open your browser's Developer Tools (F12) and go to the **Console** tab.
    ```
 
 2. **On File Upload:**
+
    ```
    [PROFILE] File selected: <filename> Size: <size> Type: <type>
    [PROFILE] File read as data URL, length: <length>
@@ -52,12 +54,13 @@ Open your browser's Developer Tools (F12) and go to the **Console** tab.
 2. Navigate to **SQL Editor**
 3. Run this query:
    ```sql
-   SELECT user_id, name, phone, avatar_url, theme, language 
-   FROM users 
+   SELECT user_id, name, phone, avatar_url, theme, language
+   FROM users
    WHERE user_id = '<your-user-id>';
    ```
 
 **Expected Result:**
+
 - `avatar_url` should contain the data URL or image URL
 - Other fields should match what you entered
 
@@ -84,6 +87,7 @@ Else
 ```
 
 **Debug Check:**
+
 - After upload, `profileImage` should start with `data:image/`
 - After save, `profileImage` should still contain the data URL
 - On page refresh, `profileImage` should be loaded from `profile.avatar_url`
@@ -91,6 +95,7 @@ Else
 ### Step 5: Test Complete Flow
 
 **Test Case 1: Upload and Save**
+
 1. Navigate to `/settings/profile`
 2. Click edit button on profile picture
 3. Select "Upload from device"
@@ -103,12 +108,14 @@ Else
 10. **Check Database**: `avatar_url` should be updated
 
 **Test Case 2: Refresh and Persist**
+
 1. After saving, refresh the page (F5)
 2. **Check Console**: Should see profile fetch logs
 3. **Check UI**: Profile picture should display from database
 4. **Check Console**: Should see `[PROFILE-DISPLAY] Rendering data URL image` or external URL
 
 **Test Case 3: Camera Capture**
+
 1. Click edit button
 2. Select "Take a photo"
 3. Allow camera access
@@ -121,21 +128,25 @@ Else
 ### Step 6: Common Issues and Solutions
 
 **Issue 1: Avatar not saving**
+
 - Check console for `[USER-SERVICE] Error updating user:` logs
 - Verify database has `avatar_url` column
 - Check Supabase RLS policies allow UPDATE
 
 **Issue 2: Avatar not displaying after save**
+
 - Check if `profileImage` state is being updated after save
 - Verify `setProfileImage(updatedProfile.avatar_url || '')` is called
 - Check if data URL is too long (browser limit ~2MB)
 
 **Issue 3: Data URL too long**
+
 - Data URLs can be very large (base64 encoded)
 - Consider uploading to Supabase Storage instead
 - Store public URL in `avatar_url` field
 
 **Issue 4: Image not persisting on refresh**
+
 - Check if `profile.avatar_url` is being fetched correctly
 - Verify `setProfileImage(userProfile.avatar_url || '')` is called
 - Check database query returns `avatar_url` field
@@ -143,6 +154,7 @@ Else
 ### Step 7: Enable Detailed Logging
 
 All logging is already enabled. Check these console prefixes:
+
 - `[PROFILE]` - Profile page component
 - `[PROFILE-DISPLAY]` - Image display logic
 - `[USER-SERVICE]` - User service API calls
@@ -159,6 +171,7 @@ ORDER BY ordinal_position;
 ```
 
 **Expected columns:**
+
 - `user_id` (UUID)
 - `email` (TEXT)
 - `name` (TEXT)
@@ -182,12 +195,13 @@ ORDER BY ordinal_position;
 Verify Supabase RLS policies allow UPDATE:
 
 ```sql
-SELECT * FROM pg_policies 
-WHERE tablename = 'users' 
+SELECT * FROM pg_policies
+WHERE tablename = 'users'
 AND cmd = 'UPDATE';
 ```
 
 Should see a policy like:
+
 ```
 Users can update their own profile
 ```
@@ -211,13 +225,14 @@ Users can update their own profile
 ## 🚀 Next Steps
 
 If all debugging steps pass:
+
 1. The profile picture functionality is working correctly
 2. Data URLs are being saved to database
 3. Images are persisting across page refreshes
 
 If issues remain:
+
 1. Check Supabase logs for errors
 2. Verify RLS policies
 3. Check database constraints
 4. Review network requests for errors
-

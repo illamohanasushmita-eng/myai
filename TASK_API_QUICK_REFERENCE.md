@@ -24,10 +24,12 @@ POST /api/tasks/create
 ```
 
 ### **Required Fields**
+
 - `userId` (string) - User UUID
 - `title` (string) - Task title (non-empty)
 
 ### **Optional Fields**
+
 - `description` (string) - Task description
 - `category` (string) - Task category
 - `priority` (string) - Priority level (default: 'medium')
@@ -40,6 +42,7 @@ POST /api/tasks/create
 ## 📥 **Response Format**
 
 ### **Success (201)**
+
 ```json
 {
   "success": true,
@@ -61,6 +64,7 @@ POST /api/tasks/create
 ```
 
 ### **Validation Error (400)**
+
 ```json
 {
   "error": "Validation failed",
@@ -72,6 +76,7 @@ POST /api/tasks/create
 ```
 
 ### **Conflict Error (409)**
+
 ```json
 {
   "error": "Task with this title already exists for this user"
@@ -79,6 +84,7 @@ POST /api/tasks/create
 ```
 
 ### **Server Error (500)**
+
 ```json
 {
   "error": "Failed to create task",
@@ -93,26 +99,26 @@ POST /api/tasks/create
 
 ## ✅ **Validation Rules**
 
-| Field | Type | Required | Rules |
-|-------|------|----------|-------|
-| userId | string | ✅ | Must be non-empty |
-| title | string | ✅ | Must be non-empty |
-| description | string | ❌ | Trimmed, can be null |
-| category | string | ❌ | Trimmed, can be null |
-| priority | string | ❌ | Default: 'medium' |
-| status | string | ❌ | Default: 'pending' |
-| due_date | string | ❌ | ISO format, can be null |
-| ai_generated | boolean | ❌ | Default: false |
+| Field        | Type    | Required | Rules                   |
+| ------------ | ------- | -------- | ----------------------- |
+| userId       | string  | ✅       | Must be non-empty       |
+| title        | string  | ✅       | Must be non-empty       |
+| description  | string  | ❌       | Trimmed, can be null    |
+| category     | string  | ❌       | Trimmed, can be null    |
+| priority     | string  | ❌       | Default: 'medium'       |
+| status       | string  | ❌       | Default: 'pending'      |
+| due_date     | string  | ❌       | ISO format, can be null |
+| ai_generated | boolean | ❌       | Default: false          |
 
 ---
 
 ## 🔍 **Error Codes**
 
-| Code | Status | Meaning |
-|------|--------|---------|
-| 400 | Bad Request | Invalid input or JSON |
-| 409 | Conflict | Unique constraint violation |
-| 500 | Server Error | Database or unexpected error |
+| Code | Status       | Meaning                      |
+| ---- | ------------ | ---------------------------- |
+| 400  | Bad Request  | Invalid input or JSON        |
+| 409  | Conflict     | Unique constraint violation  |
+| 500  | Server Error | Database or unexpected error |
 
 ---
 
@@ -136,15 +142,15 @@ curl -X POST http://localhost:3002/api/tasks/create \
 ## 📝 **Frontend Usage**
 
 ```typescript
-import { createTask } from '@/lib/services/taskService';
+import { createTask } from "@/lib/services/taskService";
 
-const userId = localStorage.getItem('userId');
+const userId = localStorage.getItem("userId");
 await createTask(userId, {
-  title: 'My Task',
-  description: 'Task description',
-  category: 'Work',
-  priority: 'high',
-  status: 'pending',
+  title: "My Task",
+  description: "Task description",
+  category: "Work",
+  priority: "high",
+  status: "pending",
   ai_generated: false,
 });
 ```
@@ -174,4 +180,3 @@ await createTask(userId, {
 **Status**: ✅ READY TO USE
 **Endpoint**: POST /api/tasks/create
 **Documentation**: BACKEND_TASK_API_IMPROVEMENTS.md
-

@@ -1,4 +1,3 @@
-
 "use client";
 
 import { Button } from "@/components/ui/button";
@@ -31,7 +30,9 @@ export default function AddGoalPage() {
       <header className="sticky top-0 z-10 flex items-center justify-between border-b border-gray-200/50 bg-background-light/80 p-4 backdrop-blur-sm dark:border-gray-800/50 dark:bg-background-dark/80">
         <Button asChild variant="ghost" size="icon">
           <Link href="/personal-growth">
-            <span className="material-symbols-outlined">arrow_back_ios_new</span>
+            <span className="material-symbols-outlined">
+              arrow_back_ios_new
+            </span>
           </Link>
         </Button>
         <h1 className="text-lg font-bold">Add New Goal</h1>
@@ -82,7 +83,7 @@ export default function AddGoalPage() {
                   variant={"outline"}
                   className={cn(
                     "w-full justify-start text-left font-normal rounded-lg border-gray-300 bg-white/70 hover:bg-white/90 dark:border-gray-600 dark:bg-gray-700/60 dark:hover:bg-gray-700/80",
-                    !date && "text-muted-foreground"
+                    !date && "text-muted-foreground",
                   )}
                 >
                   <CalendarIcon className="mr-2 h-4 w-4" />

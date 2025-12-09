@@ -1,4 +1,4 @@
-import { supabase } from '@/lib/supabaseClient';
+import { supabase } from "@/lib/supabaseClient";
 import {
   CalendarEvent,
   Vehicle,
@@ -14,15 +14,17 @@ import {
   Order,
   SupportTicket,
   BusinessProfile,
-} from '@/lib/types/database';
+} from "@/lib/types/database";
 
 // Calendar Events
-export async function getUserCalendarEvents(userId: string): Promise<CalendarEvent[]> {
+export async function getUserCalendarEvents(
+  userId: string,
+): Promise<CalendarEvent[]> {
   const { data, error } = await supabase
-    .from('calendar_events')
-    .select('*')
-    .eq('user_id', userId)
-    .order('start_time', { ascending: true });
+    .from("calendar_events")
+    .select("*")
+    .eq("user_id", userId)
+    .order("start_time", { ascending: true });
 
   if (error) throw error;
   return data || [];
@@ -30,10 +32,10 @@ export async function getUserCalendarEvents(userId: string): Promise<CalendarEve
 
 export async function createCalendarEvent(
   userId: string,
-  eventData: Omit<CalendarEvent, 'event_id' | 'user_id'>
+  eventData: Omit<CalendarEvent, "event_id" | "user_id">,
 ): Promise<CalendarEvent> {
   const { data, error } = await supabase
-    .from('calendar_events')
+    .from("calendar_events")
     .insert([{ user_id: userId, ...eventData }])
     .select()
     .single();
@@ -45,9 +47,9 @@ export async function createCalendarEvent(
 // Vehicles
 export async function getUserVehicles(userId: string): Promise<Vehicle[]> {
   const { data, error } = await supabase
-    .from('vehicles')
-    .select('*')
-    .eq('user_id', userId);
+    .from("vehicles")
+    .select("*")
+    .eq("user_id", userId);
 
   if (error) throw error;
   return data || [];
@@ -55,10 +57,10 @@ export async function getUserVehicles(userId: string): Promise<Vehicle[]> {
 
 export async function createVehicle(
   userId: string,
-  vehicleData: Omit<Vehicle, 'vehicle_id' | 'user_id'>
+  vehicleData: Omit<Vehicle, "vehicle_id" | "user_id">,
 ): Promise<Vehicle> {
   const { data, error } = await supabase
-    .from('vehicles')
+    .from("vehicles")
     .insert([{ user_id: userId, ...vehicleData }])
     .select()
     .single();
@@ -70,9 +72,9 @@ export async function createVehicle(
 // Routes
 export async function getUserRoutes(userId: string): Promise<Route[]> {
   const { data, error } = await supabase
-    .from('routes')
-    .select('*')
-    .eq('user_id', userId);
+    .from("routes")
+    .select("*")
+    .eq("user_id", userId);
 
   if (error) throw error;
   return data || [];
@@ -80,10 +82,10 @@ export async function getUserRoutes(userId: string): Promise<Route[]> {
 
 export async function createRoute(
   userId: string,
-  routeData: Omit<Route, 'route_id' | 'user_id'>
+  routeData: Omit<Route, "route_id" | "user_id">,
 ): Promise<Route> {
   const { data, error } = await supabase
-    .from('routes')
+    .from("routes")
     .insert([{ user_id: userId, ...routeData }])
     .select()
     .single();
@@ -93,12 +95,14 @@ export async function createRoute(
 }
 
 // Maintenance Logs
-export async function getVehicleMaintenanceLogs(vehicleId: string): Promise<MaintenanceLog[]> {
+export async function getVehicleMaintenanceLogs(
+  vehicleId: string,
+): Promise<MaintenanceLog[]> {
   const { data, error } = await supabase
-    .from('maintenance_logs')
-    .select('*')
-    .eq('vehicle_id', vehicleId)
-    .order('date', { ascending: false });
+    .from("maintenance_logs")
+    .select("*")
+    .eq("vehicle_id", vehicleId)
+    .order("date", { ascending: false });
 
   if (error) throw error;
   return data || [];
@@ -106,10 +110,10 @@ export async function getVehicleMaintenanceLogs(vehicleId: string): Promise<Main
 
 export async function createMaintenanceLog(
   vehicleId: string,
-  logData: Omit<MaintenanceLog, 'log_id' | 'vehicle_id'>
+  logData: Omit<MaintenanceLog, "log_id" | "vehicle_id">,
 ): Promise<MaintenanceLog> {
   const { data, error } = await supabase
-    .from('maintenance_logs')
+    .from("maintenance_logs")
     .insert([{ vehicle_id: vehicleId, ...logData }])
     .select()
     .single();
@@ -119,11 +123,13 @@ export async function createMaintenanceLog(
 }
 
 // Learning Modules
-export async function getUserLearningModules(userId: string): Promise<LearningModule[]> {
+export async function getUserLearningModules(
+  userId: string,
+): Promise<LearningModule[]> {
   const { data, error } = await supabase
-    .from('learning_modules')
-    .select('*')
-    .eq('user_id', userId);
+    .from("learning_modules")
+    .select("*")
+    .eq("user_id", userId);
 
   if (error) throw error;
   return data || [];
@@ -131,10 +137,10 @@ export async function getUserLearningModules(userId: string): Promise<LearningMo
 
 export async function createLearningModule(
   userId: string,
-  moduleData: Omit<LearningModule, 'module_id' | 'user_id'>
+  moduleData: Omit<LearningModule, "module_id" | "user_id">,
 ): Promise<LearningModule> {
   const { data, error } = await supabase
-    .from('learning_modules')
+    .from("learning_modules")
     .insert([{ user_id: userId, ...moduleData }])
     .select()
     .single();
@@ -146,10 +152,10 @@ export async function createLearningModule(
 // AI Logs
 export async function getUserAILogs(userId: string): Promise<AILog[]> {
   const { data, error } = await supabase
-    .from('ai_logs')
-    .select('*')
-    .eq('user_id', userId)
-    .order('created_at', { ascending: false });
+    .from("ai_logs")
+    .select("*")
+    .eq("user_id", userId)
+    .order("created_at", { ascending: false });
 
   if (error) throw error;
   return data || [];
@@ -157,10 +163,10 @@ export async function getUserAILogs(userId: string): Promise<AILog[]> {
 
 export async function createAILog(
   userId: string,
-  logData: Omit<AILog, 'log_id' | 'user_id'>
+  logData: Omit<AILog, "log_id" | "user_id">,
 ): Promise<AILog> {
   const { data, error } = await supabase
-    .from('ai_logs')
+    .from("ai_logs")
     .insert([{ user_id: userId, ...logData }])
     .select()
     .single();
@@ -170,12 +176,14 @@ export async function createAILog(
 }
 
 // AI Recommendations
-export async function getUserAIRecommendations(userId: string): Promise<AIRecommendation[]> {
+export async function getUserAIRecommendations(
+  userId: string,
+): Promise<AIRecommendation[]> {
   const { data, error } = await supabase
-    .from('ai_recommendations')
-    .select('*')
-    .eq('user_id', userId)
-    .order('created_at', { ascending: false });
+    .from("ai_recommendations")
+    .select("*")
+    .eq("user_id", userId)
+    .order("created_at", { ascending: false });
 
   if (error) throw error;
   return data || [];
@@ -183,10 +191,10 @@ export async function getUserAIRecommendations(userId: string): Promise<AIRecomm
 
 export async function createAIRecommendation(
   userId: string,
-  recommendationData: Omit<AIRecommendation, 'recommendation_id' | 'user_id'>
+  recommendationData: Omit<AIRecommendation, "recommendation_id" | "user_id">,
 ): Promise<AIRecommendation> {
   const { data, error } = await supabase
-    .from('ai_recommendations')
+    .from("ai_recommendations")
     .insert([{ user_id: userId, ...recommendationData }])
     .select()
     .single();
@@ -196,12 +204,14 @@ export async function createAIRecommendation(
 }
 
 // Voice Commands
-export async function getUserVoiceCommands(userId: string): Promise<VoiceCommand[]> {
+export async function getUserVoiceCommands(
+  userId: string,
+): Promise<VoiceCommand[]> {
   const { data, error } = await supabase
-    .from('voice_commands')
-    .select('*')
-    .eq('user_id', userId)
-    .order('timestamp', { ascending: false });
+    .from("voice_commands")
+    .select("*")
+    .eq("user_id", userId)
+    .order("timestamp", { ascending: false });
 
   if (error) throw error;
   return data || [];
@@ -209,10 +219,10 @@ export async function getUserVoiceCommands(userId: string): Promise<VoiceCommand
 
 export async function createVoiceCommand(
   userId: string,
-  commandData: Omit<VoiceCommand, 'command_id' | 'user_id'>
+  commandData: Omit<VoiceCommand, "command_id" | "user_id">,
 ): Promise<VoiceCommand> {
   const { data, error } = await supabase
-    .from('voice_commands')
+    .from("voice_commands")
     .insert([{ user_id: userId, ...commandData }])
     .select()
     .single();
@@ -224,9 +234,9 @@ export async function createVoiceCommand(
 // Devices
 export async function getUserDevices(userId: string): Promise<Device[]> {
   const { data, error } = await supabase
-    .from('devices')
-    .select('*')
-    .eq('user_id', userId);
+    .from("devices")
+    .select("*")
+    .eq("user_id", userId);
 
   if (error) throw error;
   return data || [];
@@ -234,10 +244,10 @@ export async function getUserDevices(userId: string): Promise<Device[]> {
 
 export async function createDevice(
   userId: string,
-  deviceData: Omit<Device, 'device_id' | 'user_id'>
+  deviceData: Omit<Device, "device_id" | "user_id">,
 ): Promise<Device> {
   const { data, error } = await supabase
-    .from('devices')
+    .from("devices")
     .insert([{ user_id: userId, ...deviceData }])
     .select()
     .single();
@@ -245,4 +255,3 @@ export async function createDevice(
   if (error) throw error;
   return data;
 }
-

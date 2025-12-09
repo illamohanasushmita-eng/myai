@@ -10,12 +10,12 @@ Replaced hardcoded "Hello, Alex!" with dynamic user name from database.
 
 ## 🔧 Changes Summary
 
-| Change | Details |
-|--------|---------|
-| Import | Added `getUser` from userService |
-| State | Added `userName` state (default: "User") |
-| Logic | Fetch user profile on component mount |
-| Display | Changed greeting to use `{userName}` |
+| Change  | Details                                  |
+| ------- | ---------------------------------------- |
+| Import  | Added `getUser` from userService         |
+| State   | Added `userName` state (default: "User") |
+| Logic   | Fetch user profile on component mount    |
+| Display | Changed greeting to use `{userName}`     |
 
 ## 🎯 Result
 
@@ -87,16 +87,15 @@ AFTER:  "Hello, [User's Name]!"
 
 ## 📞 Troubleshooting
 
-| Issue | Solution |
-|-------|----------|
+| Issue                | Solution                          |
+| -------------------- | --------------------------------- |
 | Shows "Hello, User!" | Check user profile has name field |
-| Console error | Check database connection |
-| Not updating | Clear browser cache |
-| Auth error | Verify Supabase auth configured |
+| Console error        | Check database connection         |
+| Not updating         | Clear browser cache               |
+| Auth error           | Verify Supabase auth configured   |
 
 ## Summary
 
 Dashboard greeting now displays authenticated user's actual name from database with proper error handling and fallback behavior.
 
 **Status: ✅ READY FOR DEPLOYMENT**
-

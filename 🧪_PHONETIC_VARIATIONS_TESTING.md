@@ -3,30 +3,34 @@
 **Status**: ✅ READY FOR TESTING  
 **Date**: 2025-11-08  
 **Application**: http://localhost:3002  
-**Feature**: 6 phonetic variations of "Hey Lara"  
+**Feature**: 6 phonetic variations of "Hey Lara"
 
 ---
 
 ## 🚀 QUICK START
 
 ### Step 1: Open Application
+
 ```
 URL: http://localhost:3002
 ```
 
 ### Step 2: Open DevTools
+
 ```
 Press: F12
 Tab: Console
 ```
 
 ### Step 3: Grant Microphone Permission
+
 ```
 Browser will ask for microphone access
 Click: Allow
 ```
 
 ### Step 4: Start Testing
+
 ```
 Say any of the 6 variations
 Check console for detection
@@ -39,10 +43,12 @@ Check console for detection
 ### Variation 1: "Hey Lara" (Original)
 
 **Steps**:
+
 1. Say: "Hey Lara"
 2. Check console
 
 **Expected Output**:
+
 ```
 🎤 Final transcript: hey lara
 ✅ Wake word detected: hey lara
@@ -57,10 +63,12 @@ Check console for detection
 ### Variation 2: "Hey Laura"
 
 **Steps**:
+
 1. Say: "Hey Laura"
 2. Check console
 
 **Expected Output**:
+
 ```
 🎤 Final transcript: hey laura
 ✅ Wake word detected: hey laura
@@ -75,10 +83,12 @@ Check console for detection
 ### Variation 3: "Hey Lora"
 
 **Steps**:
+
 1. Say: "Hey Lora"
 2. Check console
 
 **Expected Output**:
+
 ```
 🎤 Final transcript: hey lora
 ✅ Wake word detected: hey lora
@@ -93,10 +103,12 @@ Check console for detection
 ### Variation 4: "Hey Larra"
 
 **Steps**:
+
 1. Say: "Hey Larra"
 2. Check console
 
 **Expected Output**:
+
 ```
 🎤 Final transcript: hey larra
 ✅ Wake word detected: hey larra
@@ -111,10 +123,12 @@ Check console for detection
 ### Variation 5: "Hey Laira"
 
 **Steps**:
+
 1. Say: "Hey Laira"
 2. Check console
 
 **Expected Output**:
+
 ```
 🎤 Final transcript: hey laira
 ✅ Wake word detected: hey laira
@@ -129,10 +143,12 @@ Check console for detection
 ### Variation 6: "Hey Lera"
 
 **Steps**:
+
 1. Say: "Hey Lera"
 2. Check console
 
 **Expected Output**:
+
 ```
 🎤 Final transcript: hey lera
 ✅ Wake word detected: hey lera
@@ -149,10 +165,12 @@ Check console for detection
 ### Non-matching Phrase: "Hey Bob"
 
 **Steps**:
+
 1. Say: "Hey Bob"
 2. Check console
 
 **Expected Output**:
+
 ```
 🎤 Final transcript: hey bob
 [No wake word detection message]
@@ -168,12 +186,14 @@ Check console for detection
 ### Test: Wake Word + Command
 
 **Steps**:
+
 1. Say: "Hey Lara"
 2. Wait for: "Wake word detected"
 3. Say: "show my tasks"
 4. Check console
 
 **Expected Output**:
+
 ```
 🎤 Final transcript: hey lara
 ✅ Wake word detected: hey lara
@@ -191,15 +211,15 @@ Check console for detection
 
 ## 📊 TEST RESULTS SUMMARY
 
-| Variation | Test | Result |
-|-----------|------|--------|
-| hey lara | Variation 1 | [ ] PASS [ ] FAIL |
-| hey laura | Variation 2 | [ ] PASS [ ] FAIL |
-| hey lora | Variation 3 | [ ] PASS [ ] FAIL |
-| hey larra | Variation 4 | [ ] PASS [ ] FAIL |
-| hey laira | Variation 5 | [ ] PASS [ ] FAIL |
-| hey lera | Variation 6 | [ ] PASS [ ] FAIL |
-| hey bob | Negative | [ ] PASS [ ] FAIL |
+| Variation     | Test        | Result            |
+| ------------- | ----------- | ----------------- |
+| hey lara      | Variation 1 | [ ] PASS [ ] FAIL |
+| hey laura     | Variation 2 | [ ] PASS [ ] FAIL |
+| hey lora      | Variation 3 | [ ] PASS [ ] FAIL |
+| hey larra     | Variation 4 | [ ] PASS [ ] FAIL |
+| hey laira     | Variation 5 | [ ] PASS [ ] FAIL |
+| hey lera      | Variation 6 | [ ] PASS [ ] FAIL |
+| hey bob       | Negative    | [ ] PASS [ ] FAIL |
 | Full Workflow | Integration | [ ] PASS [ ] FAIL |
 
 ---
@@ -209,6 +229,7 @@ Check console for detection
 ### Issue: Wake word not detected
 
 **Solution**:
+
 1. Check microphone is connected
 2. Check microphone permissions granted
 3. Try speaking louder/clearer
@@ -218,6 +239,7 @@ Check console for detection
 ### Issue: Wrong variation logged
 
 **Solution**:
+
 1. Check speech recognition accuracy
 2. Try speaking more clearly
 3. Check console for actual transcript
@@ -226,6 +248,7 @@ Check console for detection
 ### Issue: Command not executing
 
 **Solution**:
+
 1. Check Gemini API is working
 2. Check browser console for errors
 3. Verify command is clear
@@ -236,6 +259,7 @@ Check console for detection
 ## 📝 CONSOLE LOGS REFERENCE
 
 ### Good Logs
+
 ```
 🎤 Initializing wake word listener on mount
 🎤 Starting wake word listener
@@ -247,6 +271,7 @@ Check console for detection
 ```
 
 ### Bad Logs (Should NOT See)
+
 ```
 🎤 Wake word recognition ended
 🎤 Restarting wake word listener...
@@ -280,7 +305,7 @@ Check console for detection
 ✅ **Non-matching phrase ignored**  
 ✅ **Commands execute after wake word**  
 ✅ **No infinite loops**  
-✅ **No errors in console**  
+✅ **No errors in console**
 
 ---
 
@@ -304,5 +329,3 @@ Check console for detection
 ---
 
 **Ready to test phonetic variations!** 🎤✨
-
-

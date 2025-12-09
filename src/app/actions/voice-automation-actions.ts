@@ -3,10 +3,10 @@
  * Handles server-side voice command processing
  */
 
-'use server';
+"use server";
 
-import { createClient } from '@supabase/supabase-js';
-import { z } from 'zod';
+import { createClient } from "@supabase/supabase-js";
+import { z } from "zod";
 
 // ============================================================================
 // TYPES
@@ -33,7 +33,7 @@ function getSupabaseClient() {
   const key = process.env.SUPABASE_SERVICE_ROLE_KEY;
 
   if (!url || !key) {
-    throw new Error('Missing Supabase credentials');
+    throw new Error("Missing Supabase credentials");
   }
 
   return createClient(url, key);
@@ -49,11 +49,11 @@ export async function createTaskAction(data: z.infer<typeof TaskSchema>) {
     const supabase = getSupabaseClient();
 
     const { data: task, error } = await supabase
-      .from('tasks')
+      .from("tasks")
       .insert([
         {
           title: validated.title,
-          description: validated.description || '',
+          description: validated.description || "",
           user_id: validated.userId,
           completed: false,
         },
@@ -71,12 +71,12 @@ export async function createTaskAction(data: z.infer<typeof TaskSchema>) {
       message: `Task "${validated.title}" created successfully`,
     };
   } catch (error) {
-    const message = error instanceof Error ? error.message : 'Unknown error';
-    console.error('Task creation error:', error);
+    const message = error instanceof Error ? error.message : "Unknown error";
+    console.error("Task creation error:", error);
 
     return {
       success: false,
-      message: 'Failed to create task',
+      message: "Failed to create task",
       error: message,
     };
   }
@@ -87,10 +87,10 @@ export async function getTasksAction(userId: string) {
     const supabase = getSupabaseClient();
 
     const { data: tasks, error } = await supabase
-      .from('tasks')
-      .select('*')
-      .eq('user_id', userId)
-      .order('created_at', { ascending: false });
+      .from("tasks")
+      .select("*")
+      .eq("user_id", userId)
+      .order("created_at", { ascending: false });
 
     if (error) {
       throw error;
@@ -101,8 +101,8 @@ export async function getTasksAction(userId: string) {
       tasks: tasks || [],
     };
   } catch (error) {
-    const message = error instanceof Error ? error.message : 'Unknown error';
-    console.error('Get tasks error:', error);
+    const message = error instanceof Error ? error.message : "Unknown error";
+    console.error("Get tasks error:", error);
 
     return {
       success: false,
@@ -117,10 +117,10 @@ export async function completeTaskAction(taskId: string, userId: string) {
     const supabase = getSupabaseClient();
 
     const { data: task, error } = await supabase
-      .from('tasks')
+      .from("tasks")
       .update({ completed: true })
-      .eq('id', taskId)
-      .eq('user_id', userId)
+      .eq("id", taskId)
+      .eq("user_id", userId)
       .select()
       .single();
 
@@ -131,15 +131,15 @@ export async function completeTaskAction(taskId: string, userId: string) {
     return {
       success: true,
       task,
-      message: 'Task marked as complete',
+      message: "Task marked as complete",
     };
   } catch (error) {
-    const message = error instanceof Error ? error.message : 'Unknown error';
-    console.error('Complete task error:', error);
+    const message = error instanceof Error ? error.message : "Unknown error";
+    console.error("Complete task error:", error);
 
     return {
       success: false,
-      message: 'Failed to complete task',
+      message: "Failed to complete task",
       error: message,
     };
   }
@@ -149,13 +149,15 @@ export async function completeTaskAction(taskId: string, userId: string) {
 // REMINDER ACTIONS
 // ============================================================================
 
-export async function createReminderAction(data: z.infer<typeof ReminderSchema>) {
+export async function createReminderAction(
+  data: z.infer<typeof ReminderSchema>,
+) {
   try {
     const validated = ReminderSchema.parse(data);
     const supabase = getSupabaseClient();
 
     const { data: reminder, error } = await supabase
-      .from('reminders')
+      .from("reminders")
       .insert([
         {
           title: validated.title,
@@ -177,12 +179,12 @@ export async function createReminderAction(data: z.infer<typeof ReminderSchema>)
       message: `Reminder "${validated.title}" created successfully`,
     };
   } catch (error) {
-    const message = error instanceof Error ? error.message : 'Unknown error';
-    console.error('Reminder creation error:', error);
+    const message = error instanceof Error ? error.message : "Unknown error";
+    console.error("Reminder creation error:", error);
 
     return {
       success: false,
-      message: 'Failed to create reminder',
+      message: "Failed to create reminder",
       error: message,
     };
   }
@@ -193,10 +195,10 @@ export async function getRemindersAction(userId: string) {
     const supabase = getSupabaseClient();
 
     const { data: reminders, error } = await supabase
-      .from('reminders')
-      .select('*')
-      .eq('user_id', userId)
-      .order('reminder_time', { ascending: true });
+      .from("reminders")
+      .select("*")
+      .eq("user_id", userId)
+      .order("reminder_time", { ascending: true });
 
     if (error) {
       throw error;
@@ -207,8 +209,8 @@ export async function getRemindersAction(userId: string) {
       reminders: reminders || [],
     };
   } catch (error) {
-    const message = error instanceof Error ? error.message : 'Unknown error';
-    console.error('Get reminders error:', error);
+    const message = error instanceof Error ? error.message : "Unknown error";
+    console.error("Get reminders error:", error);
 
     return {
       success: false,
@@ -218,15 +220,18 @@ export async function getRemindersAction(userId: string) {
   }
 }
 
-export async function completeReminderAction(reminderId: string, userId: string) {
+export async function completeReminderAction(
+  reminderId: string,
+  userId: string,
+) {
   try {
     const supabase = getSupabaseClient();
 
     const { data: reminder, error } = await supabase
-      .from('reminders')
+      .from("reminders")
       .update({ completed: true })
-      .eq('id', reminderId)
-      .eq('user_id', userId)
+      .eq("id", reminderId)
+      .eq("user_id", userId)
       .select()
       .single();
 
@@ -237,15 +242,15 @@ export async function completeReminderAction(reminderId: string, userId: string)
     return {
       success: true,
       reminder,
-      message: 'Reminder marked as complete',
+      message: "Reminder marked as complete",
     };
   } catch (error) {
-    const message = error instanceof Error ? error.message : 'Unknown error';
-    console.error('Complete reminder error:', error);
+    const message = error instanceof Error ? error.message : "Unknown error";
+    console.error("Complete reminder error:", error);
 
     return {
       success: false,
-      message: 'Failed to complete reminder',
+      message: "Failed to complete reminder",
       error: message,
     };
   }
@@ -259,12 +264,12 @@ export async function logVoiceCommandAction(
   userId: string,
   command: string,
   intent: string,
-  success: boolean
+  success: boolean,
 ) {
   try {
     const supabase = getSupabaseClient();
 
-    const { error } = await supabase.from('voice_command_logs').insert([
+    const { error } = await supabase.from("voice_command_logs").insert([
       {
         user_id: userId,
         command,
@@ -275,14 +280,13 @@ export async function logVoiceCommandAction(
     ]);
 
     if (error) {
-      console.error('Logging error:', error);
+      console.error("Logging error:", error);
       // Don't throw, just log
     }
 
     return { success: true };
   } catch (error) {
-    console.error('Voice command logging error:', error);
+    console.error("Voice command logging error:", error);
     return { success: false };
   }
 }
-

@@ -7,6 +7,7 @@ Your voice assistant is now using **Wit.ai with fallback pattern matching**. Eve
 ## 🎯 What You Can Do Right Now
 
 ### Test Commands (Fallback Working)
+
 ```
 "show my tasks"        → Navigate to tasks page
 "play a song"          → Play music
@@ -43,6 +44,7 @@ Lara Speaks Confirmation
 ## 🔍 Console Logs
 
 You'll see:
+
 ```
 🧠 Processing intent for text: show my tasks
 ⚠️ No intents found in Wit.ai response, using fallback pattern matching
@@ -54,9 +56,11 @@ You'll see:
 ## 📁 Files Changed
 
 ### Created
+
 - `src/lib/lara/witai-fallback.ts` - Fallback pattern matching
 
 ### Modified
+
 - `src/app/api/intent/route.ts` - Added fallback logic
 - `src/lib/lara/intentRouter.ts` - Updated intent mapping
 - `src/lib/voice/lara-assistant.ts` - Uses new API
@@ -65,18 +69,19 @@ You'll see:
 
 ## 🎤 Supported Intents
 
-| Intent | Commands | Action |
-|--------|----------|--------|
-| show_tasks | "show my tasks", "what are my tasks" | Navigate to /professional |
-| play_music | "play a song", "play [song]" | Play music |
-| add_task | "add a task [name]" | Navigate to add task |
-| show_reminders | "show my reminders" | Navigate to /reminders |
-| add_reminder | "remind me to [action]" | Navigate to add reminder |
-| navigate | "go to [page]" | Navigate to page |
+| Intent         | Commands                             | Action                    |
+| -------------- | ------------------------------------ | ------------------------- |
+| show_tasks     | "show my tasks", "what are my tasks" | Navigate to /professional |
+| play_music     | "play a song", "play [song]"         | Play music                |
+| add_task       | "add a task [name]"                  | Navigate to add task      |
+| show_reminders | "show my reminders"                  | Navigate to /reminders    |
+| add_reminder   | "remind me to [action]"              | Navigate to add reminder  |
+| navigate       | "go to [page]"                       | Navigate to page          |
 
 ## 🔧 Configuration
 
 Your `.env.local` has:
+
 ```
 WIT_AI_TOKEN=Bearer VZPYMEHMH76X3P4QFDVW44GMOUUQY5AI
 ```
@@ -84,11 +89,13 @@ WIT_AI_TOKEN=Bearer VZPYMEHMH76X3P4QFDVW44GMOUUQY5AI
 ## 🎓 Next Steps
 
 ### Option 1: Use Fallback Now (Recommended)
+
 - ✅ Works immediately
 - ✅ No additional setup
 - ✅ Try the test commands above
 
 ### Option 2: Train Wit.ai (Better Accuracy)
+
 1. Go to https://wit.ai
 2. Open your app
 3. Add utterances to intents:
@@ -131,4 +138,3 @@ A: Already fixed! Click once to start, click again to stop.
 - `TEST_WIT_AI_INTEGRATION.md` - Testing guide
 - `CHANGES_SUMMARY_WIT_AI.md` - Detailed changes
 - `✅_WIT_AI_INTEGRATION_FINAL_SUMMARY.md` - Complete summary
-

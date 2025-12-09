@@ -11,21 +11,25 @@ The dashboard greeting has been updated to display the authenticated user's actu
 ## What Was Changed
 
 ### File Modified
+
 - `AI-PA/src/app/dashboard/page.tsx`
 
 ### Changes Made
 
 #### 1. Added Import (Line 20)
+
 ```typescript
 import { getUser } from "@/lib/services/userService";
 ```
 
 #### 2. Added State for User Name (Line 34)
+
 ```typescript
 const [userName, setUserName] = useState<string>("User");
 ```
 
 #### 3. Enhanced User Fetching Logic (Lines 36-70)
+
 - Extended the existing `useEffect` that fetches authenticated user
 - Added logic to fetch user profile from the `users` table
 - Extracts the `name` field from the user profile
@@ -33,6 +37,7 @@ const [userName, setUserName] = useState<string>("User");
 - Falls back to "User" if name is not available or on error
 
 #### 4. Updated Greeting Display (Line 121)
+
 ```typescript
 // BEFORE
 <h1 className="text-lg font-bold">Hello, Alex!</h1>
@@ -70,17 +75,20 @@ const [userName, setUserName] = useState<string>("User");
 ## Database Integration
 
 ### Data Source
+
 - **Table**: `users`
 - **Column**: `name`
 - **Lookup**: `user_id` = authenticated user's ID
 
 ### Query Pattern
+
 ```typescript
 const userProfile = await getUser(user.id);
 // Returns: { user_id, email, name, phone, ... }
 ```
 
 ### Service Used
+
 - **Function**: `getUser()` from `@/lib/services/userService`
 - **Type**: Client-side Supabase query (no service role key)
 - **Security**: Uses regular Supabase client (safe for client-side)
@@ -102,21 +110,25 @@ const userProfile = await getUser(user.id);
 ## Testing Instructions
 
 ### Test 1: With User Name in Database
+
 1. Ensure user profile has a `name` field set (e.g., "John Doe")
 2. Navigate to `/dashboard`
 3. **Expected**: Greeting shows "Hello, John Doe!"
 
 ### Test 2: Without User Name in Database
+
 1. Ensure user profile has empty or null `name` field
 2. Navigate to `/dashboard`
 3. **Expected**: Greeting shows "Hello, User!"
 
 ### Test 3: Not Authenticated
+
 1. Sign out or clear auth session
 2. Navigate to `/dashboard`
 3. **Expected**: Greeting shows "Hello, User!" (or redirects to signin)
 
 ### Test 4: Database Error
+
 1. Simulate database connection error
 2. Navigate to `/dashboard`
 3. **Expected**: Greeting shows "Hello, User!" (error logged to console)
@@ -178,4 +190,3 @@ const userProfile = await getUser(user.id);
 The dashboard greeting has been successfully updated to display the authenticated user's actual name from the database. The implementation includes proper error handling, fallback behavior, and maintains backward compatibility with the existing codebase.
 
 **Status: Ready for immediate deployment** ✅
-

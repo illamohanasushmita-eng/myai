@@ -106,18 +106,18 @@ export function VoiceButton() {
 
 ```typescript
 const {
-  isListeningForWakeWord,      // Is listening for wake word
-  wakeWordDetected,             // Was wake word detected
-  startWakeWordListener,        // Start listening
-  stopWakeWordListener,         // Stop listening
-  restartWakeWordListener,      // Restart listening
-  isSupported,                  // Browser support
-  error,                        // Error message
+  isListeningForWakeWord, // Is listening for wake word
+  wakeWordDetected, // Was wake word detected
+  startWakeWordListener, // Start listening
+  stopWakeWordListener, // Stop listening
+  restartWakeWordListener, // Restart listening
+  isSupported, // Browser support
+  error, // Error message
 } = useWakeWord({
   enabled: true,
   onWakeWordDetected: () => {},
   onError: (err) => {},
-  language: 'en-US',
+  language: "en-US",
 });
 ```
 
@@ -125,20 +125,20 @@ const {
 
 ```typescript
 const {
-  isProcessing,                 // Processing command
-  currentIntent,                // Current intent
-  lastActionResult,             // Last action result
-  error,                        // Error message
-  isListeningForWakeWord,       // Is listening
-  startAssistant,               // Start assistant
-  stopAssistant,                // Stop assistant
-  restartAssistant,             // Restart assistant
+  isProcessing, // Processing command
+  currentIntent, // Current intent
+  lastActionResult, // Last action result
+  error, // Error message
+  isListeningForWakeWord, // Is listening
+  startAssistant, // Start assistant
+  stopAssistant, // Stop assistant
+  restartAssistant, // Restart assistant
 } = useLaraAssistant({
   onWakeWordDetected: () => {},
   onIntentClassified: (intent) => {},
   onActionExecuted: (result) => {},
   onError: (err) => {},
-  userId: 'user-id',
+  userId: "user-id",
 });
 ```
 
@@ -183,9 +183,9 @@ const { lastActionResult } = useLaraAssistant({
 ```typescript
 const { error } = useLaraAssistant({
   onError: (err) => {
-    if (err.includes('permission')) {
+    if (err.includes("permission")) {
       // Request microphone permission
-    } else if (err.includes('network')) {
+    } else if (err.includes("network")) {
       // Retry after delay
     } else {
       // Show error to user
@@ -197,16 +197,19 @@ const { error } = useLaraAssistant({
 ## Troubleshooting
 
 ### Wake word not detected
+
 - Check microphone is working
 - Speak clearly and loudly
 - Try different wake word variations
 
 ### Actions not executing
+
 - Check console for errors
 - Verify intent classification
 - Check action router
 
 ### Listener stops
+
 - Check for errors in console
 - Verify restartWakeWordListener is called
 - Check browser console for exceptions
@@ -250,6 +253,7 @@ npm run dev
 ## Support
 
 For issues or questions:
+
 1. Check console for error messages
 2. Review implementation guide
 3. Check troubleshooting section
@@ -258,4 +262,3 @@ For issues or questions:
 ---
 
 **Ready to use!** 🎤✨
-

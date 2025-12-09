@@ -28,6 +28,7 @@ The **tasks table is missing the service role bypass RLS policy**. This means:
 I've updated `supabase_rls_policies.sql` to add **service role bypass policies for ALL tables** that need backend operations.
 
 ### **Tables Fixed:**
+
 - ✅ tasks
 - ✅ reminders
 - ✅ health_records
@@ -119,6 +120,7 @@ All of these should be true:
 ## 📊 **What Changed**
 
 ### **Before (❌ Broken)**
+
 ```sql
 -- TASKS TABLE POLICIES
 CREATE POLICY "Users can insert their own tasks"
@@ -128,6 +130,7 @@ WITH CHECK (auth.uid() = user_id);
 ```
 
 ### **After (✅ Fixed)**
+
 ```sql
 -- TASKS TABLE POLICIES
 -- Allow service role to bypass RLS (for backend operations)
@@ -147,12 +150,14 @@ WITH CHECK (auth.uid() = user_id);
 ## 🔐 **Security**
 
 ✅ **Service Role Bypass**:
+
 - Only used on backend (server-side)
 - Never exposed to client/browser
 - Used only for creating/updating data via API routes
 - Still respects user_id foreign key constraints
 
 ✅ **RLS Policies**:
+
 - Still protect user data
 - Users can only access their own data
 - Service role can bypass for backend operations only
@@ -163,6 +168,7 @@ WITH CHECK (auth.uid() = user_id);
 ## 🛠️ **Troubleshooting**
 
 ### **Error: "Failed to create task" (500)**
+
 ```
 1. Check RLS policies were updated (run SQL again)
 2. Restart app: Ctrl + C, npm run dev
@@ -171,6 +177,7 @@ WITH CHECK (auth.uid() = user_id);
 ```
 
 ### **Task Created but Not Showing**
+
 ```
 1. Refresh page (F5)
 2. Check Supabase dashboard
@@ -179,6 +186,7 @@ WITH CHECK (auth.uid() = user_id);
 ```
 
 ### **Still Getting 500 Error**
+
 ```
 1. Check .env.local has valid SUPABASE_SERVICE_ROLE_KEY
 2. Check RLS policies were applied (run SQL again)
@@ -206,6 +214,7 @@ WITH CHECK (auth.uid() = user_id);
 ## 🎯 **Expected Behavior After Fix**
 
 ### **Task Creation Flow:**
+
 ```
 1. User fills task form
    ↓
@@ -242,13 +251,13 @@ WITH CHECK (auth.uid() = user_id);
 
 ## 🎉 **Summary**
 
-| Aspect | Status |
-|--------|--------|
-| **Issue Found** | ✅ Missing service role bypass for tasks table |
-| **Issue Fixed** | ✅ Added service role bypass for all tables |
-| **Files Updated** | ✅ supabase_rls_policies.sql |
-| **Ready to Test** | ✅ YES |
-| **Expected Result** | ✅ Task creation fully functional |
+| Aspect              | Status                                         |
+| ------------------- | ---------------------------------------------- |
+| **Issue Found**     | ✅ Missing service role bypass for tasks table |
+| **Issue Fixed**     | ✅ Added service role bypass for all tables    |
+| **Files Updated**   | ✅ supabase_rls_policies.sql                   |
+| **Ready to Test**   | ✅ YES                                         |
+| **Expected Result** | ✅ Task creation fully functional              |
 
 ---
 
@@ -268,4 +277,3 @@ WITH CHECK (auth.uid() = user_id);
 5. Verify in Supabase dashboard
 
 **Your task creation system is now ready to work!** 🎊
-

@@ -3,20 +3,23 @@
  * Complete voice automation workflow for Lara AI Assistant
  */
 
-'use client';
+"use client";
 
-import { useCallback, useRef, useState, useEffect } from 'react';
-import { useRouter } from 'next/navigation';
+import { useCallback, useRef, useState, useEffect } from "react";
+import { useRouter } from "next/navigation";
 import {
   voiceAutomation,
   VoiceAutomationResult,
   speakResponse,
   ActionExecutorContext,
-} from '@/lib/voice/voice-automation';
-import { automateSpotifyPlayback } from '@/lib/voice/spotify-automation';
-import { addTaskVoice, getTaskSummaryVoice } from '@/lib/voice/task-automation';
-import { addReminderVoice, getReminderSummaryVoice } from '@/lib/voice/reminder-automation';
-import { navigateVoice } from '@/lib/voice/navigation-automation';
+} from "@/lib/voice/voice-automation";
+import { automateSpotifyPlayback } from "@/lib/voice/spotify-automation";
+import { addTaskVoice, getTaskSummaryVoice } from "@/lib/voice/task-automation";
+import {
+  addReminderVoice,
+  getReminderSummaryVoice,
+} from "@/lib/voice/reminder-automation";
+import { navigateVoice } from "@/lib/voice/navigation-automation";
 
 export interface UseVoiceAutomationOptions {
   userId: string;
@@ -39,25 +42,27 @@ export interface UseVoiceAutomationReturn {
 }
 
 export function useVoiceAutomation(
-  options: UseVoiceAutomationOptions
+  options: UseVoiceAutomationOptions,
 ): UseVoiceAutomationReturn {
   const {
     userId,
     enabled = true,
     onSuccess,
     onError,
-    language = 'en-US',
+    language = "en-US",
   } = options;
 
   const router = useRouter();
   const recognitionRef = useRef<any>(null);
-  const transcriptRef = useRef<string>('');
-  const finalTranscriptRef = useRef<string>('');
+  const transcriptRef = useRef<string>("");
+  const finalTranscriptRef = useRef<string>("");
 
   const [isListening, setIsListening] = useState(false);
   const [isProcessing, setIsProcessing] = useState(false);
-  const [transcript, setTranscript] = useState('');
-  const [lastResult, setLastResult] = useState<VoiceAutomationResult | null>(null);
+  const [transcript, setTranscript] = useState("");
+  const [lastResult, setLastResult] = useState<VoiceAutomationResult | null>(
+    null,
+  );
   const [error, setError] = useState<Error | null>(null);
   const [isSupported, setIsSupported] = useState(true);
 
@@ -65,11 +70,13 @@ export function useVoiceAutomation(
   useEffect(() => {
     if (!enabled) return;
 
-    const SpeechRecognition = (window as any).SpeechRecognition || (window as any).webkitSpeechRecognition;
+    const SpeechRecognition =
+      (window as any).SpeechRecognition ||
+      (window as any).webkitSpeechRecognition;
 
     if (!SpeechRecognition) {
       setIsSupported(false);
-      const err = new Error('Speech Recognition not supported');
+      const err = new Error("Speech Recognition not supported");
       setError(err);
       onError?.(err);
       return;
@@ -85,18 +92,18 @@ export function useVoiceAutomation(
     recognition.onstart = () => {
       setIsListening(true);
       setError(null);
-      transcriptRef.current = '';
-      finalTranscriptRef.current = '';
+      transcriptRef.current = "";
+      finalTranscriptRef.current = "";
     };
 
     recognition.onresult = (event: any) => {
-      let interimTranscript = '';
+      let interimTranscript = "";
 
       for (let i = event.resultIndex; i < event.results.length; i++) {
         const transcript = event.results[i][0].transcript;
 
         if (event.results[i].isFinal) {
-          finalTranscriptRef.current += transcript + ' ';
+          finalTranscriptRef.current += transcript + " ";
         } else {
           interimTranscript += transcript;
         }
@@ -132,13 +139,13 @@ export function useVoiceAutomation(
           const result = await voiceAutomation(
             finalTranscriptRef.current.trim(),
             userId,
-            context
+            context,
           );
 
           setLastResult(result);
           onSuccess?.(result);
         } catch (err) {
-          const error = err instanceof Error ? err : new Error('Unknown error');
+          const error = err instanceof Error ? err : new Error("Unknown error");
           setError(error);
           onError?.(error);
         } finally {
@@ -148,7 +155,7 @@ export function useVoiceAutomation(
     };
 
     recognition.onerror = (event: any) => {
-      if (event.error !== 'aborted') {
+      if (event.error !== "aborted") {
         const err = new Error(`Speech recognition error: ${event.error}`);
         setError(err);
         onError?.(err);
@@ -160,7 +167,7 @@ export function useVoiceAutomation(
         try {
           recognitionRef.current.stop();
         } catch (e) {
-          console.error('Error stopping recognition:', e);
+          console.error("Error stopping recognition:", e);
         }
       }
     };
@@ -171,11 +178,12 @@ export function useVoiceAutomation(
 
     try {
       setError(null);
-      setTranscript('');
-      finalTranscriptRef.current = '';
+      setTranscript("");
+      finalTranscriptRef.current = "";
       recognitionRef.current.start();
     } catch (err) {
-      const error = err instanceof Error ? err : new Error('Failed to start listening');
+      const error =
+        err instanceof Error ? err : new Error("Failed to start listening");
       setError(error);
       onError?.(error);
     }
@@ -187,16 +195,16 @@ export function useVoiceAutomation(
     try {
       recognitionRef.current.stop();
     } catch (err) {
-      console.error('Error stopping recognition:', err);
+      console.error("Error stopping recognition:", err);
     }
   }, [isListening]);
 
   const resetState = useCallback(() => {
-    setTranscript('');
+    setTranscript("");
     setLastResult(null);
     setError(null);
-    finalTranscriptRef.current = '';
-    transcriptRef.current = '';
+    finalTranscriptRef.current = "";
+    transcriptRef.current = "";
   }, []);
 
   return {
@@ -211,4 +219,3 @@ export function useVoiceAutomation(
     isSupported,
   };
 }
-

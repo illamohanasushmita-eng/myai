@@ -1,4 +1,3 @@
-
 import { Button } from "@/components/ui/button";
 import Image from "next/image";
 import Link from "next/link";
@@ -10,7 +9,12 @@ export default function AutomotivePage() {
     <div className="flex flex-col min-h-screen">
       <header className="sticky top-0 z-10 bg-card-light/70 dark:bg-card-dark/70 backdrop-blur-sm">
         <div className="flex items-center justify-between p-4 border-b border-border-light/50 dark:border-border-dark/50">
-          <Button asChild variant="ghost" size="icon" className="w-12 h-12 flex items-center justify-center rounded-full hover:bg-primary/10">
+          <Button
+            asChild
+            variant="ghost"
+            size="icon"
+            className="w-12 h-12 flex items-center justify-center rounded-full hover:bg-primary/10"
+          >
             <Link href="/dashboard">
               <span className="material-symbols-outlined text-subtle-light dark:text-subtle-dark">
                 arrow_back_ios_new
@@ -23,7 +27,11 @@ export default function AutomotivePage() {
               Tesla Model Y
             </p>
           </div>
-          <Button variant="ghost" size="icon" className="w-12 h-12 flex items-center justify-center rounded-full hover:bg-primary/10 relative">
+          <Button
+            variant="ghost"
+            size="icon"
+            className="w-12 h-12 flex items-center justify-center rounded-full hover:bg-primary/10 relative"
+          >
             <span className="material-symbols-outlined text-subtle-light dark:text-subtle-dark">
               settings
             </span>

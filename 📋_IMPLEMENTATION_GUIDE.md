@@ -7,18 +7,21 @@ This guide explains the fixed voice assistant lifecycle and how to use it.
 ## Architecture
 
 ### Layer 1: Wake Word Detection (useWakeWord.ts)
+
 - Manages Web Speech API recognition
 - Handles continuous listening
 - Detects wake word variations
 - Provides explicit restart function
 
 ### Layer 2: Pipeline Orchestration (useLaraAssistant.ts)
+
 - Coordinates wake word → record → STT → classify → route → restart
 - Manages processing state
 - Handles errors and recovery
 - Triggers navigation
 
 ### Layer 3: Persistent Manager (wakeWordManager.ts - Optional)
+
 - Component-independent listening
 - Singleton pattern
 - Advanced state management
@@ -39,7 +42,7 @@ const {
   error,
 } = useLaraAssistant({
   onWakeWordDetected: () => {
-    console.log('Wake word detected!');
+    console.log("Wake word detected!");
   },
   onActionExecuted: (result) => {
     if (result.data?.navigationTarget) {
@@ -47,7 +50,7 @@ const {
     }
   },
   onError: (err) => {
-    console.error('Error:', err);
+    console.error("Error:", err);
   },
 });
 
@@ -101,18 +104,18 @@ Back to listening
 
 ```typescript
 const {
-  isListeningForWakeWord,      // boolean - is listening
-  wakeWordDetected,             // boolean - was detected
-  startWakeWordListener,        // () => void - start listening
-  stopWakeWordListener,         // () => void - stop listening
-  restartWakeWordListener,      // () => void - restart listening
-  isSupported,                  // boolean - browser support
-  error,                        // string | null - error message
+  isListeningForWakeWord, // boolean - is listening
+  wakeWordDetected, // boolean - was detected
+  startWakeWordListener, // () => void - start listening
+  stopWakeWordListener, // () => void - stop listening
+  restartWakeWordListener, // () => void - restart listening
+  isSupported, // boolean - browser support
+  error, // string | null - error message
 } = useWakeWord({
   enabled: true,
   onWakeWordDetected: () => {},
   onError: (err) => {},
-  language: 'en-US',
+  language: "en-US",
 });
 ```
 
@@ -120,41 +123,41 @@ const {
 
 ```typescript
 const {
-  isProcessing,                 // boolean - processing command
-  currentIntent,                // Intent | null - current intent
-  lastActionResult,             // ActionResult | null - last result
-  error,                        // string | null - error message
-  isListeningForWakeWord,       // boolean - is listening
-  startAssistant,               // () => void - start
-  stopAssistant,                // () => void - stop
-  restartAssistant,             // () => void - restart
+  isProcessing, // boolean - processing command
+  currentIntent, // Intent | null - current intent
+  lastActionResult, // ActionResult | null - last result
+  error, // string | null - error message
+  isListeningForWakeWord, // boolean - is listening
+  startAssistant, // () => void - start
+  stopAssistant, // () => void - stop
+  restartAssistant, // () => void - restart
 } = useLaraAssistant({
   onWakeWordDetected: () => {},
   onIntentClassified: (intent) => {},
   onActionExecuted: (result) => {},
   onError: (err) => {},
-  userId: 'user-id',
+  userId: "user-id",
 });
 ```
 
 ### WakeWordManager (Optional)
 
 ```typescript
-import { getWakeWordManager } from '@/lib/ai/wakeWordManager';
+import { getWakeWordManager } from "@/lib/ai/wakeWordManager";
 
 const manager = getWakeWordManager({
   onWakeWordDetected: () => {},
   onError: (err) => {},
-  language: 'en-US',
+  language: "en-US",
 });
 
-manager.start();              // Start listening
-manager.stop();               // Stop listening
-manager.restart();            // Restart listening
-manager.disable();            // Disable (won't restart)
-manager.enable();             // Enable (will restart)
-manager.destroy();            // Cleanup
-manager.getState();           // Get current state
+manager.start(); // Start listening
+manager.stop(); // Stop listening
+manager.restart(); // Restart listening
+manager.disable(); // Disable (won't restart)
+manager.enable(); // Enable (will restart)
+manager.destroy(); // Cleanup
+manager.getState(); // Get current state
 ```
 
 ## State Management
@@ -217,17 +220,17 @@ manager.getState();           // Get current state
 
 ```typescript
 onError: (err) => {
-  console.error('Error:', err);
-  
-  if (err.includes('permission')) {
+  console.error("Error:", err);
+
+  if (err.includes("permission")) {
     // Request permission again
-  } else if (err.includes('network')) {
+  } else if (err.includes("network")) {
     // Retry after delay
     setTimeout(() => restartAssistant(), 2000);
   } else {
     // Show error to user
   }
-}
+};
 ```
 
 ## Performance Optimization
@@ -258,7 +261,7 @@ const mediaRecorder = new MediaRecorder(stream, {
 audioChunksRef.current = [];
 
 // Stop media tracks
-stream.getTracks().forEach(track => track.stop());
+stream.getTracks().forEach((track) => track.stop());
 ```
 
 ## Testing
@@ -276,17 +279,17 @@ stream.getTracks().forEach(track => track.stop());
 
 ```typescript
 // Test wake word detection
-test('detects wake word', async () => {
+test("detects wake word", async () => {
   const { result } = renderHook(() => useWakeWord());
-  
+
   // Simulate wake word detection
   // Verify callback is called
 });
 
 // Test pipeline execution
-test('executes pipeline', async () => {
+test("executes pipeline", async () => {
   const { result } = renderHook(() => useLaraAssistant());
-  
+
   // Simulate wake word detection
   // Verify all steps execute
   // Verify restart is called
@@ -299,13 +302,13 @@ test('executes pipeline', async () => {
 
 ```typescript
 // In useWakeWord.ts
-console.log('🎤 [DEBUG]', message);
+console.log("🎤 [DEBUG]", message);
 
 // In useLaraAssistant.ts
-console.log('🎤 [PIPELINE]', message);
+console.log("🎤 [PIPELINE]", message);
 
 // In wakeWordManager.ts
-console.log('🎤 [MANAGER]', message);
+console.log("🎤 [MANAGER]", message);
 ```
 
 ### Check Console Output
@@ -364,4 +367,3 @@ console.log('🎤 [MANAGER]', message);
 2. Reduce sample rate
 3. Increase recording duration
 4. Use lower language model
-

@@ -8,9 +8,10 @@
 ## 🔴 Issues Identified
 
 ### Issue 1: Voice Recognition Not Working
+
 **Symptom**: Wake word indicator is blinking (listening), but voice commands are not being recognized or processed.
 
-**Root Cause**: 
+**Root Cause**:
 The `useWakeWord` hook detects "Hey Lara" and calls `activateFromWakeWord()`, which should trigger `useVoiceCommand` to start listening. However, there's a timing issue:
 
 1. `useWakeWord` stops listening after detecting wake word (line 77 in useWakeWord.ts)
@@ -18,6 +19,7 @@ The `useWakeWord` hook detects "Hey Lara" and calls `activateFromWakeWord()`, wh
 3. But `useVoiceCommand` may not be properly initialized or may have stale references
 
 **Technical Details**:
+
 - `useWakeWord` uses `continuous: true` (always listening)
 - `useVoiceCommand` uses `continuous: false` (single utterance)
 - When wake word is detected, `recognition.stop()` is called
@@ -25,24 +27,29 @@ The `useWakeWord` hook detects "Hey Lara" and calls `activateFromWakeWord()`, wh
 - But the recognition object might be in an invalid state
 
 ### Issue 2: Spotify Integration Not Connected to Voice Commands
+
 **Symptom**: "play a song" command shows "Opening music player..." but doesn't actually play music.
 
 **Root Cause**:
+
 - The `play_music` intent is detected correctly
 - But the `executeCommand()` function in VoiceCommandButton.tsx only sets a message (line 134)
 - It doesn't actually call Spotify API to search and play music
 - Spotify integration exists but is not connected to voice commands
 
 **Technical Details**:
+
 - Spotify search API exists: `/api/spotify/search`
 - Spotify play API exists: `/api/spotify/play`
 - But voice command handler doesn't use them
 - No user context/ID is passed to Spotify functions
 
 ### Issue 3: Missing User Context
+
 **Symptom**: Spotify API calls need user ID but voice commands don't have it.
 
 **Root Cause**:
+
 - Voice commands are processed without user authentication context
 - Spotify functions require `userId` parameter
 - No way to get current user ID in VoiceCommandButton component
@@ -52,23 +59,27 @@ The `useWakeWord` hook detects "Hey Lara" and calls `activateFromWakeWord()`, wh
 ## 📋 Required Fixes
 
 ### Fix 1: Improve Wake Word to Voice Command Transition
+
 - Ensure proper state reset between wake word and voice command
 - Add delay to allow recognition object to reset
 - Improve error handling for recognition state transitions
 - Add logging to debug the flow
 
 ### Fix 2: Implement Spotify Integration in Voice Commands
+
 - Add Spotify search functionality when "play_music" intent is detected
 - Implement track selection logic
 - Call Spotify play API with proper parameters
 - Add user context/authentication
 
 ### Fix 3: Add User Context to Voice Commands
+
 - Get current user ID from session/auth
 - Pass user ID through voice command processing
 - Use user ID for Spotify API calls
 
 ### Fix 4: Improve Command Execution
+
 - Add actual action handlers for music commands
 - Implement search and play flow
 - Add feedback for music playback
@@ -119,5 +130,3 @@ The `useWakeWord` hook detects "Hey Lara" and calls `activateFromWakeWord()`, wh
 - ✅ All other voice commands work
 - ✅ Automatic execution without manual clicks
 - ✅ Proper error handling and user feedback
-
-

@@ -4,7 +4,7 @@
 **Date**: 2025-11-08  
 **Issue**: System stops listening after first command  
 **Root Cause**: `isMountedRef.current` set to false prematurely  
-**Solution**: Separated cleanup logic for unmount vs effect re-runs  
+**Solution**: Separated cleanup logic for unmount vs effect re-runs
 
 ---
 
@@ -20,6 +20,7 @@ After the first command execution, the wake word listener stopped working:
 ```
 
 **Issues**:
+
 - ❌ System appeared to be unmounted when it wasn't
 - ❌ `isMountedRef.current` was set to `false` prematurely
 - ❌ Wake word listener wouldn't restart after command
@@ -30,21 +31,24 @@ After the first command execution, the wake word listener stopped working:
 ## 🔍 ROOT CAUSE ANALYSIS
 
 ### The Problem
+
 The cleanup function in the main `useEffect` was setting `isMountedRef.current = false` when effect dependencies changed, not just on unmount.
 
 **Original Code (BROKEN)**:
+
 ```typescript
 useEffect(() => {
   // ... setup recognition ...
-  
+
   return () => {
-    isMountedRef.current = false;  // ❌ Set to false on EVERY cleanup
+    isMountedRef.current = false; // ❌ Set to false on EVERY cleanup
     // ... cleanup ...
   };
 }, [language, wakeWord, onWakeWordDetected, onError]);
 ```
 
 ### Why This Happened
+
 1. The `onWakeWordDetected` callback changes on every render
 2. When it changes, the effect cleanup runs
 3. Cleanup sets `isMountedRef.current = false`
@@ -58,6 +62,7 @@ useEffect(() => {
 ### Key Changes
 
 **1. Separate Mount Tracking (Lines 49-55)**
+
 ```typescript
 // Track component mount status - only set to false on actual unmount
 useEffect(() => {
@@ -65,10 +70,11 @@ useEffect(() => {
   return () => {
     isMountedRef.current = false;
   };
-}, []);  // ← Empty dependency array = only runs on mount/unmount
+}, []); // ← Empty dependency array = only runs on mount/unmount
 ```
 
 **2. Memoize Recognition Setup (Lines 57-207)**
+
 ```typescript
 // Initialize speech recognition - use useCallback to memoize the setup
 const setupRecognition = useCallback(() => {
@@ -77,6 +83,7 @@ const setupRecognition = useCallback(() => {
 ```
 
 **3. Separate Initialization Effect (Lines 209-223)**
+
 ```typescript
 // Initialize recognition on mount
 useEffect(() => {
@@ -220,6 +227,7 @@ useEffect(() => {
 ## 🚀 TESTING INSTRUCTIONS
 
 ### Test 1: Continuous Listening
+
 ```
 1. Open http://localhost:3002
 2. Open DevTools (F12)
@@ -230,6 +238,7 @@ useEffect(() => {
 ```
 
 ### Test 2: Multiple Commands
+
 ```
 1. Say "Hey Lara"
 2. Say "show my tasks"
@@ -241,6 +250,7 @@ useEffect(() => {
 ```
 
 ### Test 3: Console Logs
+
 ```
 1. Open DevTools Console
 2. Say "Hey Lara"
@@ -255,17 +265,20 @@ useEffect(() => {
 ## 🎯 KEY TAKEAWAYS
 
 ### What Was Wrong
+
 - Cleanup function ran on every effect re-run
 - `isMountedRef` was set to false during re-renders
 - Component appeared unmounted when it wasn't
 
 ### What Was Fixed
+
 - Separated mount tracking from recognition setup
 - Mount tracking only runs on actual mount/unmount
 - Recognition setup memoized to prevent unnecessary re-runs
 - Cleanup logic simplified to only handle resources
 
 ### Result
+
 - ✅ Continuous listening works
 - ✅ Multiple commands work
 - ✅ System returns to wake word mode after each command
@@ -300,6 +313,7 @@ If you encounter issues:
 **✅ CONTINUOUS LISTENING FIXED!**
 
 Your wake word detection system now:
+
 - ✅ Continuously listens for "Hey Lara"
 - ✅ Processes commands correctly
 - ✅ Returns to listening mode after each command
@@ -307,5 +321,3 @@ Your wake word detection system now:
 - ✅ No false "unmounted" states
 
 **Ready for production!** 🚀
-
-

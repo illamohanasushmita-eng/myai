@@ -9,6 +9,7 @@
 ## 📋 Overview
 
 The "Hey Lara" voice assistant now supports **real-time voice chat** with:
+
 - ✅ **Voice Input**: Record and transcribe user speech using OpenAI Whisper
 - ✅ **Speech Output**: Text-to-speech responses using Web Speech API
 - ✅ **Conversation History**: Maintains context across multiple exchanges
@@ -20,24 +21,28 @@ The "Hey Lara" voice assistant now supports **real-time voice chat** with:
 ## 🎯 Features Implemented
 
 ### 1. **Voice Input Hook** (`useVoiceInput.ts`)
+
 - Real-time audio recording using Web Audio API
 - Audio level monitoring for visual feedback
 - Automatic stream cleanup
 - Error handling and recovery
 
 ### 2. **Text-to-Speech Hook** (`useTextToSpeech.ts`)
+
 - Browser-native speech synthesis using Web Speech API
 - Configurable rate, pitch, and volume
 - Play, pause, resume, and cancel controls
 - Multi-language support
 
 ### 3. **Speech Recognition Hook** (`useSpeechRecognition.ts`)
+
 - Audio-to-text conversion using OpenAI Whisper API
 - Handles audio blob transcription
 - Maintains transcription state
 - Error handling and validation
 
 ### 4. **Voice Chat Component** (`VoiceChat.tsx`)
+
 - Full-featured UI for voice conversations
 - Real-time message display
 - Voice recording button with visual feedback
@@ -46,6 +51,7 @@ The "Hey Lara" voice assistant now supports **real-time voice chat** with:
 - Status indicators for processing states
 
 ### 5. **API Routes**
+
 - **`/api/ai/transcribe`**: Converts audio to text using Whisper
 - **`/api/ai/voice-chat`**: Processes messages and generates responses
 
@@ -66,9 +72,9 @@ export function MyPage() {
       <button onClick={() => setShowVoiceChat(true)}>
         Open Voice Chat
       </button>
-      
+
       {showVoiceChat && (
-        <VoiceChat 
+        <VoiceChat
           userId="user-123"
           onClose={() => setShowVoiceChat(false)}
         />
@@ -132,6 +138,7 @@ src/
 ### Environment Variables
 
 Ensure `.env.local` contains:
+
 ```
 OPENAI_API_KEY=sk-proj-...
 ```
@@ -139,22 +146,24 @@ OPENAI_API_KEY=sk-proj-...
 ### Customization
 
 #### Voice Input Options
+
 ```typescript
 const voiceInput = useVoiceInput({
-  onAudioData: (blob) => console.log('Audio captured'),
+  onAudioData: (blob) => console.log("Audio captured"),
   onError: (error) => console.error(error),
-  onRecordingStart: () => console.log('Recording started'),
-  onRecordingStop: () => console.log('Recording stopped'),
+  onRecordingStart: () => console.log("Recording started"),
+  onRecordingStop: () => console.log("Recording stopped"),
 });
 ```
 
 #### Text-to-Speech Options
+
 ```typescript
 const tts = useTextToSpeech({
-  rate: 1.0,        // 0.1 to 10
-  pitch: 1.0,       // 0 to 2
-  volume: 1.0,      // 0 to 1
-  lang: 'en-US',    // Language code
+  rate: 1.0, // 0.1 to 10
+  pitch: 1.0, // 0 to 2
+  volume: 1.0, // 0 to 1
+  lang: "en-US", // Language code
   onStart: () => {},
   onEnd: () => {},
   onError: (err) => {},
@@ -166,6 +175,7 @@ const tts = useTextToSpeech({
 ## 🧪 Testing
 
 ### 1. **Start Development Server**
+
 ```bash
 cd AI-PA
 npm run dev
@@ -173,6 +183,7 @@ npm run dev
 ```
 
 ### 2. **Test Voice Chat**
+
 - Navigate to a page with the VoiceChat component
 - Click "Start Recording"
 - Speak clearly (e.g., "Hello Lara")
@@ -182,18 +193,21 @@ npm run dev
 ### 3. **Test Individual Features**
 
 **Voice Input**:
+
 ```bash
 # Check browser console for audio level updates
 # Verify audio blob is created on stop
 ```
 
 **Speech Recognition**:
+
 ```bash
 # Monitor /api/ai/transcribe endpoint
 # Check OpenAI API usage in dashboard
 ```
 
 **Text-to-Speech**:
+
 ```bash
 # Verify browser speaker output
 # Test pause/resume controls
@@ -204,16 +218,19 @@ npm run dev
 ## 🔐 Security & Privacy
 
 ✅ **API Key Management**
+
 - API key stored in `.env.local` (not hardcoded)
 - Never exposed to client-side code
 - All API calls go through Next.js backend
 
 ✅ **Audio Data**
+
 - Audio files are temporary (deleted after transcription)
 - No audio stored on server
 - Transcription text only stored in conversation history
 
 ✅ **User Privacy**
+
 - Optional userId parameter for tracking
 - Conversation history stored in component state only
 - No persistent storage without explicit implementation
@@ -223,19 +240,25 @@ npm run dev
 ## 🐛 Troubleshooting
 
 ### Issue: "Microphone access denied"
+
 **Solution**: Check browser permissions for microphone access
 
 ### Issue: "Speech Synthesis not supported"
+
 **Solution**: Use a modern browser (Chrome, Firefox, Safari, Edge)
 
 ### Issue: "Transcription failed"
-**Solution**: 
+
+**Solution**:
+
 - Verify `OPENAI_API_KEY` is set
 - Check OpenAI account has sufficient credits
 - Ensure audio file is valid
 
 ### Issue: "No audio output"
+
 **Solution**:
+
 - Check browser volume settings
 - Verify speaker is connected
 - Test with different browser
@@ -245,15 +268,18 @@ npm run dev
 ## 📊 API Endpoints
 
 ### POST `/api/ai/transcribe`
+
 Converts audio to text using OpenAI Whisper
 
 **Request**:
+
 ```
 Content-Type: multipart/form-data
 Body: { audio: File }
 ```
 
 **Response**:
+
 ```json
 {
   "success": true,
@@ -263,9 +289,11 @@ Body: { audio: File }
 ```
 
 ### POST `/api/ai/voice-chat`
+
 Processes voice messages and generates responses
 
 **Request**:
+
 ```json
 {
   "userMessage": "Show my tasks",
@@ -278,6 +306,7 @@ Processes voice messages and generates responses
 ```
 
 **Response**:
+
 ```json
 {
   "success": true,
@@ -344,6 +373,7 @@ export function CustomVoiceChat() {
 ## 🚀 Status: READY FOR PRODUCTION
 
 Your "Hey Lara" voice assistant now supports **real-time voice conversations** with:
+
 - ✅ Voice input recording
 - ✅ Speech-to-text transcription
 - ✅ AI response generation
@@ -358,6 +388,7 @@ Your "Hey Lara" voice assistant now supports **real-time voice conversations** w
 ## 📞 Support
 
 For issues or questions:
+
 1. Check browser console for error messages
 2. Verify microphone permissions
 3. Ensure OpenAI API key is valid
@@ -367,4 +398,3 @@ For issues or questions:
 ---
 
 **Voice chat implementation complete! 🎉**
-

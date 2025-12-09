@@ -8,6 +8,7 @@
 ## 📋 Pre-Deployment Checklist
 
 ### Code Quality
+
 - [x] Build successful: `npm run build`
 - [x] No TypeScript errors
 - [x] No console errors
@@ -15,6 +16,7 @@
 - [x] Code reviewed
 
 ### Security
+
 - [x] API keys in `.env.local` (not hardcoded)
 - [x] No sensitive data in code
 - [x] HTTPS enabled in production
@@ -22,6 +24,7 @@
 - [x] Rate limiting implemented
 
 ### Performance
+
 - [x] Build size optimized
 - [x] Images optimized
 - [x] Code splitting enabled
@@ -29,6 +32,7 @@
 - [x] CDN ready
 
 ### Testing
+
 - [x] Unit tests passing
 - [x] Integration tests passing
 - [x] E2E tests passing
@@ -40,9 +44,11 @@
 ## 🌐 Deployment Platforms
 
 ### Option 1: Vercel (Recommended)
+
 **Best for**: Next.js applications
 
 **Steps**:
+
 1. Push code to GitHub
 2. Connect repository to Vercel
 3. Set environment variables:
@@ -55,6 +61,7 @@
 4. Deploy: `vercel deploy`
 
 **Advantages**:
+
 - ✅ Zero-config deployment
 - ✅ Automatic HTTPS
 - ✅ Global CDN
@@ -64,9 +71,11 @@
 ---
 
 ### Option 2: Netlify
+
 **Best for**: Static sites with serverless functions
 
 **Steps**:
+
 1. Push code to GitHub
 2. Connect repository to Netlify
 3. Set build command: `npm run build`
@@ -75,6 +84,7 @@
 6. Deploy
 
 **Advantages**:
+
 - ✅ Easy setup
 - ✅ Automatic HTTPS
 - ✅ Global CDN
@@ -84,9 +94,11 @@
 ---
 
 ### Option 3: Docker + Cloud Run
+
 **Best for**: Custom deployments
 
 **Dockerfile**:
+
 ```dockerfile
 FROM node:18-alpine
 
@@ -104,6 +116,7 @@ CMD ["npm", "start"]
 ```
 
 **Deploy**:
+
 ```bash
 docker build -t lara-voice-assistant .
 docker run -p 3002:3002 \
@@ -114,9 +127,11 @@ docker run -p 3002:3002 \
 ---
 
 ### Option 4: AWS EC2
+
 **Best for**: Full control
 
 **Steps**:
+
 1. Launch EC2 instance (Ubuntu 22.04)
 2. Install Node.js and npm
 3. Clone repository
@@ -131,6 +146,7 @@ docker run -p 3002:3002 \
 ## 🔐 Environment Variables
 
 ### Required Variables
+
 ```bash
 # OpenAI API
 OPENAI_API_KEY=sk-proj-...
@@ -148,18 +164,21 @@ SPOTIFY_CLIENT_SECRET=...
 ### Setting Variables
 
 **Vercel**:
+
 1. Go to Project Settings
 2. Environment Variables
 3. Add each variable
 4. Redeploy
 
 **Netlify**:
+
 1. Go to Site Settings
 2. Build & Deploy → Environment
 3. Add each variable
 4. Redeploy
 
 **Docker**:
+
 ```bash
 docker run -e OPENAI_API_KEY=sk-proj-... lara-voice-assistant
 ```
@@ -169,17 +188,20 @@ docker run -e OPENAI_API_KEY=sk-proj-... lara-voice-assistant
 ## 📦 Build Optimization
 
 ### Production Build
+
 ```bash
 npm run build
 npm start
 ```
 
 ### Build Size
+
 ```bash
 npm run build -- --analyze
 ```
 
 ### Optimize Images
+
 ```bash
 npm install next-image-export-optimizer
 ```
@@ -189,6 +211,7 @@ npm install next-image-export-optimizer
 ## 🔄 CI/CD Pipeline
 
 ### GitHub Actions
+
 ```yaml
 name: Deploy
 
@@ -203,7 +226,7 @@ jobs:
       - uses: actions/checkout@v3
       - uses: actions/setup-node@v3
         with:
-          node-version: '18'
+          node-version: "18"
       - run: npm ci
       - run: npm run build
       - run: npm run test
@@ -217,16 +240,19 @@ jobs:
 ## 📊 Monitoring
 
 ### Application Monitoring
+
 - **Sentry**: Error tracking
 - **LogRocket**: Session replay
 - **New Relic**: Performance monitoring
 
 ### API Monitoring
+
 - **Postman**: API testing
 - **Datadog**: Infrastructure monitoring
 - **CloudWatch**: AWS monitoring
 
 ### User Analytics
+
 - **Google Analytics**: User behavior
 - **Mixpanel**: Event tracking
 - **Amplitude**: Product analytics
@@ -236,11 +262,13 @@ jobs:
 ## 🔍 Health Checks
 
 ### Endpoint Health
+
 ```bash
 curl http://localhost:3002/api/health
 ```
 
 ### API Endpoint Health
+
 ```bash
 curl -X POST http://localhost:3002/api/ai/parse-intent \
   -H "Content-Type: application/json" \
@@ -248,6 +276,7 @@ curl -X POST http://localhost:3002/api/ai/parse-intent \
 ```
 
 ### Database Health
+
 ```bash
 # Check Supabase connection
 curl https://tkcwrrcozpwrhdglzkvq.supabase.co/rest/v1/
@@ -258,12 +287,14 @@ curl https://tkcwrrcozpwrhdglzkvq.supabase.co/rest/v1/
 ## 🚨 Rollback Plan
 
 ### If Deployment Fails
+
 1. **Vercel**: Click "Rollback" in Deployments
 2. **Netlify**: Click "Publish deploy" on previous version
 3. **Docker**: Pull previous image tag
 4. **Manual**: Revert code and redeploy
 
 ### Rollback Steps
+
 ```bash
 # Git rollback
 git revert <commit-hash>
@@ -278,16 +309,19 @@ vercel deploy --prod
 ## 📈 Scaling
 
 ### Horizontal Scaling
+
 - Use load balancer (Nginx, HAProxy)
 - Deploy multiple instances
 - Use CDN for static assets
 
 ### Vertical Scaling
+
 - Increase server resources
 - Optimize database queries
 - Cache frequently accessed data
 
 ### Database Scaling
+
 - Use connection pooling
 - Implement caching layer (Redis)
 - Archive old data
@@ -297,23 +331,26 @@ vercel deploy --prod
 ## 🔒 Security Hardening
 
 ### HTTPS/SSL
+
 - ✅ Enable HTTPS
 - ✅ Use SSL certificate
 - ✅ Redirect HTTP to HTTPS
 
 ### CORS
+
 ```typescript
 // Configure CORS
 const corsOptions = {
-  origin: process.env.ALLOWED_ORIGINS?.split(','),
+  origin: process.env.ALLOWED_ORIGINS?.split(","),
   credentials: true,
 };
 ```
 
 ### Rate Limiting
+
 ```typescript
 // Implement rate limiting
-import rateLimit from 'express-rate-limit';
+import rateLimit from "express-rate-limit";
 
 const limiter = rateLimit({
   windowMs: 15 * 60 * 1000,
@@ -322,9 +359,10 @@ const limiter = rateLimit({
 ```
 
 ### Input Validation
+
 ```typescript
 // Validate all inputs
-import { z } from 'zod';
+import { z } from "zod";
 
 const schema = z.object({
   userText: z.string().min(1).max(1000),
@@ -336,18 +374,21 @@ const schema = z.object({
 ## 📞 Post-Deployment
 
 ### Monitoring
+
 1. Check error logs
 2. Monitor API response times
 3. Track user engagement
 4. Monitor resource usage
 
 ### Maintenance
+
 1. Regular backups
 2. Security updates
 3. Performance optimization
 4. Feature updates
 
 ### Support
+
 1. Set up support channels
 2. Document known issues
 3. Create FAQ
@@ -375,6 +416,7 @@ const schema = z.object({
 Your Lara Voice Assistant is now deployed and ready for users!
 
 **Next Steps**:
+
 1. Monitor application
 2. Gather user feedback
 3. Optimize based on usage
@@ -383,4 +425,3 @@ Your Lara Voice Assistant is now deployed and ready for users!
 ---
 
 **Happy deploying! 🚀✨**
-

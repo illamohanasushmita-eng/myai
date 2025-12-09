@@ -1,13 +1,13 @@
 // Export all services for easy importing
-export * from './authService';
-export * from './userService';
-export * from './taskService';
-export * from './reminderService';
-export * from './smartHomeService';
-export * from './smartHomeRoutineService';
-export * from './noteService';
-export * from './chatService';
-export * from './moodService';
+export * from "./authService";
+export * from "./userService";
+export * from "./taskService";
+export * from "./reminderService";
+export * from "./smartHomeService";
+export * from "./smartHomeRoutineService";
+export * from "./noteService";
+export * from "./chatService";
+export * from "./moodService";
 
 // ===== HEALTH RECORD SERVICE =====
 export {
@@ -27,7 +27,7 @@ export {
   createAppointment,
   updateAppointment,
   deleteAppointment,
-} from './healthRecordService';
+} from "./healthRecordService";
 
 // ===== HEALTH SERVICE =====
 export {
@@ -37,7 +37,7 @@ export {
   getUserSymptoms as getUserSymptomsFromHealthService,
   createSymptom as createSymptomFromHealthService,
   deleteSymptom as deleteSymptomFromHealthService,
-} from './healthService';
+} from "./healthService";
 
 // ===== SETTINGS SERVICE =====
 export {
@@ -49,7 +49,7 @@ export {
   updateNotification as updateSettingsNotification,
   deleteNotification as deleteSettingsNotification,
   getPendingNotifications,
-} from './settingsService';
+} from "./settingsService";
 
 // ===== HABIT SERVICE =====
 export {
@@ -62,7 +62,7 @@ export {
   getTodayHabitLogs,
   getUserGrowthGoals,
   createGrowthGoal,
-} from './habitService';
+} from "./habitService";
 
 // ===== AUTOMOTIVE SERVICE =====
 export {
@@ -76,7 +76,7 @@ export {
   getFavoriteRoutes,
   createRoute as createAutomotiveRoute,
   updateRoute,
-} from './automotiveService';
+} from "./automotiveService";
 
 // ===== PROFESSIONAL SERVICE =====
 export {
@@ -92,7 +92,7 @@ export {
   createAILog as createProfessionalAILog,
   getUserInsights,
   createInsight,
-} from './professionalService';
+} from "./professionalService";
 
 // ===== GENERAL SERVICE =====
 export {
@@ -114,4 +114,4 @@ export {
   createVoiceCommand,
   getUserDevices,
   createDevice,
-} from './generalService';
+} from "./generalService";

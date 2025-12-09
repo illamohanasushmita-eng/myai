@@ -1,8 +1,8 @@
-'use client';
+"use client";
 
-import { useState, useEffect } from 'react';
-import { Button } from '@/components/ui/button';
-import { Input } from '@/components/ui/input';
+import { useState, useEffect } from "react";
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
 import {
   Dialog,
   DialogContent,
@@ -10,10 +10,13 @@ import {
   DialogHeader,
   DialogTitle,
   DialogFooter,
-} from '@/components/ui/dialog';
-import { createRoutine, createRoutineAction } from '@/lib/services/smartHomeRoutineService';
-import { getUserSmartDevices } from '@/lib/services/smartHomeService';
-import { SmartDevice } from '@/lib/types/database';
+} from "@/components/ui/dialog";
+import {
+  createRoutine,
+  createRoutineAction,
+} from "@/lib/services/smartHomeRoutineService";
+import { getUserSmartDevices } from "@/lib/services/smartHomeService";
+import { SmartDevice } from "@/lib/types/database";
 
 interface CreateRoutineModalProps {
   isOpen: boolean;
@@ -22,39 +25,60 @@ interface CreateRoutineModalProps {
 }
 
 const ROUTINE_ICONS = [
-  { id: 'wb_sunny', label: 'Morning' },
-  { id: 'bedtime', label: 'Night' },
-  { id: 'movie', label: 'Movie' },
-  { id: 'work', label: 'Work' },
-  { id: 'home', label: 'Home' },
-  { id: 'favorite', label: 'Favorite' },
+  { id: "wb_sunny", label: "Morning" },
+  { id: "bedtime", label: "Night" },
+  { id: "movie", label: "Movie" },
+  { id: "work", label: "Work" },
+  { id: "home", label: "Home" },
+  { id: "favorite", label: "Favorite" },
 ];
 
 const ROUTINE_COLORS = [
-  { id: 'orange', label: 'Orange', bg: 'bg-orange-100', text: 'text-orange-500' },
-  { id: 'indigo', label: 'Indigo', bg: 'bg-indigo-100', text: 'text-indigo-500' },
-  { id: 'red', label: 'Red', bg: 'bg-red-100', text: 'text-red-500' },
-  { id: 'blue', label: 'Blue', bg: 'bg-blue-100', text: 'text-blue-500' },
-  { id: 'green', label: 'Green', bg: 'bg-green-100', text: 'text-green-500' },
-  { id: 'purple', label: 'Purple', bg: 'bg-purple-100', text: 'text-purple-500' },
+  {
+    id: "orange",
+    label: "Orange",
+    bg: "bg-orange-100",
+    text: "text-orange-500",
+  },
+  {
+    id: "indigo",
+    label: "Indigo",
+    bg: "bg-indigo-100",
+    text: "text-indigo-500",
+  },
+  { id: "red", label: "Red", bg: "bg-red-100", text: "text-red-500" },
+  { id: "blue", label: "Blue", bg: "bg-blue-100", text: "text-blue-500" },
+  { id: "green", label: "Green", bg: "bg-green-100", text: "text-green-500" },
+  {
+    id: "purple",
+    label: "Purple",
+    bg: "bg-purple-100",
+    text: "text-purple-500",
+  },
 ];
 
 const ACTION_TYPES = [
-  { id: 'turn_on', label: 'Turn On' },
-  { id: 'turn_off', label: 'Turn Off' },
-  { id: 'set_brightness', label: 'Set Brightness' },
-  { id: 'set_temperature', label: 'Set Temperature' },
+  { id: "turn_on", label: "Turn On" },
+  { id: "turn_off", label: "Turn Off" },
+  { id: "set_brightness", label: "Set Brightness" },
+  { id: "set_temperature", label: "Set Temperature" },
 ];
 
-export function CreateRoutineModal({ isOpen, onClose, onSuccess }: CreateRoutineModalProps) {
-  const [routineName, setRoutineName] = useState('');
-  const [description, setDescription] = useState('');
-  const [icon, setIcon] = useState('home');
-  const [color, setColor] = useState('blue');
+export function CreateRoutineModal({
+  isOpen,
+  onClose,
+  onSuccess,
+}: CreateRoutineModalProps) {
+  const [routineName, setRoutineName] = useState("");
+  const [description, setDescription] = useState("");
+  const [icon, setIcon] = useState("home");
+  const [color, setColor] = useState("blue");
   const [devices, setDevices] = useState<SmartDevice[]>([]);
-  const [selectedDevices, setSelectedDevices] = useState<{ deviceId: string; actionType: string }[]>([]);
+  const [selectedDevices, setSelectedDevices] = useState<
+    { deviceId: string; actionType: string }[]
+  >([]);
   const [isLoading, setIsLoading] = useState(false);
-  const [error, setError] = useState('');
+  const [error, setError] = useState("");
 
   useEffect(() => {
     if (isOpen) {
@@ -64,18 +88,21 @@ export function CreateRoutineModal({ isOpen, onClose, onSuccess }: CreateRoutine
 
   const loadDevices = async () => {
     try {
-      const userId = localStorage.getItem('userId');
+      const userId = localStorage.getItem("userId");
       if (!userId) return;
       const userDevices = await getUserSmartDevices(userId);
       setDevices(userDevices);
     } catch (err) {
-      console.error('Error loading devices:', err);
+      console.error("Error loading devices:", err);
     }
   };
 
   const handleAddDevice = () => {
     if (devices.length > 0) {
-      setSelectedDevices([...selectedDevices, { deviceId: devices[0].device_id, actionType: 'turn_on' }]);
+      setSelectedDevices([
+        ...selectedDevices,
+        { deviceId: devices[0].device_id, actionType: "turn_on" },
+      ]);
     }
   };
 
@@ -85,21 +112,21 @@ export function CreateRoutineModal({ isOpen, onClose, onSuccess }: CreateRoutine
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    setError('');
+    setError("");
 
     if (!routineName.trim()) {
-      setError('Routine name is required');
+      setError("Routine name is required");
       return;
     }
 
     if (selectedDevices.length === 0) {
-      setError('Please add at least one device to the routine');
+      setError("Please add at least one device to the routine");
       return;
     }
 
-    const userId = localStorage.getItem('userId');
+    const userId = localStorage.getItem("userId");
     if (!userId) {
-      setError('User not authenticated');
+      setError("User not authenticated");
       return;
     }
 
@@ -127,17 +154,17 @@ export function CreateRoutineModal({ isOpen, onClose, onSuccess }: CreateRoutine
       }
 
       // Reset form
-      setRoutineName('');
-      setDescription('');
-      setIcon('home');
-      setColor('blue');
+      setRoutineName("");
+      setDescription("");
+      setIcon("home");
+      setColor("blue");
       setSelectedDevices([]);
 
       onClose();
       onSuccess?.();
     } catch (err) {
-      console.error('Error creating routine:', err);
-      setError('Failed to create routine. Please try again.');
+      console.error("Error creating routine:", err);
+      setError("Failed to create routine. Please try again.");
     } finally {
       setIsLoading(false);
     }
@@ -156,7 +183,9 @@ export function CreateRoutineModal({ isOpen, onClose, onSuccess }: CreateRoutine
         <form onSubmit={handleSubmit} className="space-y-4">
           {/* Routine Name */}
           <div>
-            <label className="block text-sm font-medium mb-2">Routine Name *</label>
+            <label className="block text-sm font-medium mb-2">
+              Routine Name *
+            </label>
             <Input
               placeholder="e.g., Good Morning"
               value={routineName}
@@ -167,7 +196,9 @@ export function CreateRoutineModal({ isOpen, onClose, onSuccess }: CreateRoutine
 
           {/* Description */}
           <div>
-            <label className="block text-sm font-medium mb-2">Description (Optional)</label>
+            <label className="block text-sm font-medium mb-2">
+              Description (Optional)
+            </label>
             <Input
               placeholder="e.g., Turns on lights and sets thermostat"
               value={description}
@@ -187,8 +218,8 @@ export function CreateRoutineModal({ isOpen, onClose, onSuccess }: CreateRoutine
                   onClick={() => setIcon(i.id)}
                   className={`p-3 rounded-lg border-2 transition-all ${
                     icon === i.id
-                      ? 'border-primary bg-primary/10'
-                      : 'border-border-light dark:border-border-dark'
+                      ? "border-primary bg-primary/10"
+                      : "border-border-light dark:border-border-dark"
                   }`}
                   disabled={isLoading}
                 >
@@ -209,12 +240,14 @@ export function CreateRoutineModal({ isOpen, onClose, onSuccess }: CreateRoutine
                   onClick={() => setColor(c.id)}
                   className={`p-3 rounded-lg border-2 transition-all ${c.bg} ${
                     color === c.id
-                      ? 'border-2 border-gray-800 dark:border-white'
-                      : 'border-border-light dark:border-border-dark'
+                      ? "border-2 border-gray-800 dark:border-white"
+                      : "border-border-light dark:border-border-dark"
                   }`}
                   disabled={isLoading}
                 >
-                  <span className={`material-symbols-outlined ${c.text}`}>palette</span>
+                  <span className={`material-symbols-outlined ${c.text}`}>
+                    palette
+                  </span>
                 </button>
               ))}
             </div>
@@ -243,7 +276,9 @@ export function CreateRoutineModal({ isOpen, onClose, onSuccess }: CreateRoutine
             ) : (
               <div className="space-y-2">
                 {selectedDevices.map((selected, index) => {
-                  const device = devices.find((d) => d.device_id === selected.deviceId);
+                  const device = devices.find(
+                    (d) => d.device_id === selected.deviceId,
+                  );
                   return (
                     <div key={index} className="flex gap-2 items-end">
                       <div className="flex-1">
@@ -315,7 +350,7 @@ export function CreateRoutineModal({ isOpen, onClose, onSuccess }: CreateRoutine
               Cancel
             </Button>
             <Button type="submit" disabled={isLoading}>
-              {isLoading ? 'Creating...' : 'Create Routine'}
+              {isLoading ? "Creating..." : "Create Routine"}
             </Button>
           </DialogFooter>
         </form>
@@ -323,4 +358,3 @@ export function CreateRoutineModal({ isOpen, onClose, onSuccess }: CreateRoutine
     </Dialog>
   );
 }
-

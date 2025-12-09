@@ -1,9 +1,9 @@
-'use client';
+"use client";
 
-import { useState } from 'react';
-import { Button } from '@/components/ui/button';
-import { Input } from '@/components/ui/input';
-import { Textarea } from '@/components/ui/textarea';
+import { useState } from "react";
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import { Textarea } from "@/components/ui/textarea";
 import {
   Dialog,
   DialogContent,
@@ -11,15 +11,15 @@ import {
   DialogHeader,
   DialogTitle,
   DialogFooter,
-} from '@/components/ui/dialog';
+} from "@/components/ui/dialog";
 import {
   Select,
   SelectContent,
   SelectItem,
   SelectTrigger,
   SelectValue,
-} from '@/components/ui/select';
-import { createSymptom } from '@/lib/services/healthRecordService';
+} from "@/components/ui/select";
+import { createSymptom } from "@/lib/services/healthRecordService";
 
 interface AddSymptomModalProps {
   isOpen: boolean;
@@ -28,32 +28,36 @@ interface AddSymptomModalProps {
 }
 
 const SEVERITY_OPTIONS = [
-  { id: 'mild', label: 'Mild' },
-  { id: 'moderate', label: 'Moderate' },
-  { id: 'severe', label: 'Severe' },
+  { id: "mild", label: "Mild" },
+  { id: "moderate", label: "Moderate" },
+  { id: "severe", label: "Severe" },
 ];
 
-export function AddSymptomModal({ isOpen, onClose, onSuccess }: AddSymptomModalProps) {
-  const [symptomName, setSymptomName] = useState('');
-  const [severity, setSeverity] = useState('mild');
-  const [description, setDescription] = useState('');
-  const [durationHours, setDurationHours] = useState('');
-  const [notes, setNotes] = useState('');
+export function AddSymptomModal({
+  isOpen,
+  onClose,
+  onSuccess,
+}: AddSymptomModalProps) {
+  const [symptomName, setSymptomName] = useState("");
+  const [severity, setSeverity] = useState("mild");
+  const [description, setDescription] = useState("");
+  const [durationHours, setDurationHours] = useState("");
+  const [notes, setNotes] = useState("");
   const [isLoading, setIsLoading] = useState(false);
-  const [error, setError] = useState('');
+  const [error, setError] = useState("");
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    setError('');
+    setError("");
 
     if (!symptomName.trim()) {
-      setError('Symptom name is required');
+      setError("Symptom name is required");
       return;
     }
 
-    const userId = localStorage.getItem('userId');
+    const userId = localStorage.getItem("userId");
     if (!userId) {
-      setError('User not authenticated');
+      setError("User not authenticated");
       return;
     }
 
@@ -69,17 +73,21 @@ export function AddSymptomModal({ isOpen, onClose, onSuccess }: AddSymptomModalP
       });
 
       // Reset form
-      setSymptomName('');
-      setSeverity('mild');
-      setDescription('');
-      setDurationHours('');
-      setNotes('');
+      setSymptomName("");
+      setSeverity("mild");
+      setDescription("");
+      setDurationHours("");
+      setNotes("");
 
       onClose();
       onSuccess?.();
     } catch (err) {
-      console.error('Error creating symptom:', err);
-      setError(err instanceof Error ? err.message : 'Failed to log symptom. Please try again.');
+      console.error("Error creating symptom:", err);
+      setError(
+        err instanceof Error
+          ? err.message
+          : "Failed to log symptom. Please try again.",
+      );
     } finally {
       setIsLoading(false);
     }
@@ -91,7 +99,8 @@ export function AddSymptomModal({ isOpen, onClose, onSuccess }: AddSymptomModalP
         <DialogHeader>
           <DialogTitle>Log Symptom</DialogTitle>
           <DialogDescription>
-            Record a symptom you're experiencing. This helps track your health patterns.
+            Record a symptom you're experiencing. This helps track your health
+            patterns.
           </DialogDescription>
         </DialogHeader>
         <form onSubmit={handleSubmit} className="space-y-4">
@@ -107,7 +116,11 @@ export function AddSymptomModal({ isOpen, onClose, onSuccess }: AddSymptomModalP
 
           <div className="space-y-2">
             <label className="text-sm font-medium">Severity</label>
-            <Select value={severity} onValueChange={setSeverity} disabled={isLoading}>
+            <Select
+              value={severity}
+              onValueChange={setSeverity}
+              disabled={isLoading}
+            >
               <SelectTrigger>
                 <SelectValue />
               </SelectTrigger>
@@ -171,7 +184,7 @@ export function AddSymptomModal({ isOpen, onClose, onSuccess }: AddSymptomModalP
               Cancel
             </Button>
             <Button type="submit" disabled={isLoading}>
-              {isLoading ? 'Logging...' : 'Log Symptom'}
+              {isLoading ? "Logging..." : "Log Symptom"}
             </Button>
           </DialogFooter>
         </form>
@@ -179,4 +192,3 @@ export function AddSymptomModal({ isOpen, onClose, onSuccess }: AddSymptomModalP
     </Dialog>
   );
 }
-

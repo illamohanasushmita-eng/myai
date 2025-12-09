@@ -53,7 +53,7 @@ The `parseTimeFromText()` function uses regex patterns that might match digits i
 ```typescript
 // BEFORE (BROKEN):
 if (!foundDayName) {
-  if (lowerText.includes('tomorrow')) {
+  if (lowerText.includes("tomorrow")) {
     console.log('📌 [CONVERT-TIMESTAMP] "tomorrow" detected, adding 1 day');
     targetDate.setDate(targetDate.getDate() + 1);
   }
@@ -62,8 +62,10 @@ if (!foundDayName) {
 // AFTER (FIXED):
 // Check for relative dates in timeStr FIRST
 if (!foundDayName) {
-  if (lowerTimeStr.includes('tomorrow')) {
-    console.log('📌 [CONVERT-TIMESTAMP] "tomorrow" detected in timeStr, adding 1 day');
+  if (lowerTimeStr.includes("tomorrow")) {
+    console.log(
+      '📌 [CONVERT-TIMESTAMP] "tomorrow" detected in timeStr, adding 1 day',
+    );
     targetDate.setDate(targetDate.getDate() + 1);
     foundRelativeDate = true;
   }
@@ -71,8 +73,10 @@ if (!foundDayName) {
 
 // Then check in text
 if (!foundDayName && !foundRelativeDate) {
-  if (lowerText.includes('tomorrow')) {
-    console.log('📌 [CONVERT-TIMESTAMP] "tomorrow" detected in text, adding 1 day');
+  if (lowerText.includes("tomorrow")) {
+    console.log(
+      '📌 [CONVERT-TIMESTAMP] "tomorrow" detected in text, adding 1 day',
+    );
     targetDate.setDate(targetDate.getDate() + 1);
     foundRelativeDate = true;
   }
@@ -159,4 +163,3 @@ Try these commands to verify the fix:
 - "add reminder to call my mom today" → Today at current time + 1 hour
 - "add reminder to call my mom Monday" → Next Monday at current time + 1 hour
 - "add reminder to call my mom Monday at 3 PM" → Next Monday at 3 PM
-

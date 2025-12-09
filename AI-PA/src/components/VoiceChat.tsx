@@ -1,13 +1,13 @@
-'use client';
+"use client";
 
-import { useState, useCallback, useRef, useEffect } from 'react';
-import { useVoiceInput } from '@/hooks/useVoiceInput';
-import { useTextToSpeech } from '@/hooks/useTextToSpeech';
-import { useSpeechRecognition } from '@/hooks/useSpeechRecognition';
-import { Mic, MicOff, Volume2, VolumeX, Send } from 'lucide-react';
+import { useState, useCallback, useRef, useEffect } from "react";
+import { useVoiceInput } from "@/hooks/useVoiceInput";
+import { useTextToSpeech } from "@/hooks/useTextToSpeech";
+import { useSpeechRecognition } from "@/hooks/useSpeechRecognition";
+import { Mic, MicOff, Volume2, VolumeX, Send } from "lucide-react";
 
 interface Message {
-  role: 'user' | 'assistant';
+  role: "user" | "assistant";
   content: string;
   timestamp: Date;
 }
@@ -29,14 +29,14 @@ export function VoiceChat({ userId, onClose }: VoiceChatProps) {
 
   // Voice input hook
   const voiceInput = useVoiceInput({
-    onRecordingStart: () => console.log('🎤 Recording started'),
-    onRecordingStop: () => console.log('⏹️ Recording stopped'),
+    onRecordingStart: () => console.log("🎤 Recording started"),
+    onRecordingStop: () => console.log("⏹️ Recording stopped"),
     onError: (err) => setError(err),
   });
 
   // Speech recognition hook
   const speechRecognition = useSpeechRecognition({
-    onTranscriptionStart: () => console.log('🔄 Transcribing...'),
+    onTranscriptionStart: () => console.log("🔄 Transcribing..."),
     onError: (err) => setError(err),
   });
 
@@ -45,15 +45,15 @@ export function VoiceChat({ userId, onClose }: VoiceChatProps) {
     rate: 1,
     pitch: 1,
     volume: 1,
-    lang: 'en-US',
-    onStart: () => console.log('🗣️ Speaking...'),
-    onEnd: () => console.log('✅ Done speaking'),
+    lang: "en-US",
+    onStart: () => console.log("🗣️ Speaking..."),
+    onEnd: () => console.log("✅ Done speaking"),
     onError: (err) => setError(err),
   });
 
   // Auto-scroll to latest message
   useEffect(() => {
-    messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
+    messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
   }, [messages]);
 
   // Handle voice input
@@ -69,24 +69,25 @@ export function VoiceChat({ userId, onClose }: VoiceChatProps) {
         setIsProcessing(true);
 
         // Transcribe audio
-        const transcribedText = await speechRecognition.transcribeAudio(audioBlob);
+        const transcribedText =
+          await speechRecognition.transcribeAudio(audioBlob);
         if (!transcribedText) {
-          setError('Failed to transcribe audio');
+          setError("Failed to transcribe audio");
           return;
         }
 
         // Add user message
         const userMessage: Message = {
-          role: 'user',
+          role: "user",
           content: transcribedText,
           timestamp: new Date(),
         };
         setMessages((prev) => [...prev, userMessage]);
 
         // Get AI response
-        const response = await fetch('/api/ai/voice-chat', {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
+        const response = await fetch("/api/ai/voice-chat", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
           body: JSON.stringify({
             userMessage: transcribedText,
             userId,
@@ -95,18 +96,18 @@ export function VoiceChat({ userId, onClose }: VoiceChatProps) {
         });
 
         if (!response.ok) {
-          throw new Error('Failed to get response');
+          throw new Error("Failed to get response");
         }
 
         const data = await response.json();
 
         if (!data.success) {
-          throw new Error(data.error || 'Failed to get response');
+          throw new Error(data.error || "Failed to get response");
         }
 
         // Add assistant message
         const assistantMessage: Message = {
-          role: 'assistant',
+          role: "assistant",
           content: data.message,
           timestamp: new Date(),
         };
@@ -119,9 +120,10 @@ export function VoiceChat({ userId, onClose }: VoiceChatProps) {
         await voiceInput.startRecording();
       }
     } catch (err) {
-      const errorMessage = err instanceof Error ? err.message : 'An error occurred';
+      const errorMessage =
+        err instanceof Error ? err.message : "An error occurred";
       setError(errorMessage);
-      console.error('❌ Voice input error:', errorMessage);
+      console.error("❌ Voice input error:", errorMessage);
     } finally {
       setIsProcessing(false);
     }
@@ -138,16 +140,16 @@ export function VoiceChat({ userId, onClose }: VoiceChatProps) {
 
         // Add user message
         const userMessage: Message = {
-          role: 'user',
+          role: "user",
           content: text,
           timestamp: new Date(),
         };
         setMessages((prev) => [...prev, userMessage]);
 
         // Get AI response
-        const response = await fetch('/api/ai/voice-chat', {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
+        const response = await fetch("/api/ai/voice-chat", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
           body: JSON.stringify({
             userMessage: text,
             userId,
@@ -156,18 +158,18 @@ export function VoiceChat({ userId, onClose }: VoiceChatProps) {
         });
 
         if (!response.ok) {
-          throw new Error('Failed to get response');
+          throw new Error("Failed to get response");
         }
 
         const data = await response.json();
 
         if (!data.success) {
-          throw new Error(data.error || 'Failed to get response');
+          throw new Error(data.error || "Failed to get response");
         }
 
         // Add assistant message
         const assistantMessage: Message = {
-          role: 'assistant',
+          role: "assistant",
           content: data.message,
           timestamp: new Date(),
         };
@@ -176,14 +178,15 @@ export function VoiceChat({ userId, onClose }: VoiceChatProps) {
         // Speak response
         textToSpeech.speak(data.message);
       } catch (err) {
-        const errorMessage = err instanceof Error ? err.message : 'An error occurred';
+        const errorMessage =
+          err instanceof Error ? err.message : "An error occurred";
         setError(errorMessage);
-        console.error('❌ Error:', errorMessage);
+        console.error("❌ Error:", errorMessage);
       } finally {
         setIsProcessing(false);
       }
     },
-    [messages, userId, textToSpeech]
+    [messages, userId, textToSpeech],
   );
 
   return (
@@ -219,13 +222,13 @@ export function VoiceChat({ userId, onClose }: VoiceChatProps) {
           messages.map((msg, idx) => (
             <div
               key={idx}
-              className={`flex ${msg.role === 'user' ? 'justify-end' : 'justify-start'}`}
+              className={`flex ${msg.role === "user" ? "justify-end" : "justify-start"}`}
             >
               <div
                 className={`max-w-xs px-4 py-2 rounded-lg ${
-                  msg.role === 'user'
-                    ? 'bg-blue-600 text-white rounded-br-none'
-                    : 'bg-gray-200 text-gray-900 rounded-bl-none'
+                  msg.role === "user"
+                    ? "bg-blue-600 text-white rounded-br-none"
+                    : "bg-gray-200 text-gray-900 rounded-bl-none"
                 }`}
               >
                 <p className="text-sm">{msg.content}</p>
@@ -257,7 +260,9 @@ export function VoiceChat({ userId, onClose }: VoiceChatProps) {
                 style={{ width: `${voiceInput.audioLevel}%` }}
               />
             </div>
-            <span className="text-xs text-gray-600">{Math.round(voiceInput.audioLevel)}%</span>
+            <span className="text-xs text-gray-600">
+              {Math.round(voiceInput.audioLevel)}%
+            </span>
           </div>
         )}
 
@@ -267,8 +272,8 @@ export function VoiceChat({ userId, onClose }: VoiceChatProps) {
           disabled={isProcessing || speechRecognition.isTranscribing}
           className={`w-full py-3 rounded-lg font-semibold flex items-center justify-center gap-2 transition ${
             voiceInput.isRecording
-              ? 'bg-red-600 hover:bg-red-700 text-white'
-              : 'bg-blue-600 hover:bg-blue-700 text-white'
+              ? "bg-red-600 hover:bg-red-700 text-white"
+              : "bg-blue-600 hover:bg-blue-700 text-white"
           } disabled:opacity-50 disabled:cursor-not-allowed`}
         >
           {voiceInput.isRecording ? (
@@ -290,12 +295,16 @@ export function VoiceChat({ userId, onClose }: VoiceChatProps) {
         {/* Status indicators */}
         <div className="flex items-center justify-between text-xs text-gray-600">
           <div className="flex gap-2">
-            {speechRecognition.isTranscribing && <span>🔄 Transcribing...</span>}
+            {speechRecognition.isTranscribing && (
+              <span>🔄 Transcribing...</span>
+            )}
             {isProcessing && <span>⏳ Processing...</span>}
             {textToSpeech.isSpeaking && <span>🗣️ Speaking...</span>}
           </div>
           <button
-            onClick={() => (textToSpeech.isSpeaking ? textToSpeech.stop() : null)}
+            onClick={() =>
+              textToSpeech.isSpeaking ? textToSpeech.stop() : null
+            }
             className="hover:text-gray-900 transition"
           >
             {textToSpeech.isSpeaking ? (
@@ -320,13 +329,13 @@ function TextInput({
   onSend: (text: string) => void;
   disabled: boolean;
 }) {
-  const [text, setText] = useState('');
+  const [text, setText] = useState("");
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     if (text.trim()) {
       onSend(text);
-      setText('');
+      setText("");
     }
   };
 
@@ -350,4 +359,3 @@ function TextInput({
     </form>
   );
 }
-

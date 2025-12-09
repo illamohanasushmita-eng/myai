@@ -1,9 +1,9 @@
-'use client';
+"use client";
 
-import { useState } from 'react';
-import { Button } from '@/components/ui/button';
-import { Input } from '@/components/ui/input';
-import { Textarea } from '@/components/ui/textarea';
+import { useState } from "react";
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import { Textarea } from "@/components/ui/textarea";
 import {
   Dialog,
   DialogContent,
@@ -11,15 +11,15 @@ import {
   DialogHeader,
   DialogTitle,
   DialogFooter,
-} from '@/components/ui/dialog';
+} from "@/components/ui/dialog";
 import {
   Select,
   SelectContent,
   SelectItem,
   SelectTrigger,
   SelectValue,
-} from '@/components/ui/select';
-import { createGrowthGoal } from '@/lib/services/habitService';
+} from "@/components/ui/select";
+import { createGrowthGoal } from "@/lib/services/habitService";
 
 interface AddGoalModalProps {
   isOpen: boolean;
@@ -28,35 +28,39 @@ interface AddGoalModalProps {
 }
 
 const CATEGORY_OPTIONS = [
-  { id: 'skill-acquisition', label: 'Skill Acquisition' },
-  { id: 'reading-list', label: 'Reading List' },
-  { id: 'habit-formation', label: 'Habit Formation' },
-  { id: 'fitness', label: 'Fitness' },
-  { id: 'career', label: 'Career' },
-  { id: 'personal', label: 'Personal' },
-  { id: 'other', label: 'Other' },
+  { id: "skill-acquisition", label: "Skill Acquisition" },
+  { id: "reading-list", label: "Reading List" },
+  { id: "habit-formation", label: "Habit Formation" },
+  { id: "fitness", label: "Fitness" },
+  { id: "career", label: "Career" },
+  { id: "personal", label: "Personal" },
+  { id: "other", label: "Other" },
 ];
 
-export function AddGoalModal({ isOpen, onClose, onSuccess }: AddGoalModalProps) {
-  const [title, setTitle] = useState('');
-  const [description, setDescription] = useState('');
-  const [category, setCategory] = useState('skill-acquisition');
-  const [targetDate, setTargetDate] = useState('');
+export function AddGoalModal({
+  isOpen,
+  onClose,
+  onSuccess,
+}: AddGoalModalProps) {
+  const [title, setTitle] = useState("");
+  const [description, setDescription] = useState("");
+  const [category, setCategory] = useState("skill-acquisition");
+  const [targetDate, setTargetDate] = useState("");
   const [isLoading, setIsLoading] = useState(false);
-  const [error, setError] = useState('');
+  const [error, setError] = useState("");
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    setError('');
+    setError("");
 
     if (!title.trim()) {
-      setError('Goal title is required');
+      setError("Goal title is required");
       return;
     }
 
-    const userId = localStorage.getItem('userId');
+    const userId = localStorage.getItem("userId");
     if (!userId) {
-      setError('User not authenticated');
+      setError("User not authenticated");
       return;
     }
 
@@ -68,20 +72,24 @@ export function AddGoalModal({ isOpen, onClose, onSuccess }: AddGoalModalProps) 
         category: category,
         target_date: targetDate || undefined,
         progress_percentage: 0,
-        status: 'active',
+        status: "active",
       });
 
       // Reset form
-      setTitle('');
-      setDescription('');
-      setCategory('skill-acquisition');
-      setTargetDate('');
+      setTitle("");
+      setDescription("");
+      setCategory("skill-acquisition");
+      setTargetDate("");
 
       onClose();
       onSuccess?.();
     } catch (err) {
-      console.error('Error creating growth goal:', err);
-      setError(err instanceof Error ? err.message : 'Failed to create goal. Please try again.');
+      console.error("Error creating growth goal:", err);
+      setError(
+        err instanceof Error
+          ? err.message
+          : "Failed to create goal. Please try again.",
+      );
     } finally {
       setIsLoading(false);
     }
@@ -89,11 +97,11 @@ export function AddGoalModal({ isOpen, onClose, onSuccess }: AddGoalModalProps) 
 
   const handleClose = () => {
     if (!isLoading) {
-      setTitle('');
-      setDescription('');
-      setCategory('skill-acquisition');
-      setTargetDate('');
-      setError('');
+      setTitle("");
+      setDescription("");
+      setCategory("skill-acquisition");
+      setTargetDate("");
+      setError("");
       onClose();
     }
   };
@@ -144,7 +152,11 @@ export function AddGoalModal({ isOpen, onClose, onSuccess }: AddGoalModalProps) 
             <label htmlFor="category" className="text-sm font-medium">
               Category
             </label>
-            <Select value={category} onValueChange={setCategory} disabled={isLoading}>
+            <Select
+              value={category}
+              onValueChange={setCategory}
+              disabled={isLoading}
+            >
               <SelectTrigger id="category" className="w-full">
                 <SelectValue />
               </SelectTrigger>
@@ -195,7 +207,7 @@ export function AddGoalModal({ isOpen, onClose, onSuccess }: AddGoalModalProps) 
               disabled={isLoading}
               className="bg-primary hover:bg-primary/90"
             >
-              {isLoading ? 'Creating...' : 'Create Goal'}
+              {isLoading ? "Creating..." : "Create Goal"}
             </Button>
           </DialogFooter>
         </form>
@@ -203,4 +215,3 @@ export function AddGoalModal({ isOpen, onClose, onSuccess }: AddGoalModalProps) 
     </Dialog>
   );
 }
-

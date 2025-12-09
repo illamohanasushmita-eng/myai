@@ -12,17 +12,17 @@ while (isRunning) {
   // ... wake word detection ...
   // ... greeting speech ...
   // ... command listening ...
-  
+
   // Parse intent (fast)
   intentResult = await parseIntent(command);
-  
+
   // Handle intent (calls onNavigate with setTimeout)
   result = await handleIntent(intentResult, command, context);
   // Navigation is queued here but not executed yet
-  
+
   // BLOCKING OPERATION - waits for speech to finish
-  await speak(result);  // ← BLOCKS FOR 3+ SECONDS
-  
+  await speak(result); // ← BLOCKS FOR 3+ SECONDS
+
   // Navigation finally executes here (after speech)
 }
 ```
@@ -44,16 +44,17 @@ while (isRunning) {
 
 ```typescript
 // BEFORE - BLOCKING
-await speak(result);  // Waits for speech to finish
+await speak(result); // Waits for speech to finish
 
 // AFTER - NON-BLOCKING
-speak(result).catch(error => {
-  console.error('❌ TTS error during confirmation:', error);
+speak(result).catch((error) => {
+  console.error("❌ TTS error during confirmation:", error);
 });
 // Doesn't wait - speech plays in background
 ```
 
 **Why This Works**:
+
 - `speak()` returns a Promise
 - Without `await`, the Promise is not awaited
 - The function continues immediately
@@ -75,6 +76,7 @@ router.push(path);
 ```
 
 **Why This Works**:
+
 - `setTimeout(..., 0)` queues the callback on the macrotask queue
 - Direct call executes immediately on the microtask queue
 - Microtask queue has higher priority
@@ -85,6 +87,7 @@ router.push(path);
 ## Event Loop Explanation
 
 ### Before Fix (Blocking)
+
 ```
 Microtask Queue:
   1. parseIntent() ✅
@@ -101,6 +104,7 @@ Result: Navigation waits for speech to finish
 ```
 
 ### After Fix (Non-Blocking)
+
 ```
 Microtask Queue:
   1. parseIntent() ✅
@@ -122,47 +126,49 @@ Result: Navigation happens immediately, speech plays in background
 ## Code Comparison
 
 ### Before Fix
+
 ```typescript
 // src/lib/voice/lara-assistant.ts (lines 407-427)
 // 5. Handle intent
 result = await handleIntent(intentResult, command, context);
 
 // 6. Speak confirmation
-console.log('🗣️ Speaking confirmation...');
+console.log("🗣️ Speaking confirmation...");
 try {
   if (result) {
-    await speak(result);  // ❌ BLOCKS
+    await speak(result); // ❌ BLOCKS
   } else {
-    await speak('Done');  // ❌ BLOCKS
+    await speak("Done"); // ❌ BLOCKS
   }
 } catch (error) {
-  console.error('❌ TTS error during confirmation:', error);
+  console.error("❌ TTS error during confirmation:", error);
 }
 
-console.log('✅ Command completed');
+console.log("✅ Command completed");
 ```
 
 ### After Fix
+
 ```typescript
 // src/lib/voice/lara-assistant.ts (lines 407-431)
 // 5. Handle intent
 result = await handleIntent(intentResult, command, context);
 
 // 6. Speak confirmation (non-blocking - don't await)
-console.log('🗣️ Speaking confirmation...');
+console.log("🗣️ Speaking confirmation...");
 // Don't await the speech - let it play in background
 // This allows navigation to happen immediately
 if (result) {
-  speak(result).catch(error => {
-    console.error('❌ TTS error during confirmation:', error);
+  speak(result).catch((error) => {
+    console.error("❌ TTS error during confirmation:", error);
   });
 } else {
-  speak('Done').catch(error => {
-    console.error('❌ TTS error during confirmation:', error);
+  speak("Done").catch((error) => {
+    console.error("❌ TTS error during confirmation:", error);
   });
 }
 
-console.log('✅ Command completed');
+console.log("✅ Command completed");
 ```
 
 ---
@@ -170,6 +176,7 @@ console.log('✅ Command completed');
 ## Performance Timeline
 
 ### Before Fix (3+ Minutes)
+
 ```
 T=0.0s: Intent parsing starts
 T=0.5s: Intent parsing completes
@@ -182,6 +189,7 @@ T=4.0s: Navigation finally executes ❌
 ```
 
 ### After Fix (1-2 Seconds)
+
 ```
 T=0.0s: Intent parsing starts
 T=0.5s: Intent parsing completes
@@ -200,22 +208,25 @@ T=4.0s: Speech synthesis completes
 ## Error Handling
 
 ### Before Fix
+
 ```typescript
 try {
   await speak(result);
 } catch (error) {
-  console.error('TTS error:', error);
+  console.error("TTS error:", error);
 }
 ```
 
 ### After Fix
+
 ```typescript
-speak(result).catch(error => {
-  console.error('❌ TTS error during confirmation:', error);
+speak(result).catch((error) => {
+  console.error("❌ TTS error during confirmation:", error);
 });
 ```
 
 **Why This Works**:
+
 - `.catch()` handles Promise rejection
 - Errors are still logged
 - Doesn't block navigation
@@ -226,12 +237,14 @@ speak(result).catch(error => {
 ## Browser Compatibility
 
 ### Supported Browsers
+
 - ✅ Chrome/Edge (all versions)
 - ✅ Firefox (all versions)
 - ✅ Safari (all versions)
 - ✅ Mobile browsers
 
 ### Why This Works Everywhere
+
 - Uses standard Promise API
 - Uses standard router.push() API
 - No browser-specific code
@@ -250,28 +263,30 @@ speak(result).catch(error => {
 
 ### Before vs After
 
-| Metric | Before | After | Improvement |
-|--------|--------|-------|-------------|
-| Intent Parsing | 0.5s | 0.5s | Same |
-| Navigation Delay | 3-5s | 0s | 100% faster |
-| Total Time | 3.5-5.5s | 1-2s | 65-80% faster |
+| Metric           | Before   | After | Improvement   |
+| ---------------- | -------- | ----- | ------------- |
+| Intent Parsing   | 0.5s     | 0.5s  | Same          |
+| Navigation Delay | 3-5s     | 0s    | 100% faster   |
+| Total Time       | 3.5-5.5s | 1-2s  | 65-80% faster |
 
 ---
 
 ## Testing the Fix
 
 ### Verify Non-Blocking Behavior
+
 ```javascript
 // In browser console
-console.time('navigation');
+console.time("navigation");
 // Say command: "Open personal growth page"
 // Check console for:
 // 🔧 router.push completed
-console.timeEnd('navigation');
+console.timeEnd("navigation");
 // Should show: ~100-500ms (not 3+ minutes)
 ```
 
 ### Verify Speech Still Works
+
 ```javascript
 // Speech should play in background
 // You should hear Lara's confirmation
@@ -283,12 +298,14 @@ console.timeEnd('navigation');
 ## Future Optimizations
 
 ### Possible Improvements
+
 1. **Parallel Processing**: Parse intent while speaking greeting
 2. **Caching**: Cache frequently used intents
 3. **Prefetching**: Prefetch page data before navigation
 4. **Lazy Loading**: Load page components on demand
 
 ### Not Implemented (Out of Scope)
+
 - These would require more extensive changes
 - Current fix addresses the main bottleneck
 - Can be added later if needed
@@ -298,11 +315,13 @@ console.timeEnd('navigation');
 ## Summary
 
 ### What Was Fixed
+
 - ✅ Removed blocking `await` from speech
 - ✅ Removed unnecessary `setTimeout` delay
 - ✅ Navigation now happens immediately
 
 ### Result
+
 - ✅ Navigation: 3+ minutes → 1-2 seconds
 - ✅ 95% performance improvement
 - ✅ Better user experience
@@ -314,4 +333,3 @@ console.timeEnd('navigation');
 **Risk Level**: Low (only affects timing, not functionality)
 **Testing Required**: Yes (verify navigation speed)
 **Rollback Difficulty**: Easy (revert 2 files)
-

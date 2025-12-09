@@ -1,10 +1,13 @@
-import { NextRequest, NextResponse } from 'next/server';
-import OpenAI from 'openai';
-import { z } from 'zod';
-import { VoiceCommandIntentSchema, VoiceCommandResponse } from '@/lib/ai/voice-command';
+import { NextRequest, NextResponse } from "next/server";
+import OpenAI from "openai";
+import { z } from "zod";
+import {
+  VoiceCommandIntentSchema,
+  VoiceCommandResponse,
+} from "@/lib/ai/voice-command";
 
 const RequestSchema = z.object({
-  text: z.string().min(1, 'Text is required'),
+  text: z.string().min(1, "Text is required"),
   userId: z.string().optional(),
 });
 
@@ -19,10 +22,10 @@ export async function POST(request: NextRequest) {
     const { text, userId } = RequestSchema.parse(body);
 
     const response = await openai.chat.completions.create({
-      model: 'gpt-4o-mini',
+      model: "gpt-4o-mini",
       messages: [
         {
-          role: 'system',
+          role: "system",
           content: `You are an AI assistant that processes voice commands for a personal assistant application.
 
 Analyze the user's voice command and determine their intent. The application has the following features:
@@ -45,7 +48,7 @@ Determine the user's intent and provide a JSON response with:
 Be concise and accurate. If the intent is unclear, set confidence to a lower value and suggest the most likely intent. Return ONLY valid JSON.`,
         },
         {
-          role: 'user',
+          role: "user",
           content: `Process this voice command: ${text}`,
         },
       ],
@@ -58,9 +61,9 @@ Be concise and accurate. If the intent is unclear, set confidence to a lower val
       return NextResponse.json(
         {
           success: false,
-          error: 'Failed to process voice command',
+          error: "Failed to process voice command",
         },
-        { status: 500 }
+        { status: 500 },
       );
     }
 
@@ -75,26 +78,25 @@ Be concise and accurate. If the intent is unclear, set confidence to a lower val
 
     return NextResponse.json(voiceResponse);
   } catch (error) {
-    console.error('Voice command error:', error);
+    console.error("Voice command error:", error);
 
     if (error instanceof z.ZodError) {
       return NextResponse.json(
         {
           success: false,
-          error: 'Invalid request',
+          error: "Invalid request",
           details: error.errors,
         },
-        { status: 400 }
+        { status: 400 },
       );
     }
 
     return NextResponse.json(
       {
         success: false,
-        error: 'Failed to process voice command',
+        error: "Failed to process voice command",
       },
-      { status: 500 }
+      { status: 500 },
     );
   }
 }
-

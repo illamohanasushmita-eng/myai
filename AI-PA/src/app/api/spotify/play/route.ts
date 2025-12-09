@@ -1,21 +1,26 @@
-import { NextRequest, NextResponse } from 'next/server';
-import { playTrack, playPlaylist, getAvailableDevices } from '@/lib/spotify/play';
+import { NextRequest, NextResponse } from "next/server";
+import {
+  playTrack,
+  playPlaylist,
+  getAvailableDevices,
+} from "@/lib/spotify/play";
 
 export async function POST(request: NextRequest) {
   try {
-    const { trackId, playlistId, userId, deviceId, type } = await request.json();
+    const { trackId, playlistId, userId, deviceId, type } =
+      await request.json();
 
     if (!userId) {
       return NextResponse.json(
-        { error: 'userId is required' },
-        { status: 400 }
+        { error: "userId is required" },
+        { status: 400 },
       );
     }
 
     if (!trackId && !playlistId) {
       return NextResponse.json(
-        { error: 'Either trackId or playlistId is required' },
-        { status: 400 }
+        { error: "Either trackId or playlistId is required" },
+        { status: 400 },
       );
     }
 
@@ -29,7 +34,7 @@ export async function POST(request: NextRequest) {
         const activeDevice = devices.find((d) => d.is_active);
         device = activeDevice?.id || devices[0]?.id;
       } catch (error) {
-        console.warn('Could not get devices, proceeding without device ID');
+        console.warn("Could not get devices, proceeding without device ID");
       }
     }
 
@@ -48,11 +53,10 @@ export async function POST(request: NextRequest) {
       deviceId: device,
     });
   } catch (error) {
-    console.error('Error playing track:', error);
+    console.error("Error playing track:", error);
     return NextResponse.json(
-      { error: 'Failed to play track' },
-      { status: 500 }
+      { error: "Failed to play track" },
+      { status: 500 },
     );
   }
 }
-

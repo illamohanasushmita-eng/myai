@@ -1,35 +1,40 @@
 /**
  * useLara Hook
  * React hook wrapper for Lara Voice Assistant
- * 
+ *
  * Usage:
  * const { isRunning, start, stop } = useLara({ userId });
- * 
+ *
  * <button onClick={start}>Start Lara</button>
  * <button onClick={stop}>Stop Lara</button>
  */
 
-'use client';
+"use client";
 
-import { useCallback, useRef, useState, useEffect } from 'react';
-import { useRouter } from 'next/navigation';
+import { useCallback, useRef, useState, useEffect } from "react";
+import { useRouter } from "next/navigation";
 import {
   startLaraAssistant,
   stopLaraAssistant,
   setLaraRunning,
   abortCurrentRecognition,
   LaraContext,
-} from '@/lib/voice/lara-assistant';
-import { automateSpotifyPlayback } from '@/lib/voice/spotify-automation';
-import { addTaskVoice } from '@/lib/voice/task-automation';
-import { addReminderVoice } from '@/lib/voice/reminder-automation';
+} from "@/lib/voice/lara-assistant";
+import { automateSpotifyPlayback } from "@/lib/voice/spotify-automation";
+import { addTaskVoice } from "@/lib/voice/task-automation";
+import { addReminderVoice } from "@/lib/voice/reminder-automation";
 
 export interface UseLaraOptions {
   userId: string;
   enabled?: boolean;
   onError?: (error: Error) => void;
-  onTaskStatusChange?: (status: 'processing' | 'completed' | 'error', message?: string) => void;
-  onListeningStateChange?: (state: 'wake-word' | 'command' | 'processing' | 'idle') => void;
+  onTaskStatusChange?: (
+    status: "processing" | "completed" | "error",
+    message?: string,
+  ) => void;
+  onListeningStateChange?: (
+    state: "wake-word" | "command" | "processing" | "idle",
+  ) => void;
   oneShot?: boolean; // If true, stop after one command
 }
 
@@ -58,23 +63,23 @@ export function useLara({
 
   // Create Lara context
   const createContext = useCallback((): LaraContext => {
-    console.log('🔧 Creating Lara context with router:', !!router);
+    console.log("🔧 Creating Lara context with router:", !!router);
     const context: LaraContext = {
       userId,
       router,
       onNavigate: (path: string) => {
-        console.log('🔧 onNavigate called with path:', path);
-        console.log('🔧 Router object:', router);
-        console.log('🔧 Router.push type:', typeof router?.push);
+        console.log("🔧 onNavigate called with path:", path);
+        console.log("🔧 Router object:", router);
+        console.log("🔧 Router.push type:", typeof router?.push);
 
         // Execute navigation immediately (no setTimeout delay)
         // This ensures navigation happens as soon as intent is handled
         try {
-          console.log('🔧 Executing router.push for path:', path);
+          console.log("🔧 Executing router.push for path:", path);
           router.push(path);
-          console.log('🔧 router.push completed');
+          console.log("🔧 router.push completed");
         } catch (error) {
-          console.error('🔧 Error during router.push:', error);
+          console.error("🔧 Error during router.push:", error);
         }
       },
       onPlayMusic: async (query: string) => {
@@ -85,24 +90,36 @@ export function useLara({
       },
       onAddReminder: async (text: string, time?: string) => {
         // Try to get the optimistic add function from reminders page (stored on window)
-        let onReminderCreated: ((reminder: any) => void) | undefined = undefined;
-        if (typeof window !== 'undefined' && (window as any).__addReminderOptimistically) {
+        let onReminderCreated: ((reminder: any) => void) | undefined =
+          undefined;
+        if (
+          typeof window !== "undefined" &&
+          (window as any).__addReminderOptimistically
+        ) {
           onReminderCreated = (window as any).__addReminderOptimistically;
-          console.log('📌 [LARA] Found optimistic add function on window');
+          console.log("📌 [LARA] Found optimistic add function on window");
         } else {
-          console.log('📌 [LARA] Optimistic add function not available (reminders page may not be mounted)');
+          console.log(
+            "📌 [LARA] Optimistic add function not available (reminders page may not be mounted)",
+          );
         }
-        await addReminderVoice(text, userId, time, context.onNavigate, onReminderCreated);
+        await addReminderVoice(
+          text,
+          userId,
+          time,
+          context.onNavigate,
+          onReminderCreated,
+        );
       },
       onTaskStatusChange,
       onListeningStateChange,
       oneShot,
     };
-    console.log('🔧 Context created:', {
+    console.log("🔧 Context created:", {
       hasOnNavigate: !!context.onNavigate,
       hasRouter: !!context.router,
       userId: context.userId,
-      oneShot
+      oneShot,
     });
     return context;
   }, [userId, router, onTaskStatusChange, onListeningStateChange, oneShot]);
@@ -124,17 +141,17 @@ export function useLara({
       assistantLoopRef.current
         .then(() => {
           // Loop completed successfully (e.g., in one-shot mode)
-          console.log('🛑 Assistant loop completed successfully');
+          console.log("🛑 Assistant loop completed successfully");
           setIsRunning(false);
         })
         .catch((err) => {
-          const error = err instanceof Error ? err : new Error('Unknown error');
+          const error = err instanceof Error ? err : new Error("Unknown error");
           setError(error.message);
           onError?.(error);
           setIsRunning(false);
         });
     } catch (err) {
-      const error = err instanceof Error ? err : new Error('Unknown error');
+      const error = err instanceof Error ? err : new Error("Unknown error");
       setError(error.message);
       onError?.(error);
       setIsRunning(false);
@@ -143,14 +160,14 @@ export function useLara({
 
   // Stop Lara Assistant
   const stop = useCallback(() => {
-    console.log('🛑 FORCE STOP: Stopping Lara Assistant immediately...');
+    console.log("🛑 FORCE STOP: Stopping Lara Assistant immediately...");
     shouldContinueRef.current = false;
 
     // Set flag to false FIRST before aborting
     setLaraRunning(false);
 
     // Immediately abort all voice operations (hard stop)
-    console.log('🛑 FORCE STOP: Calling abortCurrentRecognition...');
+    console.log("🛑 FORCE STOP: Calling abortCurrentRecognition...");
     abortCurrentRecognition();
 
     // Also cancel speech synthesis directly
@@ -158,13 +175,13 @@ export function useLara({
       try {
         window.speechSynthesis.cancel();
       } catch (error) {
-        console.warn('⚠️ Error canceling speech synthesis:', error);
+        console.warn("⚠️ Error canceling speech synthesis:", error);
       }
     }
 
     stopLaraAssistant();
     setIsRunning(false);
-    console.log('🛑 FORCE STOP: Complete');
+    console.log("🛑 FORCE STOP: Complete");
   }, []);
 
   // Restart Lara Assistant
@@ -190,6 +207,3 @@ export function useLara({
     restart,
   };
 }
-
-
-

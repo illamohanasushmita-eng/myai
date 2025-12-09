@@ -1,22 +1,27 @@
-'use client';
+"use client";
 
-import { useState, useEffect } from 'react';
-import { useAIIntent } from '@/hooks/useAIIntent';
-import { useSpotifyPlayer } from '@/hooks/useSpotifyPlayer';
-import { useMusicAutomation } from '@/hooks/useMusicAutomation';
-import { useUserPreferences } from '@/hooks/useUserPreferences';
-import { Button } from '@/components/ui/button';
+import { useState, useEffect } from "react";
+import { useAIIntent } from "@/hooks/useAIIntent";
+import { useSpotifyPlayer } from "@/hooks/useSpotifyPlayer";
+import { useMusicAutomation } from "@/hooks/useMusicAutomation";
+import { useUserPreferences } from "@/hooks/useUserPreferences";
+import { Button } from "@/components/ui/button";
 
 interface MusicAssistantProps {
   userId: string;
 }
 
 export function MusicAssistant({ userId }: MusicAssistantProps) {
-  const [userInput, setUserInput] = useState('');
+  const [userInput, setUserInput] = useState("");
   const [selectedTrack, setSelectedTrack] = useState<any>(null);
 
   const { intent, loading: intentLoading, detectIntent } = useAIIntent();
-  const { searchResults, loading: playerLoading, searchTracks, playTrack } = useSpotifyPlayer();
+  const {
+    searchResults,
+    loading: playerLoading,
+    searchTracks,
+    playTrack,
+  } = useSpotifyPlayer();
   const { lastTrigger, triggerAutomation } = useMusicAutomation();
   const { preferences, fetchPreferences } = useUserPreferences();
 
@@ -54,7 +59,7 @@ export function MusicAssistant({ userId }: MusicAssistantProps) {
             type="text"
             value={userInput}
             onChange={(e) => setUserInput(e.target.value)}
-            onKeyPress={(e) => e.key === 'Enter' && handleDetectIntent()}
+            onKeyPress={(e) => e.key === "Enter" && handleDetectIntent()}
             placeholder="Try: 'Play my favourite hero songs' or 'Play relaxing songs at night'"
             className="flex-1 px-4 py-2 rounded-lg bg-background-light dark:bg-background-dark border border-border-light dark:border-border-dark focus:outline-none focus:ring-2 focus:ring-primary"
           />
@@ -63,7 +68,7 @@ export function MusicAssistant({ userId }: MusicAssistantProps) {
             disabled={intentLoading || !userInput.trim()}
             className="px-6"
           >
-            {intentLoading ? 'Detecting...' : 'Search'}
+            {intentLoading ? "Detecting..." : "Search"}
           </Button>
         </div>
       </div>
@@ -75,25 +80,33 @@ export function MusicAssistant({ userId }: MusicAssistantProps) {
           <div className="grid grid-cols-2 gap-4 text-sm">
             {intent.mood && (
               <div>
-                <span className="text-subtle-light dark:text-subtle-dark">Mood:</span>
+                <span className="text-subtle-light dark:text-subtle-dark">
+                  Mood:
+                </span>
                 <p className="font-semibold capitalize">{intent.mood}</p>
               </div>
             )}
             {intent.hero && (
               <div>
-                <span className="text-subtle-light dark:text-subtle-dark">Hero:</span>
+                <span className="text-subtle-light dark:text-subtle-dark">
+                  Hero:
+                </span>
                 <p className="font-semibold capitalize">{intent.hero}</p>
               </div>
             )}
             {intent.timeContext && (
               <div>
-                <span className="text-subtle-light dark:text-subtle-dark">Time:</span>
+                <span className="text-subtle-light dark:text-subtle-dark">
+                  Time:
+                </span>
                 <p className="font-semibold capitalize">{intent.timeContext}</p>
               </div>
             )}
             {intent.language && (
               <div>
-                <span className="text-subtle-light dark:text-subtle-dark">Language:</span>
+                <span className="text-subtle-light dark:text-subtle-dark">
+                  Language:
+                </span>
                 <p className="font-semibold capitalize">{intent.language}</p>
               </div>
             )}
@@ -133,9 +146,9 @@ export function MusicAssistant({ userId }: MusicAssistantProps) {
                   onClick={() => handlePlayTrack(track.id)}
                   disabled={playerLoading}
                   size="sm"
-                  variant={selectedTrack === track.id ? 'default' : 'outline'}
+                  variant={selectedTrack === track.id ? "default" : "outline"}
                 >
-                  {selectedTrack === track.id ? '▶' : 'Play'}
+                  {selectedTrack === track.id ? "▶" : "Play"}
                 </Button>
               </div>
             ))}
@@ -148,24 +161,20 @@ export function MusicAssistant({ userId }: MusicAssistantProps) {
         <h3 className="font-bold mb-3">Quick Actions</h3>
         <div className="grid grid-cols-3 gap-2">
           <Button
-            onClick={() => triggerAutomation(userId, 'night')}
+            onClick={() => triggerAutomation(userId, "night")}
             variant="outline"
             size="sm"
           >
             🌙 Night
           </Button>
           <Button
-            onClick={() => triggerAutomation(userId, 'travel')}
+            onClick={() => triggerAutomation(userId, "travel")}
             variant="outline"
             size="sm"
           >
             🚗 Travel
           </Button>
-          <Button
-            onClick={handleTriggerAutomation}
-            variant="outline"
-            size="sm"
-          >
+          <Button onClick={handleTriggerAutomation} variant="outline" size="sm">
             ⚡ Auto
           </Button>
         </div>
@@ -204,4 +213,3 @@ export function MusicAssistant({ userId }: MusicAssistantProps) {
     </div>
   );
 }
-

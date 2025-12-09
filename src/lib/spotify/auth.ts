@@ -1,13 +1,13 @@
-import { createClient } from '@supabase/supabase-js';
+import { createClient } from "@supabase/supabase-js";
 
 const supabase = createClient(
   process.env.NEXT_PUBLIC_SUPABASE_URL!,
-  process.env.SUPABASE_SERVICE_ROLE_KEY!
+  process.env.SUPABASE_SERVICE_ROLE_KEY!,
 );
 
-const SPOTIFY_CLIENT_ID = '0c8f9e9564584bf7b7a7d05d20b0559d';
-const SPOTIFY_CLIENT_SECRET = '04bdbd29899b4b719439e723136cc378';
-const SPOTIFY_AUTH_URL = 'https://accounts.spotify.com/api/token';
+const SPOTIFY_CLIENT_ID = "0c8f9e9564584bf7b7a7d05d20b0559d";
+const SPOTIFY_CLIENT_SECRET = "04bdbd29899b4b719439e723136cc378";
+const SPOTIFY_AUTH_URL = "https://accounts.spotify.com/api/token";
 
 export interface SpotifyToken {
   access_token: string;
@@ -19,12 +19,12 @@ export async function getSpotifyAccessToken(userId: string): Promise<string> {
   try {
     // Check if token exists in database
     const { data: tokenData, error: fetchError } = await supabase
-      .from('spotify_tokens')
-      .select('access_token, refresh_token, expires_at')
-      .eq('user_id', userId)
+      .from("spotify_tokens")
+      .select("access_token, refresh_token, expires_at")
+      .eq("user_id", userId)
       .single();
 
-    if (fetchError && fetchError.code !== 'PGRST116') {
+    if (fetchError && fetchError.code !== "PGRST116") {
       throw fetchError;
     }
 
@@ -41,21 +41,24 @@ export async function getSpotifyAccessToken(userId: string): Promise<string> {
     // Get new token using Client Credentials flow
     return await getClientCredentialsToken();
   } catch (error) {
-    console.error('Error getting Spotify access token:', error);
+    console.error("Error getting Spotify access token:", error);
     throw error;
   }
 }
 
-async function refreshSpotifyToken(userId: string, refreshToken: string): Promise<string> {
+async function refreshSpotifyToken(
+  userId: string,
+  refreshToken: string,
+): Promise<string> {
   try {
     const response = await fetch(SPOTIFY_AUTH_URL, {
-      method: 'POST',
+      method: "POST",
       headers: {
-        'Content-Type': 'application/x-www-form-urlencoded',
-        Authorization: `Basic ${Buffer.from(`${SPOTIFY_CLIENT_ID}:${SPOTIFY_CLIENT_SECRET}`).toString('base64')}`,
+        "Content-Type": "application/x-www-form-urlencoded",
+        Authorization: `Basic ${Buffer.from(`${SPOTIFY_CLIENT_ID}:${SPOTIFY_CLIENT_SECRET}`).toString("base64")}`,
       },
       body: new URLSearchParams({
-        grant_type: 'refresh_token',
+        grant_type: "refresh_token",
         refresh_token: refreshToken,
       }).toString(),
     });
@@ -69,18 +72,18 @@ async function refreshSpotifyToken(userId: string, refreshToken: string): Promis
 
     // Update token in database
     await supabase
-      .from('spotify_tokens')
+      .from("spotify_tokens")
       .update({
         access_token: data.access_token,
         refresh_token: data.refresh_token || refreshToken,
         expires_at: expiresAt.toISOString(),
         updated_at: new Date().toISOString(),
       })
-      .eq('user_id', userId);
+      .eq("user_id", userId);
 
     return data.access_token;
   } catch (error) {
-    console.error('Error refreshing Spotify token:', error);
+    console.error("Error refreshing Spotify token:", error);
     throw error;
   }
 }
@@ -88,13 +91,13 @@ async function refreshSpotifyToken(userId: string, refreshToken: string): Promis
 async function getClientCredentialsToken(): Promise<string> {
   try {
     const response = await fetch(SPOTIFY_AUTH_URL, {
-      method: 'POST',
+      method: "POST",
       headers: {
-        'Content-Type': 'application/x-www-form-urlencoded',
-        Authorization: `Basic ${Buffer.from(`${SPOTIFY_CLIENT_ID}:${SPOTIFY_CLIENT_SECRET}`).toString('base64')}`,
+        "Content-Type": "application/x-www-form-urlencoded",
+        Authorization: `Basic ${Buffer.from(`${SPOTIFY_CLIENT_ID}:${SPOTIFY_CLIENT_SECRET}`).toString("base64")}`,
       },
       body: new URLSearchParams({
-        grant_type: 'client_credentials',
+        grant_type: "client_credentials",
       }).toString(),
     });
 
@@ -105,7 +108,7 @@ async function getClientCredentialsToken(): Promise<string> {
     const data = await response.json();
     return data.access_token;
   } catch (error) {
-    console.error('Error getting Spotify client credentials token:', error);
+    console.error("Error getting Spotify client credentials token:", error);
     throw error;
   }
 }
@@ -114,13 +117,13 @@ export async function saveSpotifyToken(
   userId: string,
   accessToken: string,
   refreshToken?: string,
-  expiresIn: number = 3600
+  expiresIn: number = 3600,
 ): Promise<void> {
   try {
     const expiresAt = new Date(Date.now() + expiresIn * 1000);
 
     await supabase
-      .from('spotify_tokens')
+      .from("spotify_tokens")
       .upsert({
         user_id: userId,
         access_token: accessToken,
@@ -128,10 +131,9 @@ export async function saveSpotifyToken(
         expires_at: expiresAt.toISOString(),
         updated_at: new Date().toISOString(),
       })
-      .eq('user_id', userId);
+      .eq("user_id", userId);
   } catch (error) {
-    console.error('Error saving Spotify token:', error);
+    console.error("Error saving Spotify token:", error);
     throw error;
   }
 }
-

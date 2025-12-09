@@ -77,7 +77,7 @@ export function detectIntentWithFallback(text: string): FallbackIntent {
 
   // No pattern matched
   return {
-    intent: 'general_query',
+    intent: "general_query",
     confidence: 0.3,
     extractedData: {},
   };
@@ -89,24 +89,24 @@ export function detectIntentWithFallback(text: string): FallbackIntent {
 function extractDataFromMatch(
   intent: string,
   match: RegExpMatchArray,
-  originalText: string
-): FallbackIntent['extractedData'] {
-  const data: FallbackIntent['extractedData'] = {};
+  originalText: string,
+): FallbackIntent["extractedData"] {
+  const data: FallbackIntent["extractedData"] = {};
 
   switch (intent) {
-    case 'play_music':
+    case "play_music":
       if (match[1]) {
         data.songName = match[1].trim();
       }
       break;
 
-    case 'add_task':
+    case "add_task":
       if (match[1]) {
         data.taskText = match[1].trim();
       }
       break;
 
-    case 'add_reminder':
+    case "add_reminder":
       if (match[1]) {
         data.reminderText = match[1].trim();
       }
@@ -115,7 +115,7 @@ function extractDataFromMatch(
       }
       break;
 
-    case 'navigate':
+    case "navigate":
       if (match[1]) {
         const target = match[1].toLowerCase().trim();
         data.navigationTarget = mapNavigationTarget(target);
@@ -131,16 +131,16 @@ function extractDataFromMatch(
  */
 function mapNavigationTarget(target: string): string {
   const navigationMap: Record<string, string> = {
-    tasks: '/professional',
-    professional: '/professional',
-    reminders: '/reminders',
-    reminder: '/reminders',
-    health: '/healthcare',
-    healthcare: '/healthcare',
-    growth: '/personal-growth',
-    'personal growth': '/personal-growth',
-    home: '/dashboard',
-    dashboard: '/dashboard',
+    tasks: "/professional",
+    professional: "/professional",
+    reminders: "/reminders",
+    reminder: "/reminders",
+    health: "/healthcare",
+    healthcare: "/healthcare",
+    growth: "/personal-growth",
+    "personal growth": "/personal-growth",
+    home: "/dashboard",
+    dashboard: "/dashboard",
   };
 
   return navigationMap[target] || target;
@@ -151,7 +151,7 @@ function mapNavigationTarget(target: string): string {
  */
 export function mergeWithFallback(
   witResult: any,
-  fallbackResult: FallbackIntent
+  fallbackResult: FallbackIntent,
 ): FallbackIntent {
   // If Wit.ai found an intent, use it
   if (witResult.intent) {
@@ -165,4 +165,3 @@ export function mergeWithFallback(
   // Otherwise use fallback
   return fallbackResult;
 }
-

@@ -15,26 +15,28 @@ The fix uses an **iframe-based approach** for Android instead of direct navigati
 ### 1. Android URI Scheme Handling (openUriScheme function)
 
 **BEFORE (Broken)**:
+
 ```typescript
 if (isAndroid()) {
   // Convert to Intent URL format
-  const path = uri.substring('spotify:'.length).replace(/:/g, '/');
+  const path = uri.substring("spotify:".length).replace(/:/g, "/");
   intentUrl = `intent://${path}#Intent;scheme=spotify;package=com.spotify.music;end`;
-  
+
   // Direct navigation - causes full page reload
   window.location.href = intentUrl;
 }
 ```
 
 **AFTER (Fixed)**:
+
 ```typescript
 if (isAndroid()) {
   // Use iframe approach - doesn't navigate away from page
-  const iframe = document.createElement('iframe');
-  iframe.style.display = 'none';
-  iframe.src = uri;  // Use standard URI scheme: spotify:search:query
+  const iframe = document.createElement("iframe");
+  iframe.style.display = "none";
+  iframe.src = uri; // Use standard URI scheme: spotify:search:query
   document.body.appendChild(iframe);
-  
+
   // Monitor visibility to detect app opening
   // Fallback to web player if app doesn't open after timeout
 }
@@ -43,15 +45,17 @@ if (isAndroid()) {
 ### 2. Unified URI Scheme Format
 
 **BEFORE**: Different formats for Android vs other platforms
+
 ```typescript
 if (isAndroid()) {
-  spotifyUri = `spotify://search/${encodedQuery}`;  // Deep link format
+  spotifyUri = `spotify://search/${encodedQuery}`; // Deep link format
 } else {
-  spotifyUri = `spotify:search:${encodedQuery}`;    // Standard format
+  spotifyUri = `spotify:search:${encodedQuery}`; // Standard format
 }
 ```
 
 **AFTER**: Single standard format for all platforms
+
 ```typescript
 // Use standard format for all platforms
 const spotifyUri = `spotify:search:${encodedQuery}`;
@@ -62,11 +66,13 @@ const spotifyUri = `spotify:search:${encodedQuery}`;
 ### Flow for "play prabhas songs" on Android:
 
 1. **Voice Command Detected**
+
    ```
    User: "play prabhas songs"
    ```
 
 2. **Intent Router Processes**
+
    ```
    → Extracts query: "prabhas songs"
    → Searches Spotify API for tracks
@@ -74,6 +80,7 @@ const spotifyUri = `spotify:search:${encodedQuery}`;
    ```
 
 3. **URI Scheme Attempt (Android)**
+
    ```
    → Creates hidden iframe
    → Sets iframe.src = "spotify:search:prabhas%20songs"
@@ -82,6 +89,7 @@ const spotifyUri = `spotify:search:${encodedQuery}`;
    ```
 
 4. **Visibility Detection**
+
    ```
    → Monitors document.hidden
    → When app opens, page loses focus
@@ -94,6 +102,7 @@ const spotifyUri = `spotify:search:${encodedQuery}`;
 ### Fallback Flow (if app not installed):
 
 1. **URI Scheme Attempt Fails**
+
    ```
    → Iframe created with spotify:search:prabhas%20songs
    → No app to handle URI scheme
@@ -101,6 +110,7 @@ const spotifyUri = `spotify:search:${encodedQuery}`;
    ```
 
 2. **Timeout Triggers (2.5 seconds)**
+
    ```
    → document.hidden still false (page still visible)
    → Fallback callback triggered
@@ -118,15 +128,18 @@ const spotifyUri = `spotify:search:${encodedQuery}`;
 ### File: `AI-PA/src/lib/spotify/redirect.ts`
 
 #### Change 1: openUriScheme() - Android Branch
+
 - **Lines 91-143**: Changed from `window.location.href` to iframe approach
 - **Key improvement**: Prevents page navigation, enables proper fallback
 
 #### Change 2: searchInSpotifyApp()
+
 - **Lines 273-310**: Unified URI format for all platforms
 - **Before**: `spotify://search/{query}` on Android
 - **After**: `spotify:search:{query}` on all platforms
 
 #### Change 3: playInSpotifyApp()
+
 - **Lines 230-263**: Unified URI format for all platforms
 - **Before**: `spotify://track/{id}` on Android
 - **After**: `spotify:track:{id}` on all platforms
@@ -134,25 +147,29 @@ const spotifyUri = `spotify:search:${encodedQuery}`;
 ## Why This Works Better
 
 ### 1. **No Page Navigation**
-   - Iframe approach doesn't reload the page
-   - User stays in the app while URI scheme is attempted
-   - Better UX and error handling
+
+- Iframe approach doesn't reload the page
+- User stays in the app while URI scheme is attempted
+- Better UX and error handling
 
 ### 2. **Reliable Visibility Detection**
-   - When Spotify app opens, browser loses focus
-   - `document.hidden` becomes true
-   - Fallback timeout is cleared immediately
-   - No unnecessary web player redirect
+
+- When Spotify app opens, browser loses focus
+- `document.hidden` becomes true
+- Fallback timeout is cleared immediately
+- No unnecessary web player redirect
 
 ### 3. **Standard URI Format**
-   - `spotify:search:query` is the official Spotify URI scheme
-   - Works on Android, iOS, and Desktop
-   - More reliable than Intent URL conversion
+
+- `spotify:search:query` is the official Spotify URI scheme
+- Works on Android, iOS, and Desktop
+- More reliable than Intent URL conversion
 
 ### 4. **Proper Fallback Handling**
-   - If app not installed, timeout triggers
-   - Web player opens as fallback
-   - User gets feedback via console logs
+
+- If app not installed, timeout triggers
+- Web player opens as fallback
+- User gets feedback via console logs
 
 ## Testing Checklist
 
@@ -176,12 +193,14 @@ const spotifyUri = `spotify:search:${encodedQuery}`;
 ## Browser Compatibility
 
 ✅ **Works on**:
+
 - Chrome Android
 - Firefox Android
 - Samsung Internet
 - Edge Android
 
 ✅ **Fallback to web player** if:
+
 - Spotify app not installed
 - Browser doesn't support URI schemes
 - Device doesn't recognize spotify: protocol
@@ -196,20 +215,26 @@ const spotifyUri = `spotify:search:${encodedQuery}`;
 ## Troubleshooting
 
 ### Issue: Still opening web player on Android
-**Solution**: 
+
+**Solution**:
+
 1. Check if Spotify app is installed
 2. Check browser console for error logs
 3. Verify URI format: `spotify:search:query`
 4. Try clearing browser cache
 
 ### Issue: Slow to open app
+
 **Solution**:
+
 1. This is normal - takes 1-2 seconds for app to launch
 2. Timeout is set to 2.5 seconds to allow time
 3. If slower, increase timeout in openUriScheme call
 
 ### Issue: App opens but doesn't search
+
 **Solution**:
+
 1. Verify query is properly encoded
 2. Check Spotify app version is up to date
 3. Verify URI format is correct
@@ -221,4 +246,3 @@ const spotifyUri = `spotify:search:${encodedQuery}`;
 3. Add analytics for fallback frequency
 4. Support Spotify Connect device selection
 5. Add haptic feedback on mobile
-

@@ -1,4 +1,4 @@
-'use client';
+"use client";
 
 import { useState, useEffect } from "react";
 import { Button } from "@/components/ui/button";
@@ -14,57 +14,57 @@ import { VoiceAssistantWrapper } from "@/components/layout/VoiceAssistantWrapper
 // Helper function to get icon for device type
 const getDeviceIcon = (deviceType: string): string => {
   const iconMap: Record<string, string> = {
-    light: 'lightbulb',
-    thermostat: 'thermostat',
-    tv: 'tv',
-    speaker: 'speaker',
-    camera: 'videocam',
-    lock: 'lock',
-    plug: 'power',
-    other: 'devices',
+    light: "lightbulb",
+    thermostat: "thermostat",
+    tv: "tv",
+    speaker: "speaker",
+    camera: "videocam",
+    lock: "lock",
+    plug: "power",
+    other: "devices",
   };
-  return iconMap[deviceType.toLowerCase()] || 'devices';
+  return iconMap[deviceType.toLowerCase()] || "devices";
 };
 
 // Helper function to get color for device type
 const getDeviceColor = (deviceType: string): string => {
   const colorMap: Record<string, string> = {
-    light: 'text-yellow-500',
-    thermostat: 'text-blue-500',
-    tv: 'text-purple-500',
-    speaker: 'text-pink-500',
-    camera: 'text-green-500',
-    lock: 'text-red-500',
-    plug: 'text-orange-500',
-    other: 'text-gray-500',
+    light: "text-yellow-500",
+    thermostat: "text-blue-500",
+    tv: "text-purple-500",
+    speaker: "text-pink-500",
+    camera: "text-green-500",
+    lock: "text-red-500",
+    plug: "text-orange-500",
+    other: "text-gray-500",
   };
-  return colorMap[deviceType.toLowerCase()] || 'text-gray-500';
+  return colorMap[deviceType.toLowerCase()] || "text-gray-500";
 };
 
 // Helper function to get color for routine
 const getRoutineColorClass = (color: string): string => {
   const colorMap: Record<string, string> = {
-    orange: 'bg-orange-100 dark:bg-orange-900/50',
-    indigo: 'bg-indigo-100 dark:bg-indigo-900/50',
-    red: 'bg-red-100 dark:bg-red-900/50',
-    blue: 'bg-blue-100 dark:bg-blue-900/50',
-    green: 'bg-green-100 dark:bg-green-900/50',
-    purple: 'bg-purple-100 dark:bg-purple-900/50',
+    orange: "bg-orange-100 dark:bg-orange-900/50",
+    indigo: "bg-indigo-100 dark:bg-indigo-900/50",
+    red: "bg-red-100 dark:bg-red-900/50",
+    blue: "bg-blue-100 dark:bg-blue-900/50",
+    green: "bg-green-100 dark:bg-green-900/50",
+    purple: "bg-purple-100 dark:bg-purple-900/50",
   };
-  return colorMap[color.toLowerCase()] || 'bg-blue-100 dark:bg-blue-900/50';
+  return colorMap[color.toLowerCase()] || "bg-blue-100 dark:bg-blue-900/50";
 };
 
 // Helper function to get text color for routine
 const getRoutineTextColor = (color: string): string => {
   const colorMap: Record<string, string> = {
-    orange: 'text-orange-500 dark:text-orange-400',
-    indigo: 'text-indigo-500 dark:text-indigo-400',
-    red: 'text-red-500 dark:text-red-400',
-    blue: 'text-blue-500 dark:text-blue-400',
-    green: 'text-green-500 dark:text-green-400',
-    purple: 'text-purple-500 dark:text-purple-400',
+    orange: "text-orange-500 dark:text-orange-400",
+    indigo: "text-indigo-500 dark:text-indigo-400",
+    red: "text-red-500 dark:text-red-400",
+    blue: "text-blue-500 dark:text-blue-400",
+    green: "text-green-500 dark:text-green-400",
+    purple: "text-purple-500 dark:text-purple-400",
   };
-  return colorMap[color.toLowerCase()] || 'text-blue-500 dark:text-blue-400';
+  return colorMap[color.toLowerCase()] || "text-blue-500 dark:text-blue-400";
 };
 
 export default function AtHomePage() {
@@ -76,7 +76,7 @@ export default function AtHomePage() {
   const [isLoading, setIsLoading] = useState(true);
 
   useEffect(() => {
-    const storedUserId = localStorage.getItem('userId');
+    const storedUserId = localStorage.getItem("userId");
     setUserId(storedUserId);
     if (storedUserId) {
       loadData(storedUserId);
@@ -94,7 +94,7 @@ export default function AtHomePage() {
       setDevices(userDevices || []);
       setRoutines(userRoutines || []);
     } catch (error) {
-      console.error('Error loading data - Details:', error);
+      console.error("Error loading data - Details:", error);
       // Set empty arrays to prevent page crash
       setDevices([]);
       setRoutines([]);
@@ -115,7 +115,12 @@ export default function AtHomePage() {
     <div className="flex flex-col min-h-screen">
       <header className="sticky top-0 z-10 bg-card-light/70 dark:bg-card-dark/70 backdrop-blur-sm">
         <div className="flex items-center justify-between p-4 border-b border-border-light/50 dark:border-border-dark/50">
-          <Button asChild variant="ghost" size="icon" className="w-12 h-12 flex items-center justify-center rounded-full hover:bg-primary/10">
+          <Button
+            asChild
+            variant="ghost"
+            size="icon"
+            className="w-12 h-12 flex items-center justify-center rounded-full hover:bg-primary/10"
+          >
             <Link href="/dashboard">
               <span className="material-symbols-outlined text-subtle-light dark:text-subtle-dark">
                 arrow_back_ios_new
@@ -123,7 +128,11 @@ export default function AtHomePage() {
             </Link>
           </Button>
           <h1 className="text-lg font-bold">At Home</h1>
-          <Button variant="ghost" size="icon" className="w-12 h-12 flex items-center justify-center rounded-full hover:bg-primary/10">
+          <Button
+            variant="ghost"
+            size="icon"
+            className="w-12 h-12 flex items-center justify-center rounded-full hover:bg-primary/10"
+          >
             <span className="material-symbols-outlined text-subtle-light dark:text-subtle-dark">
               more_horiz
             </span>
@@ -141,12 +150,18 @@ export default function AtHomePage() {
                 className="bg-card-light dark:bg-card-dark p-4 rounded-xl shadow-sm frosted-glass border border-white/30 dark:border-white/10 hover:border-primary/50 transition-colors cursor-pointer"
               >
                 <div className="flex justify-between items-start mb-2">
-                  <span className={`material-symbols-outlined ${getDeviceColor(device.device_type)} text-3xl`}>
+                  <span
+                    className={`material-symbols-outlined ${getDeviceColor(device.device_type)} text-3xl`}
+                  >
                     {getDeviceIcon(device.device_type)}
                   </span>
-                  <div className={`w-6 h-6 rounded-full flex items-center justify-center ${
-                    device.status === 'online' ? 'bg-green-500' : 'bg-gray-400'
-                  }`}>
+                  <div
+                    className={`w-6 h-6 rounded-full flex items-center justify-center ${
+                      device.status === "online"
+                        ? "bg-green-500"
+                        : "bg-gray-400"
+                    }`}
+                  >
                     <span className="material-symbols-outlined text-white text-sm">
                       power_settings_new
                     </span>
@@ -154,8 +169,8 @@ export default function AtHomePage() {
                 </div>
                 <h3 className="font-semibold text-sm">{device.device_name}</h3>
                 <p className="text-xs text-subtle-light dark:text-subtle-dark">
-                  {device.location ? `${device.location} • ` : ''}
-                  {device.status === 'online' ? 'Online' : 'Offline'}
+                  {device.location ? `${device.location} • ` : ""}
+                  {device.status === "online" ? "Online" : "Offline"}
                 </p>
               </div>
             ))}
@@ -177,7 +192,10 @@ export default function AtHomePage() {
         <div className="px-6 mt-6">
           <div className="flex justify-between items-center mb-4">
             <h2 className="text-2xl font-bold">Routines</h2>
-            <Button variant="ghost" className="text-primary font-semibold text-sm flex items-center gap-1 p-0 h-auto">
+            <Button
+              variant="ghost"
+              className="text-primary font-semibold text-sm flex items-center gap-1 p-0 h-auto"
+            >
               <span className="material-symbols-outlined text-base">edit</span>
               Manage
             </Button>
@@ -190,19 +208,28 @@ export default function AtHomePage() {
                 className="bg-card-light dark:bg-card-dark p-4 rounded-xl shadow-sm flex items-center justify-between frosted-glass border border-white/30 dark:border-white/10 hover:border-primary/50 transition-colors"
               >
                 <div className="flex items-center gap-4">
-                  <div className={`w-12 h-12 flex-shrink-0 ${getRoutineColorClass(routine.color)} rounded-full flex items-center justify-center`}>
-                    <span className={`material-symbols-outlined ${getRoutineTextColor(routine.color)} text-3xl`}>
+                  <div
+                    className={`w-12 h-12 flex-shrink-0 ${getRoutineColorClass(routine.color)} rounded-full flex items-center justify-center`}
+                  >
+                    <span
+                      className={`material-symbols-outlined ${getRoutineTextColor(routine.color)} text-3xl`}
+                    >
                       {routine.icon}
                     </span>
                   </div>
                   <div>
-                    <h3 className="font-bold text-base">{routine.routine_name}</h3>
+                    <h3 className="font-bold text-base">
+                      {routine.routine_name}
+                    </h3>
                     <p className="text-xs text-subtle-light dark:text-subtle-dark">
-                      {routine.description || 'No description'}
+                      {routine.description || "No description"}
                     </p>
                   </div>
                 </div>
-                <Button size="icon" className="w-12 h-12 rounded-full bg-primary/10 text-primary hover:bg-primary/20">
+                <Button
+                  size="icon"
+                  className="w-12 h-12 rounded-full bg-primary/10 text-primary hover:bg-primary/20"
+                >
                   <span className="material-symbols-outlined text-3xl">
                     play_arrow
                   </span>

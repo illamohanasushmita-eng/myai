@@ -1,4 +1,4 @@
-'use client';
+"use client";
 
 import { useState, useEffect } from "react";
 import { Button } from "@/components/ui/button";
@@ -21,9 +21,9 @@ export default function ProfessionalPage() {
   // Fetch professional notes and tasks
   const loadData = async () => {
     try {
-      const userId = localStorage.getItem('userId');
+      const userId = localStorage.getItem("userId");
       if (!userId) {
-        console.log('User not authenticated');
+        console.log("User not authenticated");
         setIsLoading(false);
         return;
       }
@@ -33,10 +33,10 @@ export default function ProfessionalPage() {
       setNotes(fetchedNotes);
 
       // Fetch professional tasks
-      const fetchedTasks = await getTasksByCategory(userId, 'professional');
+      const fetchedTasks = await getTasksByCategory(userId, "professional");
       setProfessionalTasks(fetchedTasks);
     } catch (error) {
-      console.error('Error loading professional data:', error);
+      console.error("Error loading professional data:", error);
       setNotes([]);
       setProfessionalTasks([]);
     } finally {
@@ -57,28 +57,45 @@ export default function ProfessionalPage() {
   // Helper function to get priority color based on category
   const getPriorityColor = (category?: string) => {
     switch (category?.toLowerCase()) {
-      case 'meeting':
-        return { bg: 'bg-blue-500/10', text: 'text-blue-500', label: 'Meeting' };
-      case 'project':
-        return { bg: 'bg-purple-500/10', text: 'text-purple-500', label: 'Project' };
-      case 'task':
-        return { bg: 'bg-amber-500/10', text: 'text-amber-500', label: 'Task' };
-      case 'note':
-        return { bg: 'bg-green-500/10', text: 'text-green-500', label: 'Note' };
+      case "meeting":
+        return {
+          bg: "bg-blue-500/10",
+          text: "text-blue-500",
+          label: "Meeting",
+        };
+      case "project":
+        return {
+          bg: "bg-purple-500/10",
+          text: "text-purple-500",
+          label: "Project",
+        };
+      case "task":
+        return { bg: "bg-amber-500/10", text: "text-amber-500", label: "Task" };
+      case "note":
+        return { bg: "bg-green-500/10", text: "text-green-500", label: "Note" };
       default:
-        return { bg: 'bg-gray-500/10', text: 'text-gray-500', label: 'Other' };
+        return { bg: "bg-gray-500/10", text: "text-gray-500", label: "Other" };
     }
   };
 
   // Filter notes into meetings and tasks
-  const meetings = notes.filter(note => note.category?.toLowerCase() === 'meeting');
-  const tasks = notes.filter(note => note.category?.toLowerCase() !== 'meeting');
+  const meetings = notes.filter(
+    (note) => note.category?.toLowerCase() === "meeting",
+  );
+  const tasks = notes.filter(
+    (note) => note.category?.toLowerCase() !== "meeting",
+  );
 
   return (
     <div className="flex flex-col min-h-screen">
       <header className="sticky top-0 z-10 bg-background/70 backdrop-blur-sm">
         <div className="flex items-center justify-between p-4 border-b border-border-light/50 dark:border-border-dark/50">
-          <Button asChild variant="ghost" size="icon" className="w-12 h-12 flex items-center justify-center rounded-full hover:bg-primary/10">
+          <Button
+            asChild
+            variant="ghost"
+            size="icon"
+            className="w-12 h-12 flex items-center justify-center rounded-full hover:bg-primary/10"
+          >
             <Link href="/dashboard">
               <span className="material-symbols-outlined text-subtle-light dark:text-subtle-dark">
                 arrow_back_ios_new
@@ -157,23 +174,29 @@ export default function ProfessionalPage() {
                 <div className="space-y-4">
                   {meetings.map((meeting, index) => (
                     <div key={meeting.note_id}>
-                      {index > 0 && <div className="border-t border-border-light/50 dark:border-border-dark/50"></div>}
+                      {index > 0 && (
+                        <div className="border-t border-border-light/50 dark:border-border-dark/50"></div>
+                      )}
                       <div className="flex items-center gap-4 py-2">
                         <div className="flex-shrink-0 w-12 h-12 flex flex-col items-center justify-center bg-primary/10 rounded-lg">
-                          <span className="text-primary font-bold text-sm">--:--</span>
+                          <span className="text-primary font-bold text-sm">
+                            --:--
+                          </span>
                           <span className="text-primary text-xs">--</span>
                         </div>
                         <div className="flex-1">
-                          <h3 className="font-semibold">
-                            {meeting.title}
-                          </h3>
+                          <h3 className="font-semibold">{meeting.title}</h3>
                           {meeting.content && (
                             <p className="text-sm text-subtle-light dark:text-subtle-dark">
                               {meeting.content}
                             </p>
                           )}
                         </div>
-                        <Button variant="ghost" size="icon" className="ml-auto w-10 h-10 flex items-center justify-center rounded-full hover:bg-primary/10">
+                        <Button
+                          variant="ghost"
+                          size="icon"
+                          className="ml-auto w-10 h-10 flex items-center justify-center rounded-full hover:bg-primary/10"
+                        >
                           <span className="material-symbols-outlined text-subtle-light dark:text-subtle-dark">
                             videocam
                           </span>
@@ -194,7 +217,7 @@ export default function ProfessionalPage() {
                 <div className="p-4 text-center text-subtle-light dark:text-subtle-dark">
                   Loading tasks...
                 </div>
-              ) : (professionalTasks.length === 0 && tasks.length === 0) ? (
+              ) : professionalTasks.length === 0 && tasks.length === 0 ? (
                 <div className="p-4 text-center text-subtle-light dark:text-subtle-dark">
                   No tasks yet. Create your first one!
                 </div>
@@ -203,30 +226,39 @@ export default function ProfessionalPage() {
                   {/* Display professional tasks from tasks table */}
                   {professionalTasks.map((task, index) => (
                     <div key={task.task_id}>
-                      {index > 0 && <div className="border-t border-border-light/50 dark:border-border-dark/50"></div>}
+                      {index > 0 && (
+                        <div className="border-t border-border-light/50 dark:border-border-dark/50"></div>
+                      )}
                       <div className="p-4">
                         <div className="flex items-center">
                           <div className="flex items-center gap-3 flex-1">
                             <Checkbox
                               id={task.task_id}
-                              checked={task.status === 'completed'}
+                              checked={task.status === "completed"}
                               className="h-5 w-5 rounded-md border-gray-300 text-primary focus:ring-primary/50"
                             />
                             <label
                               htmlFor={task.task_id}
                               className={`text-foreground-light dark:text-foreground-dark flex-1 ${
-                                task.status === 'completed' ? 'line-through text-subtle-light dark:text-subtle-dark' : ''
+                                task.status === "completed"
+                                  ? "line-through text-subtle-light dark:text-subtle-dark"
+                                  : ""
                               }`}
                             >
                               {task.title}
                             </label>
                           </div>
-                          <span className={`ml-auto text-xs font-medium px-2 py-1 rounded-full whitespace-nowrap ${
-                            task.priority === 'high' ? 'bg-red-500/10 text-red-500' :
-                            task.priority === 'medium' ? 'bg-amber-500/10 text-amber-500' :
-                            'bg-green-500/10 text-green-500'
-                          }`}>
-                            {task.priority?.charAt(0).toUpperCase() + task.priority?.slice(1)}
+                          <span
+                            className={`ml-auto text-xs font-medium px-2 py-1 rounded-full whitespace-nowrap ${
+                              task.priority === "high"
+                                ? "bg-red-500/10 text-red-500"
+                                : task.priority === "medium"
+                                  ? "bg-amber-500/10 text-amber-500"
+                                  : "bg-green-500/10 text-green-500"
+                            }`}
+                          >
+                            {task.priority?.charAt(0).toUpperCase() +
+                              task.priority?.slice(1)}
                           </span>
                         </div>
                         {task.description && (
@@ -243,7 +275,9 @@ export default function ProfessionalPage() {
                     const colors = getPriorityColor(task.category);
                     return (
                       <div key={task.note_id}>
-                        {(professionalTasks.length > 0 || index > 0) && <div className="border-t border-border-light/50 dark:border-border-dark/50"></div>}
+                        {(professionalTasks.length > 0 || index > 0) && (
+                          <div className="border-t border-border-light/50 dark:border-border-dark/50"></div>
+                        )}
                         <div className="p-4">
                           <div className="flex items-center">
                             <div className="flex items-center gap-3 flex-1">
@@ -258,7 +292,9 @@ export default function ProfessionalPage() {
                                 {task.title}
                               </label>
                             </div>
-                            <span className={`ml-auto text-xs font-medium ${colors.text} ${colors.bg} px-2 py-1 rounded-full whitespace-nowrap`}>
+                            <span
+                              className={`ml-auto text-xs font-medium ${colors.text} ${colors.bg} px-2 py-1 rounded-full whitespace-nowrap`}
+                            >
                               {colors.label}
                             </span>
                           </div>
@@ -280,9 +316,7 @@ export default function ProfessionalPage() {
                   variant="ghost"
                   className="w-full flex items-center justify-center gap-2 py-2 text-primary font-semibold hover:bg-primary/10 rounded-lg transition-colors"
                 >
-                  <span className="material-symbols-outlined text-xl">
-                    add
-                  </span>
+                  <span className="material-symbols-outlined text-xl">add</span>
                   <span>Add New Task</span>
                 </Button>
               </div>
@@ -360,7 +394,11 @@ export default function ProfessionalPage() {
         </div>
       </main>
       <div className="fixed bottom-20 right-6 z-20">
-        <Button asChild size="icon" className="flex items-center justify-center w-16 h-16 bg-primary text-white rounded-full shadow-lg transform hover:scale-110 transition-transform duration-300">
+        <Button
+          asChild
+          size="icon"
+          className="flex items-center justify-center w-16 h-16 bg-primary text-white rounded-full shadow-lg transform hover:scale-110 transition-transform duration-300"
+        >
           <Link href="/tasks/add">
             <span className="material-symbols-outlined text-4xl">add</span>
           </Link>

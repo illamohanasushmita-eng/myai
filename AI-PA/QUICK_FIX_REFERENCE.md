@@ -9,6 +9,7 @@ The regex pattern in `src/lib/lara/cohere-intent.ts` was missing day names, caus
 **File**: `src/lib/lara/cohere-intent.ts` (Line 220)
 
 **Added to regex pattern**:
+
 ```
 monday|tuesday|wednesday|thursday|friday|saturday|sunday
 ```
@@ -16,6 +17,7 @@ monday|tuesday|wednesday|thursday|friday|saturday|sunday
 ## Before vs After
 
 ### ❌ Before
+
 ```
 Command: "Remind me to attend the meeting Tuesday"
 Result: Reminder created for TODAY ❌
@@ -23,6 +25,7 @@ Appears in: "Overdue" section ❌
 ```
 
 ### ✅ After
+
 ```
 Command: "Remind me to attend the meeting Tuesday"
 Result: Reminder created for NEXT TUESDAY ✅
@@ -32,16 +35,19 @@ Appears in: "Upcoming" section ✅
 ## How to Test
 
 1. **Restart dev server**:
+
    ```bash
    npm run dev
    ```
 
 2. **Go to test page**:
+
    ```
    http://localhost:3002/test-lara
    ```
 
 3. **Say command**:
+
    ```
    "Hey Lara"
    "Remind me to attend the meeting Tuesday"
@@ -56,6 +62,7 @@ Appears in: "Upcoming" section ✅
 ## What Now Works
 
 ✅ All day names:
+
 - "Remind me Monday"
 - "Remind me Tuesday"
 - "Remind me Wednesday"
@@ -65,10 +72,12 @@ Appears in: "Upcoming" section ✅
 - "Remind me Sunday"
 
 ✅ With times:
+
 - "Remind me Tuesday at 3 PM"
 - "Remind me Friday at 5:30 PM"
 
 ✅ Backward compatible:
+
 - "Remind me tomorrow"
 - "Remind me today at 5 PM"
 - "Remind me tonight"
@@ -76,6 +85,7 @@ Appears in: "Upcoming" section ✅
 ## Console Logs to Verify
 
 **Expected logs**:
+
 ```
 📌 Description: attend the meeting Length: 18
 📌 Time: tuesday Length: 7
@@ -98,4 +108,3 @@ Appears in: "Upcoming" section ✅
 ## 🎉 Done!
 
 Day name reminders are now fully functional!
-

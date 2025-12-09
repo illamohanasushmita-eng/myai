@@ -22,16 +22,17 @@ Successfully implemented Asia/Kolkata timezone (IST, UTC+5:30) for all voice rem
 ### Key Features Implemented
 
 #### 1. IST Timezone Constants
+
 ```typescript
 const IST_OFFSET_MS = 5.5 * 60 * 60 * 1000; // 19800000 ms (UTC+5:30)
 
 const DEFAULT_TIMES = {
-  tomorrow: { hour: 9, minute: 0 },      // 9:00 AM IST
-  today: { hour: 9, minute: 0 },         // 9:00 AM IST
-  tonight: { hour: 20, minute: 0 },      // 8:00 PM IST
-  evening: { hour: 19, minute: 0 },      // 7:00 PM IST
-  afternoon: { hour: 15, minute: 0 },    // 3:00 PM IST
-  dayName: { hour: 9, minute: 0 },       // 9:00 AM IST
+  tomorrow: { hour: 9, minute: 0 }, // 9:00 AM IST
+  today: { hour: 9, minute: 0 }, // 9:00 AM IST
+  tonight: { hour: 20, minute: 0 }, // 8:00 PM IST
+  evening: { hour: 19, minute: 0 }, // 7:00 PM IST
+  afternoon: { hour: 15, minute: 0 }, // 3:00 PM IST
+  dayName: { hour: 9, minute: 0 }, // 9:00 AM IST
 };
 ```
 
@@ -52,30 +53,33 @@ const DEFAULT_TIMES = {
 #### 4. Output Format
 
 **Before (UTC):**
+
 ```
 2025-11-12T04:00:00.000Z  ❌ Wrong timezone
 ```
 
 **After (IST):**
+
 ```
 2025-11-12T09:00:00+05:30  ✅ Correct timezone
 ```
 
 ## Default Time Mappings
 
-| Expression | Default Time (IST) | Use Case |
-|------------|-------------------|----------|
-| "tomorrow" | 09:00 AM | Next calendar day |
-| "today" | 09:00 AM | Same calendar day |
-| "tonight" | 08:00 PM | Same calendar day evening |
-| "evening" | 07:00 PM | Same calendar day evening |
-| "afternoon" | 03:00 PM | Same calendar day afternoon |
-| Day names (e.g., "Monday") | 09:00 AM | Next occurrence of that day |
-| No time specified | 09:00 AM | Default morning time |
+| Expression                 | Default Time (IST) | Use Case                    |
+| -------------------------- | ------------------ | --------------------------- |
+| "tomorrow"                 | 09:00 AM           | Next calendar day           |
+| "today"                    | 09:00 AM           | Same calendar day           |
+| "tonight"                  | 08:00 PM           | Same calendar day evening   |
+| "evening"                  | 07:00 PM           | Same calendar day evening   |
+| "afternoon"                | 03:00 PM           | Same calendar day afternoon |
+| Day names (e.g., "Monday") | 09:00 AM           | Next occurrence of that day |
+| No time specified          | 09:00 AM           | Default morning time        |
 
 ## Example Flows
 
 ### Example 1: "add reminder to write notebook tomorrow"
+
 ```
 Input: convertToISOTimestamp('write notebook tomorrow')
 Output: 2025-11-12T09:00:00+05:30  ✅
@@ -85,6 +89,7 @@ Output: 2025-11-12T09:00:00+05:30  ✅
 ```
 
 ### Example 2: "add reminder to call mom tonight"
+
 ```
 Input: convertToISOTimestamp('call mom tonight')
 Output: 2025-11-11T20:00:00+05:30  ✅
@@ -94,6 +99,7 @@ Output: 2025-11-11T20:00:00+05:30  ✅
 ```
 
 ### Example 3: "add reminder to attend meeting Monday at 3 PM"
+
 ```
 Input: convertToISOTimestamp('attend meeting Monday at 3 PM')
 Output: 2025-11-18T15:00:00+05:30  ✅
@@ -103,6 +109,7 @@ Output: 2025-11-18T15:00:00+05:30  ✅
 ```
 
 ### Example 4: "add reminder to buy milk tomorrow at 5 PM"
+
 ```
 Input: convertToISOTimestamp('buy milk tomorrow at 5 PM')
 Output: 2025-11-12T17:00:00+05:30  ✅
@@ -121,6 +128,7 @@ If a calculated datetime falls in the past (when compared to current IST time), 
 - **"today" at 9 AM has passed** → Adjusted to tomorrow at 9:00 AM IST
 
 Example:
+
 ```
 Current time: 2025-11-11 21:00:00 IST (9 PM)
 User says: "remind me tonight"
@@ -188,10 +196,10 @@ Enhanced logging shows IST timezone operations:
 ## Summary
 
 The IST timezone implementation is complete and ready for production use. All voice reminders will now be created with:
+
 - ✅ Correct IST timezone calculations
 - ✅ Proper default times for relative date expressions
 - ✅ ISO 8601 format with explicit +05:30 offset
 - ✅ Automatic adjustment for past times
 - ✅ Comprehensive test coverage
 - ✅ Enhanced logging for debugging
-

@@ -202,7 +202,7 @@ Back to listening for "Hey Lara"
 
 ```typescript
 if (!isMountedRef.current) {
-  console.log('🎤 Component unmounted, not restarting');
+  console.log("🎤 Component unmounted, not restarting");
   return;
 }
 ```
@@ -213,12 +213,12 @@ if (!isMountedRef.current) {
 ### Check 2: Should Restart?
 
 ```typescript
-const shouldRestart = enabledRef.current && 
-                     !wakeWordDetectedRef.current && 
-                     !isStoppingRef.current;
+const shouldRestart =
+  enabledRef.current && !wakeWordDetectedRef.current && !isStoppingRef.current;
 ```
 
 **Conditions**:
+
 - `enabledRef.current`: Wake word feature is enabled
 - `!wakeWordDetectedRef.current`: Wake word was NOT detected
 - `!isStoppingRef.current`: We're not intentionally stopping
@@ -240,53 +240,61 @@ useEffect(() => {
 
 ## 📋 Key Differences (Before vs After)
 
-| Aspect | Before (Broken) | After (Fixed) |
-|--------|-----------------|---------------|
-| **State Sync** | Used state in event handlers | Uses refs for sync access |
-| **Enabled Check** | Checked stale state | Checks current ref |
-| **Unmount Check** | No check | Checks isMountedRef |
-| **Restart Logic** | Always restarted | Conditional restart |
-| **Wake Word Mode** | Kept restarting | Stops on detection |
-| **Command Mode** | Didn't activate | Activates properly |
-| **Infinite Loop** | ❌ YES | ✅ NO |
+| Aspect             | Before (Broken)              | After (Fixed)             |
+| ------------------ | ---------------------------- | ------------------------- |
+| **State Sync**     | Used state in event handlers | Uses refs for sync access |
+| **Enabled Check**  | Checked stale state          | Checks current ref        |
+| **Unmount Check**  | No check                     | Checks isMountedRef       |
+| **Restart Logic**  | Always restarted             | Conditional restart       |
+| **Wake Word Mode** | Kept restarting              | Stops on detection        |
+| **Command Mode**   | Didn't activate              | Activates properly        |
+| **Infinite Loop**  | ❌ YES                       | ✅ NO                     |
 
 ---
 
 ## 🎯 Critical Fixes
 
 ### Fix 1: Ref Synchronization
+
 ```typescript
 // BEFORE: Used state (stale)
-if (enabled && !wakeWordDetectedRef.current) { }
+if (enabled && !wakeWordDetectedRef.current) {
+}
 
 // AFTER: Uses ref (current)
-if (enabledRef.current && !wakeWordDetectedRef.current) { }
+if (enabledRef.current && !wakeWordDetectedRef.current) {
+}
 ```
 
 ### Fix 2: Unmount Detection
+
 ```typescript
 // BEFORE: No check
-recognition.onend = () => { /* restart */ }
+recognition.onend = () => {
+  /* restart */
+};
 
 // AFTER: Checks if mounted
 if (!isMountedRef.current) return;
 ```
 
 ### Fix 3: Proper Mode Switching
+
 ```typescript
 // BEFORE: Didn't stop wake word listener
 onWakeWordDetected: () => {
   activateFromWakeWord();
-}
+};
 
 // AFTER: Stops wake word before command
 onWakeWordDetected: () => {
   stopWakeWordListener();
   activateFromWakeWord();
-}
+};
 ```
 
 ### Fix 4: Wake Word Re-enable
+
 ```typescript
 // BEFORE: Didn't re-enable wake word
 handleCommandResponse() { /* execute */ }
@@ -311,5 +319,3 @@ handleCommandResponse() {
 - ✅ No infinite loops
 - ✅ Proper cleanup on unmount
 - ✅ Smooth user experience
-
-

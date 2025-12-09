@@ -30,17 +30,17 @@ export interface SpotifyPlayResult {
 export async function searchSpotify(
   query: string,
   userId?: string,
-  limit: number = 5
+  limit: number = 5,
 ): Promise<SpotifySearchResult> {
   try {
     const params = new URLSearchParams({
       q: query,
-      type: 'track',
+      type: "track",
       limit: limit.toString(),
     });
 
     if (userId) {
-      params.append('userId', userId);
+      params.append("userId", userId);
     }
 
     const response = await fetch(`/api/spotify/search?${params}`);
@@ -55,7 +55,7 @@ export async function searchSpotify(
       return {
         success: false,
         tracks: [],
-        error: data.error || 'Search failed',
+        error: data.error || "Search failed",
       };
     }
 
@@ -64,8 +64,9 @@ export async function searchSpotify(
       tracks: data.tracks || [],
     };
   } catch (error) {
-    const errorMessage = error instanceof Error ? error.message : 'Unknown error';
-    console.error('Spotify search error:', error);
+    const errorMessage =
+      error instanceof Error ? error.message : "Unknown error";
+    console.error("Spotify search error:", error);
 
     return {
       success: false,
@@ -82,13 +83,13 @@ export async function searchSpotify(
 export async function playSpotifyTrack(
   trackId: string,
   userId: string,
-  deviceId?: string
+  deviceId?: string,
 ): Promise<SpotifyPlayResult> {
   try {
-    const response = await fetch('/api/spotify/play', {
-      method: 'POST',
+    const response = await fetch("/api/spotify/play", {
+      method: "POST",
       headers: {
-        'Content-Type': 'application/json',
+        "Content-Type": "application/json",
       },
       body: JSON.stringify({
         trackId,
@@ -105,16 +106,17 @@ export async function playSpotifyTrack(
 
     return {
       success: data.success,
-      message: data.message || 'Playing track',
+      message: data.message || "Playing track",
       error: data.error,
     };
   } catch (error) {
-    const errorMessage = error instanceof Error ? error.message : 'Unknown error';
-    console.error('Spotify playback error:', error);
+    const errorMessage =
+      error instanceof Error ? error.message : "Unknown error";
+    console.error("Spotify playback error:", error);
 
     return {
       success: false,
-      message: 'Failed to play track',
+      message: "Failed to play track",
       error: errorMessage,
     };
   }
@@ -127,7 +129,7 @@ export async function playSpotifyTrack(
 export async function automateSpotifyPlayback(
   musicQuery: string,
   userId: string,
-  deviceId?: string
+  deviceId?: string,
 ): Promise<SpotifyPlayResult> {
   try {
     // Step 1: Search for tracks
@@ -149,12 +151,13 @@ export async function automateSpotifyPlayback(
 
     return playResult;
   } catch (error) {
-    const errorMessage = error instanceof Error ? error.message : 'Unknown error';
-    console.error('Spotify automation error:', error);
+    const errorMessage =
+      error instanceof Error ? error.message : "Unknown error";
+    console.error("Spotify automation error:", error);
 
     return {
       success: false,
-      message: 'Failed to play music',
+      message: "Failed to play music",
       error: errorMessage,
     };
   }
@@ -167,13 +170,13 @@ export async function automateSpotifyPlayback(
 export async function automateSpotifyPlaylist(
   playlistQuery: string,
   userId: string,
-  deviceId?: string
+  deviceId?: string,
 ): Promise<SpotifyPlayResult> {
   try {
-    const response = await fetch('/api/spotify/play', {
-      method: 'POST',
+    const response = await fetch("/api/spotify/play", {
+      method: "POST",
       headers: {
-        'Content-Type': 'application/json',
+        "Content-Type": "application/json",
       },
       body: JSON.stringify({
         playlistQuery,
@@ -190,18 +193,18 @@ export async function automateSpotifyPlaylist(
 
     return {
       success: data.success,
-      message: data.message || 'Playing playlist',
+      message: data.message || "Playing playlist",
       error: data.error,
     };
   } catch (error) {
-    const errorMessage = error instanceof Error ? error.message : 'Unknown error';
-    console.error('Spotify playlist automation error:', error);
+    const errorMessage =
+      error instanceof Error ? error.message : "Unknown error";
+    console.error("Spotify playlist automation error:", error);
 
     return {
       success: false,
-      message: 'Failed to play playlist',
+      message: "Failed to play playlist",
       error: errorMessage,
     };
   }
 }
-

@@ -2,7 +2,7 @@
 
 **Status**: ✅ Ready to Test  
 **Framework**: Next.js 15.5.6  
-**Browser**: Chrome, Firefox, Safari, Edge  
+**Browser**: Chrome, Firefox, Safari, Edge
 
 ---
 
@@ -15,6 +15,7 @@ npm run dev
 ```
 
 Expected output:
+
 ```
 > next dev
   ▲ Next.js 15.5.6
@@ -37,6 +38,7 @@ Expected output:
 3. Wait for response
 
 **Expected Console Output**:
+
 ```
 🎤 Starting wake word listener
 🎤 Wake word recognition ended
@@ -50,6 +52,7 @@ Expected output:
 ```
 
 **Expected UI Behavior**:
+
 - ✅ Microphone button shows listening state
 - ✅ Blue indicator pulses (wake word mode)
 - ✅ Feedback shows "Wake word detected! Listening for command..."
@@ -64,11 +67,13 @@ Expected output:
 **Objective**: Verify no infinite restart loops
 
 **Steps**:
+
 1. Start listening
 2. Wait 10 seconds without speaking
 3. Check console
 
 **Expected**:
+
 ```
 🎤 Starting wake word listener
 🎤 Wake word recognition ended
@@ -80,6 +85,7 @@ Expected output:
 ```
 
 **NOT Expected** (infinite loop):
+
 ```
 🎤 Wake word recognition ended
 🎤 Restarting wake word listener...
@@ -98,11 +104,13 @@ Expected output:
 **Objective**: Verify wake word is detected correctly
 
 **Steps**:
+
 1. Start listening
 2. Say: "Hey Lara"
 3. Check console and UI
 
 **Expected Console**:
+
 ```
 🎤 Final transcript: hey lara
 ✅ Wake word detected: hey lara
@@ -112,6 +120,7 @@ Expected output:
 ```
 
 **Expected UI**:
+
 - ✅ Feedback: "Wake word detected! Listening for command..."
 - ✅ Indicator changes to red (command mode)
 - ✅ Shows "Listening..." with bouncing dots
@@ -125,12 +134,14 @@ Expected output:
 **Objective**: Verify command is recognized after wake word
 
 **Steps**:
+
 1. Say: "Hey Lara"
 2. Wait for feedback
 3. Say: "show my tasks"
 4. Check console and UI
 
 **Expected Console**:
+
 ```
 🎤 Final transcript: show my tasks
 🎤 Command response received: {...}
@@ -141,6 +152,7 @@ Expected output:
 ```
 
 **Expected UI**:
+
 - ✅ Shows "You said: show my tasks"
 - ✅ Shows "Processing your command..."
 - ✅ Shows success feedback
@@ -155,11 +167,13 @@ Expected output:
 **Objective**: Verify system returns to wake word listening after command
 
 **Steps**:
+
 1. Execute a command (Test 3)
 2. Wait for navigation
 3. Check console
 
 **Expected Console**:
+
 ```
 🎤 Restarting wake word listener after command execution
 🎤 Starting wake word listener
@@ -169,6 +183,7 @@ Expected output:
 ```
 
 **Expected UI**:
+
 - ✅ Microphone button returns to normal state
 - ✅ Blue indicator shows (wake word mode)
 - ✅ Feedback shows "Listening for 'Hey Lara'..."
@@ -182,6 +197,7 @@ Expected output:
 **Objective**: Verify continuous operation
 
 **Steps**:
+
 1. Say: "Hey Lara"
 2. Say: "show my reminders"
 3. Wait for execution
@@ -190,6 +206,7 @@ Expected output:
 6. Wait for execution
 
 **Expected**:
+
 - ✅ First command executes
 - ✅ System returns to wake word mode
 - ✅ Second command executes
@@ -204,16 +221,19 @@ Expected output:
 **Objective**: Verify error handling works
 
 **Steps**:
+
 1. Deny microphone permission
 2. Try to start listening
 3. Check console and UI
 
 **Expected Console**:
+
 ```
 ❌ Error: Microphone permission denied
 ```
 
 **Expected UI**:
+
 - ✅ Shows error message
 - ✅ Microphone button disabled
 - ✅ No crashes
@@ -227,11 +247,13 @@ Expected output:
 **Objective**: Verify cleanup on unmount
 
 **Steps**:
+
 1. Start listening
 2. Navigate away from page
 3. Check console
 
 **Expected**:
+
 - ✅ No errors in console
 - ✅ No memory leaks
 - ✅ Listeners properly cleaned up
@@ -243,12 +265,14 @@ Expected output:
 ## 📊 Console Log Checklist
 
 ### Startup Logs
+
 - [ ] `🎤 Starting wake word listener`
 - [ ] `🎤 Wake word recognition ended`
 - [ ] `🎤 Restarting wake word listener...`
 - [ ] `🎤 Starting wake word recognition again`
 
 ### Wake Word Detection Logs
+
 - [ ] `🎤 Final transcript: hey lara`
 - [ ] `✅ Wake word detected: hey lara`
 - [ ] `🎤 Calling onWakeWordDetected callback`
@@ -256,6 +280,7 @@ Expected output:
 - [ ] `🎤 Wake word detected, not restarting`
 
 ### Command Processing Logs
+
 - [ ] `🎤 Command response received: {...}`
 - [ ] `🎤 Intent extracted: {intent: "...", ...}`
 - [ ] `🎤 Executing command after delay`
@@ -263,6 +288,7 @@ Expected output:
 - [ ] `🎤 Navigating to ...`
 
 ### Return to Wake Word Logs
+
 - [ ] `🎤 Restarting wake word listener after command execution`
 - [ ] `🎤 Starting wake word listener`
 - [ ] `🎤 Wake word recognition ended`
@@ -282,7 +308,8 @@ Expected output:
 
 **Symptom**: Say "Hey Lara" but nothing happens
 
-**Solution**: 
+**Solution**:
+
 - Check microphone permission
 - Speak clearly and loudly
 - Check browser console for errors
@@ -292,6 +319,7 @@ Expected output:
 **Symptom**: Wake word detected but command doesn't execute
 
 **Solution**:
+
 - Check that `stopWakeWordListener()` is called
 - Check that `activateFromWakeWord()` is called
 - Check console for errors
@@ -301,6 +329,7 @@ Expected output:
 **Symptom**: After command, can't say "Hey Lara" again
 
 **Solution**:
+
 - Check that `setWakeWordActive(true)` is called
 - Check that `startWakeWordListener()` is called
 - Check console for errors
@@ -369,5 +398,3 @@ Your wake word system is now fixed and ready for comprehensive testing.
 **Start with Test 1** to verify no infinite loops, then proceed through the test suite.
 
 **Good luck!** 🎤
-
-

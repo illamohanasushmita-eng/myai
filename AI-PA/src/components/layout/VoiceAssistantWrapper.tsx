@@ -1,16 +1,16 @@
-'use client';
+"use client";
 
-import { useEffect, useState } from 'react';
-import { VoiceCommandButton } from '@/components/voice/VoiceCommandButton';
+import { useEffect, useState } from "react";
+import { VoiceCommandButton } from "@/components/voice/VoiceCommandButton";
 
 /**
  * VoiceAssistantWrapper Component
- * 
+ *
  * This component wraps the VoiceCommandButton and provides:
  * - Fixed positioning in the bottom-right corner
  * - Automatic userId retrieval from localStorage or Supabase auth
  * - Consistent styling across all pages
- * 
+ *
  * Usage: Add <VoiceAssistantWrapper /> to any page that needs voice commands
  */
 export function VoiceAssistantWrapper() {
@@ -19,9 +19,9 @@ export function VoiceAssistantWrapper() {
 
   useEffect(() => {
     setMounted(true);
-    
+
     // Try to get userId from localStorage first
-    const storedUserId = localStorage.getItem('userId');
+    const storedUserId = localStorage.getItem("userId");
     if (storedUserId) {
       setUserId(storedUserId);
     }
@@ -38,4 +38,3 @@ export function VoiceAssistantWrapper() {
     </div>
   );
 }
-

@@ -11,18 +11,23 @@
 ### ❌ BEFORE (Line 215)
 
 ```typescript
-const timePatternMatch = lowerText.match(/(?:remind|set\s+reminder)\s+me\s+(?:to\s+)?(.+?)\s+((?:tomorrow|today|tonight|next\s+\w+|\d{1,2}(?::\d{2})?\s*(?:am|pm)?))$/i);
+const timePatternMatch = lowerText.match(
+  /(?:remind|set\s+reminder)\s+me\s+(?:to\s+)?(.+?)\s+((?:tomorrow|today|tonight|next\s+\w+|\d{1,2}(?::\d{2})?\s*(?:am|pm)?))$/i,
+);
 ```
 
 ### ✅ AFTER (Line 220)
 
 ```typescript
-const timePatternMatch = lowerText.match(/(?:remind|set\s+reminder)\s+me\s+(?:to\s+)?(.+?)\s+((?:tomorrow|today|tonight|monday|tuesday|wednesday|thursday|friday|saturday|sunday|next\s+\w+|\d{1,2}(?::\d{2})?\s*(?:am|pm)?))$/i);
+const timePatternMatch = lowerText.match(
+  /(?:remind|set\s+reminder)\s+me\s+(?:to\s+)?(.+?)\s+((?:tomorrow|today|tonight|monday|tuesday|wednesday|thursday|friday|saturday|sunday|next\s+\w+|\d{1,2}(?::\d{2})?\s*(?:am|pm)?))$/i,
+);
 ```
 
 ## What Was Added
 
 **Added to regex pattern**:
+
 ```
 monday|tuesday|wednesday|thursday|friday|saturday|sunday
 ```
@@ -32,16 +37,19 @@ monday|tuesday|wednesday|thursday|friday|saturday|sunday
 ## Regex Pattern Breakdown
 
 ### Pattern Structure
+
 ```
 /(?:remind|set\s+reminder)\s+me\s+(?:to\s+)?(.+?)\s+(CAPTURE_GROUP)$/i
 ```
 
 ### Capture Group (What Changed)
+
 ```
 (?:tomorrow|today|tonight|monday|tuesday|wednesday|thursday|friday|saturday|sunday|next\s+\w+|\d{1,2}(?::\d{2})?\s*(?:am|pm)?)
 ```
 
 ### Breakdown
+
 ```
 tomorrow                    - Matches "tomorrow"
 |today                      - OR matches "today"
@@ -60,6 +68,7 @@ tomorrow                    - Matches "tomorrow"
 ## Context (Full Function)
 
 ### Location in File
+
 ```
 File: src/lib/lara/cohere-intent.ts
 Function: fallbackIntentDetection()
@@ -95,6 +104,7 @@ Lines: 191-238
 ## How to Verify the Change
 
 ### Option 1: View File
+
 ```bash
 # Open the file
 code src/lib/lara/cohere-intent.ts
@@ -105,17 +115,20 @@ code src/lib/lara/cohere-intent.ts
 ```
 
 ### Option 2: Git Diff
+
 ```bash
 git diff src/lib/lara/cohere-intent.ts
 ```
 
 **Expected output**:
+
 ```diff
 - const timePatternMatch = lowerText.match(/(?:remind|set\s+reminder)\s+me\s+(?:to\s+)?(.+?)\s+((?:tomorrow|today|tonight|next\s+\w+|\d{1,2}(?::\d{2})?\s*(?:am|pm)?))$/i);
 + const timePatternMatch = lowerText.match(/(?:remind|set\s+reminder)\s+me\s+(?:to\s+)?(.+?)\s+((?:tomorrow|today|tonight|monday|tuesday|wednesday|thursday|friday|saturday|sunday|next\s+\w+|\d{1,2}(?::\d{2})?\s*(?:am|pm)?))$/i);
 ```
 
 ### Option 3: Search in File
+
 ```bash
 # Search for "monday|tuesday"
 # Should find the line with the new pattern
@@ -124,15 +137,23 @@ git diff src/lib/lara/cohere-intent.ts
 ## Testing the Change
 
 ### Regex Test in Browser Console
+
 ```javascript
 // Test the NEW pattern
-const newPattern = /(?:remind|set\s+reminder)\s+me\s+(?:to\s+)?(.+?)\s+((?:tomorrow|today|tonight|monday|tuesday|wednesday|thursday|friday|saturday|sunday|next\s+\w+|\d{1,2}(?::\d{2})?\s*(?:am|pm)?))$/i;
+const newPattern =
+  /(?:remind|set\s+reminder)\s+me\s+(?:to\s+)?(.+?)\s+((?:tomorrow|today|tonight|monday|tuesday|wednesday|thursday|friday|saturday|sunday|next\s+\w+|\d{1,2}(?::\d{2})?\s*(?:am|pm)?))$/i;
 
 // Test cases
-console.log("Test 1:", "remind me to attend the meeting tuesday".match(newPattern));
+console.log(
+  "Test 1:",
+  "remind me to attend the meeting tuesday".match(newPattern),
+);
 // Expected: ["remind me to attend the meeting tuesday", "attend the meeting", "tuesday"]
 
-console.log("Test 2:", "remind me to call my mom monday at 5 pm".match(newPattern));
+console.log(
+  "Test 2:",
+  "remind me to call my mom monday at 5 pm".match(newPattern),
+);
 // Expected: ["remind me to call my mom monday at 5 pm", "call my mom monday", "5 pm"]
 
 console.log("Test 3:", "remind me friday".match(newPattern));
@@ -141,16 +162,16 @@ console.log("Test 3:", "remind me friday".match(newPattern));
 
 ## Impact Analysis
 
-| Aspect | Impact |
-|--------|--------|
-| Lines Changed | 1 |
-| Functions Modified | 1 |
-| Files Modified | 1 |
-| Breaking Changes | None |
-| Backward Compatibility | 100% |
-| Performance Impact | None |
-| Database Impact | None |
-| API Impact | None |
+| Aspect                 | Impact |
+| ---------------------- | ------ |
+| Lines Changed          | 1      |
+| Functions Modified     | 1      |
+| Files Modified         | 1      |
+| Breaking Changes       | None   |
+| Backward Compatibility | 100%   |
+| Performance Impact     | None   |
+| Database Impact        | None   |
+| API Impact             | None   |
 
 ## Rollback Plan
 
@@ -158,7 +179,9 @@ If needed, simply revert the line:
 
 ```typescript
 // Revert to:
-const timePatternMatch = lowerText.match(/(?:remind|set\s+reminder)\s+me\s+(?:to\s+)?(.+?)\s+((?:tomorrow|today|tonight|next\s+\w+|\d{1,2}(?::\d{2})?\s*(?:am|pm)?))$/i);
+const timePatternMatch = lowerText.match(
+  /(?:remind|set\s+reminder)\s+me\s+(?:to\s+)?(.+?)\s+((?:tomorrow|today|tonight|next\s+\w+|\d{1,2}(?::\d{2})?\s*(?:am|pm)?))$/i,
+);
 ```
 
 ## Verification Checklist
@@ -174,4 +197,3 @@ const timePatternMatch = lowerText.match(/(?:remind|set\s+reminder)\s+me\s+(?:to
 ---
 
 **Status**: ✅ COMPLETE AND VERIFIED
-

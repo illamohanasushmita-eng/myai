@@ -15,17 +15,19 @@
 ### File: `AI-PA/src/lib/spotify/redirect.ts`
 
 #### Change 1: Android Branch (Lines 91-143)
+
 ```typescript
 // ❌ BEFORE: Direct navigation
 window.location.href = intentUrl;
 
 // ✅ AFTER: Iframe approach
-const iframe = document.createElement('iframe');
-iframe.src = uri;  // spotify:search:prabhas%20songs
+const iframe = document.createElement("iframe");
+iframe.src = uri; // spotify:search:prabhas%20songs
 document.body.appendChild(iframe);
 ```
 
 #### Change 2: searchInSpotifyApp (Lines 273-310)
+
 ```typescript
 // ❌ BEFORE: Platform-specific
 if (isAndroid()) {
@@ -39,6 +41,7 @@ const spotifyUri = `spotify:search:${encodedQuery}`;
 ```
 
 #### Change 3: playInSpotifyApp (Lines 230-263)
+
 ```typescript
 // ❌ BEFORE: Platform-specific
 if (isAndroid()) {
@@ -56,6 +59,7 @@ const spotifyUri = `spotify:track:${trackId}`;
 ## How It Works
 
 ### Success Flow (App Installed)
+
 ```
 Voice Command
     ↓
@@ -73,6 +77,7 @@ Browser detects: document.hidden = true
 ```
 
 ### Fallback Flow (App Not Installed)
+
 ```
 Voice Command
     ↓
@@ -94,6 +99,7 @@ Timeout triggers
 ## Testing
 
 ### Test 1: App Installed
+
 ```
 Say: "play prabhas songs"
 Expected: Native app opens
@@ -101,6 +107,7 @@ Console: "✅ Spotify app opened (page lost focus)"
 ```
 
 ### Test 2: App Not Installed
+
 ```
 Say: "play prabhas songs"
 Expected: Web player opens after 2.5s
@@ -108,6 +115,7 @@ Console: "Spotify app not found on Android after 2500ms"
 ```
 
 ### Test 3: Various Queries
+
 ```
 "play telugu songs"
 "play favorite songs"
@@ -118,13 +126,13 @@ Console: "Spotify app not found on Android after 2500ms"
 
 ## Key Differences
 
-| Aspect | Before | After |
-|--------|--------|-------|
-| **Approach** | Direct navigation | Iframe |
-| **Page reload** | Yes ❌ | No ✅ |
-| **URI format** | Platform-specific | Unified |
-| **Fallback** | Unreliable | Reliable |
-| **Visibility detection** | Poor | Good |
+| Aspect                   | Before            | After    |
+| ------------------------ | ----------------- | -------- |
+| **Approach**             | Direct navigation | Iframe   |
+| **Page reload**          | Yes ❌            | No ✅    |
+| **URI format**           | Platform-specific | Unified  |
+| **Fallback**             | Unreliable        | Reliable |
+| **Visibility detection** | Poor              | Good     |
 
 ---
 
@@ -139,6 +147,7 @@ spotify:playlist:{ID}        → Playlist
 ```
 
 Example:
+
 ```
 spotify:search:prabhas%20songs
 spotify:track:3n3Ppam7vgaVa1iaRUc9Lp
@@ -149,6 +158,7 @@ spotify:track:3n3Ppam7vgaVa1iaRUc9Lp
 ## Console Logs
 
 ### Success
+
 ```
 🔗 Attempting to open URI: spotify:search:prabhas%20songs
 📱 Platform: Android
@@ -157,6 +167,7 @@ spotify:track:3n3Ppam7vgaVa1iaRUc9Lp
 ```
 
 ### Fallback
+
 ```
 🔗 Attempting to open URI: spotify:search:prabhas%20songs
 📱 Platform: Android
@@ -168,12 +179,12 @@ spotify:track:3n3Ppam7vgaVa1iaRUc9Lp
 
 ## Troubleshooting
 
-| Issue | Solution |
-|-------|----------|
-| Still opens web player | Check if Spotify app installed |
-| Slow to open | Normal - takes 1-2 seconds |
-| App opens but no search | Update Spotify app |
-| Console errors | Check browser console logs |
+| Issue                   | Solution                       |
+| ----------------------- | ------------------------------ |
+| Still opens web player  | Check if Spotify app installed |
+| Slow to open            | Normal - takes 1-2 seconds     |
+| App opens but no search | Update Spotify app             |
+| Console errors          | Check browser console logs     |
 
 ---
 
@@ -218,4 +229,3 @@ spotify:track:3n3Ppam7vgaVa1iaRUc9Lp
 - `ANDROID_SPOTIFY_FIX_GUIDE.md` - Full technical guide
 - `ANDROID_SPOTIFY_CODE_CHANGES.md` - Before/after code
 - `ANDROID_SPOTIFY_IMPLEMENTATION_SUMMARY.md` - Complete summary
-

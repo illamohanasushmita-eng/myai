@@ -3,6 +3,7 @@
 ## Pre-Deployment
 
 ### Environment Setup
+
 - [ ] Copy `.env.spotify.example` to `.env.local`
 - [ ] Add SPOTIFY_CLIENT_ID
 - [ ] Add SPOTIFY_CLIENT_SECRET
@@ -12,6 +13,7 @@
 - [ ] Test environment variables locally
 
 ### Database Setup
+
 - [ ] Create Supabase project
 - [ ] Copy schema from `src/lib/db/schema.sql`
 - [ ] Execute schema in Supabase SQL Editor
@@ -21,12 +23,14 @@
 - [ ] Verify user data isolation with RLS
 
 ### Dependencies
+
 - [ ] Verify @supabase/supabase-js is installed
 - [ ] Verify all imports are available
 - [ ] Run `npm install` if needed
 - [ ] Check for any missing dependencies
 
 ### Code Review
+
 - [ ] Review all API routes
 - [ ] Review all React hooks
 - [ ] Review all services
@@ -39,6 +43,7 @@
 ## Testing
 
 ### Unit Tests
+
 - [ ] Test intent detection with various inputs
 - [ ] Test Spotify search functionality
 - [ ] Test playback control
@@ -47,6 +52,7 @@
 - [ ] Test error scenarios
 
 ### Integration Tests
+
 - [ ] Test API endpoints with Postman
 - [ ] Test database operations
 - [ ] Test token refresh flow
@@ -55,6 +61,7 @@
 - [ ] Test RLS policies
 
 ### Manual Testing
+
 - [ ] Test MusicAssistant component
 - [ ] Test intent detection
 - [ ] Test search functionality
@@ -65,6 +72,7 @@
 - [ ] Test loading states
 
 ### Performance Testing
+
 - [ ] Test response times
 - [ ] Test with multiple concurrent requests
 - [ ] Test database query performance
@@ -74,6 +82,7 @@
 ## Security Verification
 
 ### Authentication & Authorization
+
 - [ ] Verify user ID validation on all endpoints
 - [ ] Verify RLS policies are working
 - [ ] Verify user data isolation
@@ -81,6 +90,7 @@
 - [ ] Verify token security
 
 ### Input Validation
+
 - [ ] Verify all inputs are validated
 - [ ] Test with invalid inputs
 - [ ] Test with SQL injection attempts
@@ -88,6 +98,7 @@
 - [ ] Verify error messages don't leak info
 
 ### Data Protection
+
 - [ ] Verify tokens are stored securely
 - [ ] Verify sensitive data is not logged
 - [ ] Verify HTTPS is enforced
@@ -97,6 +108,7 @@
 ## Staging Deployment
 
 ### Pre-Staging
+
 - [ ] Create staging environment
 - [ ] Set staging environment variables
 - [ ] Create staging database
@@ -104,6 +116,7 @@
 - [ ] Verify staging configuration
 
 ### Staging Testing
+
 - [ ] Deploy to staging
 - [ ] Run all tests on staging
 - [ ] Test with real Spotify API
@@ -113,6 +126,7 @@
 - [ ] Verify staging security
 
 ### Staging Sign-Off
+
 - [ ] Get approval from team
 - [ ] Document any issues found
 - [ ] Fix any staging issues
@@ -122,6 +136,7 @@
 ## Production Deployment
 
 ### Pre-Production
+
 - [ ] Create production environment
 - [ ] Set production environment variables
 - [ ] Create production database
@@ -131,6 +146,7 @@
 - [ ] Document rollback procedure
 
 ### Production Deployment
+
 - [ ] Deploy to production
 - [ ] Verify deployment successful
 - [ ] Monitor production logs
@@ -139,6 +155,7 @@
 - [ ] Test with real users (if applicable)
 
 ### Post-Deployment
+
 - [ ] Monitor error rates
 - [ ] Monitor API response times
 - [ ] Monitor database performance
@@ -150,6 +167,7 @@
 ## Monitoring & Maintenance
 
 ### Ongoing Monitoring
+
 - [ ] Setup error tracking (Sentry, etc.)
 - [ ] Setup performance monitoring
 - [ ] Setup database monitoring
@@ -158,6 +176,7 @@
 - [ ] Setup log aggregation
 
 ### Regular Maintenance
+
 - [ ] Review error logs weekly
 - [ ] Review performance metrics weekly
 - [ ] Update dependencies monthly
@@ -166,6 +185,7 @@
 - [ ] Test disaster recovery
 
 ### Documentation
+
 - [ ] Document deployment procedure
 - [ ] Document rollback procedure
 - [ ] Document troubleshooting guide
@@ -175,6 +195,7 @@
 ## Rollback Plan
 
 ### If Issues Occur
+
 - [ ] Identify the issue
 - [ ] Document the issue
 - [ ] Decide on rollback vs. fix
@@ -184,6 +205,7 @@
 - [ ] Communicate with users
 
 ### Rollback Steps
+
 1. [ ] Stop production deployment
 2. [ ] Restore database from backup
 3. [ ] Restore previous code version
@@ -194,6 +216,7 @@
 ## Post-Deployment
 
 ### Verification
+
 - [ ] All endpoints responding
 - [ ] All features working
 - [ ] No error spikes
@@ -204,6 +227,7 @@
 - [ ] Playback working
 
 ### Documentation
+
 - [ ] Update deployment docs
 - [ ] Update troubleshooting guide
 - [ ] Document any issues found
@@ -211,6 +235,7 @@
 - [ ] Update runbooks
 
 ### Team Communication
+
 - [ ] Notify team of deployment
 - [ ] Share deployment notes
 - [ ] Share monitoring links
@@ -220,6 +245,7 @@
 ## Optimization (Post-Deployment)
 
 ### Performance Optimization
+
 - [ ] Analyze slow queries
 - [ ] Optimize database indexes
 - [ ] Implement caching if needed
@@ -227,6 +253,7 @@
 - [ ] Monitor and adjust
 
 ### Cost Optimization
+
 - [ ] Review Spotify API usage
 - [ ] Review Supabase usage
 - [ ] Optimize database queries
@@ -234,6 +261,7 @@
 - [ ] Implement cost controls
 
 ### User Experience
+
 - [ ] Gather user feedback
 - [ ] Monitor user behavior
 - [ ] Identify pain points
@@ -243,24 +271,28 @@
 ## Deployment Timeline
 
 ### Day 1: Pre-Deployment
+
 - [ ] Environment setup (1 hour)
 - [ ] Database setup (1 hour)
 - [ ] Code review (2 hours)
 - [ ] Unit testing (2 hours)
 
 ### Day 2: Testing
+
 - [ ] Integration testing (3 hours)
 - [ ] Manual testing (3 hours)
 - [ ] Security verification (2 hours)
 - [ ] Performance testing (2 hours)
 
 ### Day 3: Staging
+
 - [ ] Staging deployment (1 hour)
 - [ ] Staging testing (4 hours)
 - [ ] Issue resolution (2 hours)
 - [ ] Staging sign-off (1 hour)
 
 ### Day 4: Production
+
 - [ ] Production deployment (1 hour)
 - [ ] Post-deployment verification (2 hours)
 - [ ] Monitoring setup (1 hour)
@@ -279,11 +311,11 @@
 
 ## Sign-Off
 
-- [ ] Development Lead: _______________
-- [ ] QA Lead: _______________
-- [ ] DevOps Lead: _______________
-- [ ] Product Manager: _______________
-- [ ] Date: _______________
+- [ ] Development Lead: ******\_\_\_******
+- [ ] QA Lead: ******\_\_\_******
+- [ ] DevOps Lead: ******\_\_\_******
+- [ ] Product Manager: ******\_\_\_******
+- [ ] Date: ******\_\_\_******
 
 ## Notes
 
@@ -296,4 +328,3 @@
 **Deployment Checklist Version**: 1.0
 **Last Updated**: 2025-11-07
 **Status**: Ready for Use
-

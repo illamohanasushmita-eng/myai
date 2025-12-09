@@ -1,11 +1,11 @@
-import { NextRequest, NextResponse } from 'next/server';
-import { createClient } from '@supabase/supabase-js';
-import { searchSpotifyTracks } from '@/lib/spotify/search';
-import { getCurrentTimeContext } from '@/lib/ai/intent-detector';
+import { NextRequest, NextResponse } from "next/server";
+import { createClient } from "@supabase/supabase-js";
+import { searchSpotifyTracks } from "@/lib/spotify/search";
+import { getCurrentTimeContext } from "@/lib/ai/intent-detector";
 
 const supabase = createClient(
   process.env.NEXT_PUBLIC_SUPABASE_URL!,
-  process.env.SUPABASE_SERVICE_ROLE_KEY!
+  process.env.SUPABASE_SERVICE_ROLE_KEY!,
 );
 
 export async function POST(request: NextRequest) {
@@ -14,36 +14,36 @@ export async function POST(request: NextRequest) {
 
     if (!userId) {
       return NextResponse.json(
-        { error: 'userId is required' },
-        { status: 400 }
+        { error: "userId is required" },
+        { status: 400 },
       );
     }
 
     // Get user preferences
     const { data: preferences, error: prefError } = await supabase
-      .from('user_preferences')
-      .select('*')
-      .eq('user_id', userId)
+      .from("user_preferences")
+      .select("*")
+      .eq("user_id", userId)
       .single();
 
     if (prefError) {
       return NextResponse.json(
-        { error: 'User preferences not found' },
-        { status: 404 }
+        { error: "User preferences not found" },
+        { status: 404 },
       );
     }
 
     // Get active automation rules
     const { data: rules, error: rulesError } = await supabase
-      .from('automation_rules')
-      .select('*')
-      .eq('user_id', userId)
-      .eq('is_active', true);
+      .from("automation_rules")
+      .select("*")
+      .eq("user_id", userId)
+      .eq("is_active", true);
 
     if (rulesError) {
       return NextResponse.json(
-        { error: 'Failed to fetch automation rules' },
-        { status: 500 }
+        { error: "Failed to fetch automation rules" },
+        { status: 500 },
       );
     }
 
@@ -52,7 +52,7 @@ export async function POST(request: NextRequest) {
     if (!trigger) {
       const currentHour = new Date().getHours();
       if (currentHour >= 22 || currentHour < 6) {
-        trigger = 'night';
+        trigger = "night";
       }
     }
 
@@ -62,7 +62,7 @@ export async function POST(request: NextRequest) {
     if (matchingRules.length === 0) {
       return NextResponse.json({
         triggered: false,
-        message: 'No matching automation rules',
+        message: "No matching automation rules",
       });
     }
 
@@ -88,11 +88,10 @@ export async function POST(request: NextRequest) {
       })),
     });
   } catch (error) {
-    console.error('Error triggering automation:', error);
+    console.error("Error triggering automation:", error);
     return NextResponse.json(
-      { error: 'Failed to trigger automation' },
-      { status: 500 }
+      { error: "Failed to trigger automation" },
+      { status: 500 },
     );
   }
 }
-

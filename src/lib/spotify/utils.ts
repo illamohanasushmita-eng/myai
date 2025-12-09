@@ -1,41 +1,50 @@
-import { SpotifyTrack } from '@/lib/types/spotify';
+import { SpotifyTrack } from "@/lib/types/spotify";
 
 export function formatTrackDuration(ms: number): string {
   const seconds = Math.floor(ms / 1000);
   const minutes = Math.floor(seconds / 60);
   const remainingSeconds = seconds % 60;
-  return `${minutes}:${remainingSeconds.toString().padStart(2, '0')}`;
+  return `${minutes}:${remainingSeconds.toString().padStart(2, "0")}`;
 }
 
-export function getTrackImageUrl(track: SpotifyTrack, size: 'small' | 'medium' | 'large' = 'medium'): string {
+export function getTrackImageUrl(
+  track: SpotifyTrack,
+  size: "small" | "medium" | "large" = "medium",
+): string {
   const images = track.album.images;
   if (!images || images.length === 0) {
-    return '';
+    return "";
   }
 
-  if (size === 'small') {
-    return images[images.length - 1]?.url || '';
-  } else if (size === 'large') {
-    return images[0]?.url || '';
+  if (size === "small") {
+    return images[images.length - 1]?.url || "";
+  } else if (size === "large") {
+    return images[0]?.url || "";
   } else {
-    return images[Math.floor(images.length / 2)]?.url || '';
+    return images[Math.floor(images.length / 2)]?.url || "";
   }
 }
 
 export function getArtistNames(track: SpotifyTrack): string {
-  return track.artists.map((artist) => artist.name).join(', ');
+  return track.artists.map((artist) => artist.name).join(", ");
 }
 
-export function buildSpotifyUri(type: 'track' | 'playlist' | 'artist', id: string): string {
+export function buildSpotifyUri(
+  type: "track" | "playlist" | "artist",
+  id: string,
+): string {
   return `spotify:${type}:${id}`;
 }
 
 export function extractSpotifyId(uri: string): string {
-  const parts = uri.split(':');
+  const parts = uri.split(":");
   return parts[parts.length - 1];
 }
 
-export function getSpotifyWebUrl(type: 'track' | 'playlist' | 'artist', id: string): string {
+export function getSpotifyWebUrl(
+  type: "track" | "playlist" | "artist",
+  id: string,
+): string {
   return `https://open.spotify.com/${type}/${id}`;
 }
 
@@ -43,7 +52,7 @@ export function generatePlaylistQueryFromPreferences(
   heroes: string[],
   artists: string[],
   mood?: string,
-  language?: string
+  language?: string,
 ): string {
   const parts: string[] = [];
 
@@ -63,11 +72,11 @@ export function generatePlaylistQueryFromPreferences(
     parts.push(language);
   }
 
-  return parts.length > 0 ? parts.join(' ') : 'trending songs';
+  return parts.length > 0 ? parts.join(" ") : "trending songs";
 }
 
 export function isTrackPreviewAvailable(track: SpotifyTrack): boolean {
-  return track.preview_url !== null && track.preview_url !== '';
+  return track.preview_url !== null && track.preview_url !== "";
 }
 
 export function sortTracksByPopularity(tracks: SpotifyTrack[]): SpotifyTrack[] {
@@ -81,9 +90,11 @@ export function sortTracksByPopularity(tracks: SpotifyTrack[]): SpotifyTrack[] {
 export function filterTracksByDuration(
   tracks: SpotifyTrack[],
   minMs: number = 0,
-  maxMs: number = Infinity
+  maxMs: number = Infinity,
 ): SpotifyTrack[] {
-  return tracks.filter((track) => track.duration_ms >= minMs && track.duration_ms <= maxMs);
+  return tracks.filter(
+    (track) => track.duration_ms >= minMs && track.duration_ms <= maxMs,
+  );
 }
 
 export function deduplicateTracks(tracks: SpotifyTrack[]): SpotifyTrack[] {
@@ -97,11 +108,13 @@ export function deduplicateTracks(tracks: SpotifyTrack[]): SpotifyTrack[] {
   });
 }
 
-export function groupTracksByArtist(tracks: SpotifyTrack[]): Map<string, SpotifyTrack[]> {
+export function groupTracksByArtist(
+  tracks: SpotifyTrack[],
+): Map<string, SpotifyTrack[]> {
   const grouped = new Map<string, SpotifyTrack[]>();
 
   tracks.forEach((track) => {
-    const artistName = track.artists[0]?.name || 'Unknown';
+    const artistName = track.artists[0]?.name || "Unknown";
     if (!grouped.has(artistName)) {
       grouped.set(artistName, []);
     }
@@ -111,8 +124,10 @@ export function groupTracksByArtist(tracks: SpotifyTrack[]): Map<string, Spotify
   return grouped;
 }
 
-export function getRandomTracks(tracks: SpotifyTrack[], count: number): SpotifyTrack[] {
+export function getRandomTracks(
+  tracks: SpotifyTrack[],
+  count: number,
+): SpotifyTrack[] {
   const shuffled = [...tracks].sort(() => Math.random() - 0.5);
   return shuffled.slice(0, count);
 }
-

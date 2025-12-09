@@ -1,7 +1,7 @@
 /**
  * Vosk Integration with Voice Automation
  * Complete workflow: Wake-word detection → Command recognition → Action execution
- * 
+ *
  * Usage:
  * const workflow = new VoskVoiceWorkflow();
  * await workflow.initialize();
@@ -12,7 +12,7 @@ import {
   startRecognizer,
   stopRecognizer,
   loadVoskModel,
-} from './vosk-recognizer';
+} from "./vosk-recognizer";
 
 // ============================================================================
 // TYPES
@@ -45,8 +45,8 @@ export class VoskVoiceWorkflow {
 
   constructor(config: VoskWorkflowConfig = {}) {
     this.config = {
-      modelPath: '/vosk/model.zip',
-      wakeWord: 'hey lara',
+      modelPath: "/vosk/model.zip",
+      wakeWord: "hey lara",
       ...config,
     };
 
@@ -64,10 +64,10 @@ export class VoskVoiceWorkflow {
 
   async initialize(): Promise<void> {
     try {
-      console.log('🎤 Initializing Vosk workflow...');
+      console.log("🎤 Initializing Vosk workflow...");
 
       if (this.state.isInitialized) {
-        console.log('⚠️ Workflow already initialized');
+        console.log("⚠️ Workflow already initialized");
         return;
       }
 
@@ -75,10 +75,10 @@ export class VoskVoiceWorkflow {
       await loadVoskModel(this.config.modelPath);
 
       this.state.isInitialized = true;
-      console.log('✅ Vosk workflow initialized');
+      console.log("✅ Vosk workflow initialized");
     } catch (error) {
       const errorMsg = `Initialization failed: ${error instanceof Error ? error.message : String(error)}`;
-      console.error('❌', errorMsg);
+      console.error("❌", errorMsg);
       this.config.onError?.(errorMsg);
       throw error;
     }
@@ -90,14 +90,14 @@ export class VoskVoiceWorkflow {
 
   async start(): Promise<void> {
     try {
-      console.log('🎤 Starting Vosk workflow...');
+      console.log("🎤 Starting Vosk workflow...");
 
       if (!this.state.isInitialized) {
         await this.initialize();
       }
 
       if (this.state.isListening) {
-        console.log('⚠️ Workflow already listening');
+        console.log("⚠️ Workflow already listening");
         return;
       }
 
@@ -105,14 +105,14 @@ export class VoskVoiceWorkflow {
         () => this.handleWakeWord(),
         (text) => this.handleRecognizedText(text),
         (error) => this.handleError(error),
-        (partial) => this.handlePartialResult(partial)
+        (partial) => this.handlePartialResult(partial),
       );
 
       this.state.isListening = true;
-      console.log('✅ Vosk workflow started');
+      console.log("✅ Vosk workflow started");
     } catch (error) {
       const errorMsg = `Start failed: ${error instanceof Error ? error.message : String(error)}`;
-      console.error('❌', errorMsg);
+      console.error("❌", errorMsg);
       this.config.onError?.(errorMsg);
       throw error;
     }
@@ -124,7 +124,7 @@ export class VoskVoiceWorkflow {
 
   stop(): void {
     try {
-      console.log('🎤 Stopping Vosk workflow...');
+      console.log("🎤 Stopping Vosk workflow...");
 
       stopRecognizer();
 
@@ -137,9 +137,9 @@ export class VoskVoiceWorkflow {
       this.state.wakeWordDetected = false;
       this.commandBuffer = [];
 
-      console.log('✅ Vosk workflow stopped');
+      console.log("✅ Vosk workflow stopped");
     } catch (error) {
-      console.error('❌ Error stopping workflow:', error);
+      console.error("❌ Error stopping workflow:", error);
     }
   }
 
@@ -148,7 +148,7 @@ export class VoskVoiceWorkflow {
   // ========================================================================
 
   private handleWakeWord(): void {
-    console.log('✅ Wake word detected!');
+    console.log("✅ Wake word detected!");
 
     this.state.wakeWordDetected = true;
     this.commandBuffer = [];
@@ -162,7 +162,7 @@ export class VoskVoiceWorkflow {
     }
 
     this.wakeWordTimeout = setTimeout(() => {
-      console.log('🎤 Wake word timeout - resetting');
+      console.log("🎤 Wake word timeout - resetting");
       this.state.wakeWordDetected = false;
       this.commandBuffer = [];
     }, 10000);
@@ -173,20 +173,20 @@ export class VoskVoiceWorkflow {
   // ========================================================================
 
   private handleRecognizedText(text: string): void {
-    console.log('🎤 Recognized text:', text);
+    console.log("🎤 Recognized text:", text);
 
     if (this.state.wakeWordDetected) {
       // Remove wake word from text
       const cleanText = text
         .toLowerCase()
-        .replace(this.config.wakeWord || 'hey lara', '')
+        .replace(this.config.wakeWord || "hey lara", "")
         .trim();
 
       if (cleanText) {
         this.commandBuffer.push(cleanText);
         this.state.lastCommand = cleanText;
 
-        console.log('🎤 Command buffered:', cleanText);
+        console.log("🎤 Command buffered:", cleanText);
         this.config.onCommandRecognized?.(cleanText);
 
         // Reset wake word timeout
@@ -195,7 +195,7 @@ export class VoskVoiceWorkflow {
         }
 
         this.wakeWordTimeout = setTimeout(() => {
-          console.log('🎤 Command timeout - processing buffer');
+          console.log("🎤 Command timeout - processing buffer");
           this.processCommandBuffer();
         }, 2000);
       }
@@ -207,7 +207,7 @@ export class VoskVoiceWorkflow {
   // ========================================================================
 
   private handlePartialResult(partial: string): void {
-    console.log('🎤 Partial result:', partial);
+    console.log("🎤 Partial result:", partial);
   }
 
   // ========================================================================
@@ -215,7 +215,7 @@ export class VoskVoiceWorkflow {
   // ========================================================================
 
   private handleError(error: string): void {
-    console.error('❌ Vosk error:', error);
+    console.error("❌ Vosk error:", error);
     this.config.onError?.(error);
   }
 
@@ -228,8 +228,8 @@ export class VoskVoiceWorkflow {
       return;
     }
 
-    const fullCommand = this.commandBuffer.join(' ');
-    console.log('🎤 Processing command:', fullCommand);
+    const fullCommand = this.commandBuffer.join(" ");
+    console.log("🎤 Processing command:", fullCommand);
 
     this.state.wakeWordDetected = false;
     this.commandBuffer = [];
@@ -259,7 +259,7 @@ export class VoskVoiceWorkflow {
 let workflowInstance: VoskVoiceWorkflow | null = null;
 
 export function getVoskWorkflow(
-  config?: VoskWorkflowConfig
+  config?: VoskWorkflowConfig,
 ): VoskVoiceWorkflow {
   if (!workflowInstance) {
     workflowInstance = new VoskVoiceWorkflow(config);
@@ -273,4 +273,3 @@ export function resetVoskWorkflow(): void {
     workflowInstance = null;
   }
 }
-

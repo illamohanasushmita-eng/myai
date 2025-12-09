@@ -33,10 +33,10 @@ export interface SpotifyArtist {
 }
 
 export interface UserIntent {
-  mood: 'relaxing' | 'energetic' | 'sad' | 'happy' | 'focus' | null;
+  mood: "relaxing" | "energetic" | "sad" | "happy" | "focus" | null;
   hero: string | null;
-  timeContext: 'night' | 'morning' | 'travel' | null;
-  language: 'english' | 'telugu' | 'hindi' | 'tamil' | null;
+  timeContext: "night" | "morning" | "travel" | null;
+  language: "english" | "telugu" | "hindi" | "tamil" | null;
   playlistQuery: string;
   confidence: number;
 }
@@ -44,7 +44,7 @@ export interface UserIntent {
 export interface AutomationRule {
   id: string;
   user_id: string;
-  trigger_type: 'night' | 'travel' | 'mood';
+  trigger_type: "night" | "travel" | "mood";
   playlist_query: string;
   is_active: boolean;
   created_at: string;
@@ -84,4 +84,3 @@ export interface SpotifyToken {
   created_at: string;
   updated_at: string;
 }
-

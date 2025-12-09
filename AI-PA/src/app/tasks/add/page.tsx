@@ -1,10 +1,20 @@
-"use client"
+"use client";
 
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
+import {
+  Popover,
+  PopoverContent,
+  PopoverTrigger,
+} from "@/components/ui/popover";
 import { Calendar } from "@/components/ui/calendar";
 import Link from "next/link";
 import { useState } from "react";
@@ -65,7 +75,9 @@ export default function AddTaskPage() {
       <header className="sticky top-0 z-10 flex items-center justify-between border-b border-gray-200/50 bg-background-light/80 p-4 backdrop-blur-sm dark:border-gray-800/50 dark:bg-background-dark/80">
         <Button asChild variant="ghost" size="icon">
           <Link href="/tasks">
-            <span className="material-symbols-outlined">arrow_back_ios_new</span>
+            <span className="material-symbols-outlined">
+              arrow_back_ios_new
+            </span>
           </Link>
         </Button>
         <h1 className="text-lg font-bold">Add New Task</h1>
@@ -80,7 +92,12 @@ export default function AddTaskPage() {
         )}
         <form className="space-y-6" onSubmit={handleSubmit}>
           <div>
-            <label htmlFor="title" className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Task Title</label>
+            <label
+              htmlFor="title"
+              className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1"
+            >
+              Task Title
+            </label>
             <Input
               id="title"
               type="text"
@@ -93,7 +110,12 @@ export default function AddTaskPage() {
           </div>
 
           <div>
-            <label htmlFor="description" className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Description</label>
+            <label
+              htmlFor="description"
+              className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1"
+            >
+              Description
+            </label>
             <Textarea
               id="description"
               placeholder="Add more details about your task..."
@@ -104,14 +126,19 @@ export default function AddTaskPage() {
           </div>
 
           <div>
-            <label htmlFor="due-date" className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Due Date</label>
+            <label
+              htmlFor="due-date"
+              className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1"
+            >
+              Due Date
+            </label>
             <Popover>
               <PopoverTrigger asChild>
                 <Button
                   variant={"outline"}
                   className={cn(
                     "w-full justify-start text-left font-normal rounded-lg border-gray-300 bg-white/70 hover:bg-white/90 dark:border-gray-600 dark:bg-gray-700/60 dark:hover:bg-gray-700/80",
-                    !date && "text-muted-foreground"
+                    !date && "text-muted-foreground",
                   )}
                 >
                   <CalendarIcon className="mr-2 h-4 w-4" />
@@ -130,7 +157,12 @@ export default function AddTaskPage() {
           </div>
 
           <div>
-            <label htmlFor="category" className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Category</label>
+            <label
+              htmlFor="category"
+              className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1"
+            >
+              Category
+            </label>
             <Select value={category} onValueChange={setCategory}>
               <SelectTrigger className="w-full rounded-lg border-gray-300 bg-white/70 focus:border-primary focus:ring-primary dark:border-gray-600 dark:bg-gray-700/60">
                 <SelectValue placeholder="Select a category" />
@@ -145,7 +177,12 @@ export default function AddTaskPage() {
           </div>
 
           <div>
-            <label htmlFor="priority" className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Priority</label>
+            <label
+              htmlFor="priority"
+              className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1"
+            >
+              Priority
+            </label>
             <Select>
               <SelectTrigger className="w-full rounded-lg border-gray-300 bg-white/70 focus:border-primary focus:ring-primary dark:border-gray-600 dark:bg-gray-700/60">
                 <SelectValue placeholder="Select priority level" />
@@ -159,10 +196,19 @@ export default function AddTaskPage() {
           </div>
 
           <div className="flex flex-col sm:flex-row gap-4 pt-4">
-            <Button type="submit" disabled={loading} className="w-full sm:w-1/2">
+            <Button
+              type="submit"
+              disabled={loading}
+              className="w-full sm:w-1/2"
+            >
               {loading ? "Saving..." : "Save Task"}
             </Button>
-            <Button asChild variant="secondary" className="w-full sm:w-1/2" disabled={loading}>
+            <Button
+              asChild
+              variant="secondary"
+              className="w-full sm:w-1/2"
+              disabled={loading}
+            >
               <Link href="/tasks">Cancel / Back</Link>
             </Button>
           </div>

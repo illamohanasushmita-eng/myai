@@ -28,20 +28,23 @@ export default function BottomNav() {
                 "flex flex-col items-center justify-center gap-1 w-1/5 transition-colors",
                 isActive
                   ? "text-primary"
-                  : "text-subtle-light dark:text-subtle-dark hover:text-primary"
+                  : "text-subtle-light dark:text-subtle-dark hover:text-primary",
               )}
             >
               <div className="relative">
-                <span
-                  className="material-symbols-outlined text-3xl"
-                >
+                <span className="material-symbols-outlined text-3xl">
                   {item.icon}
                 </span>
                 {isActive && (
                   <div className="absolute -top-2 w-full h-1 bg-primary rounded-full"></div>
                 )}
               </div>
-              <span className={cn("text-xs", isActive ? "font-bold" : "font-medium")}>
+              <span
+                className={cn(
+                  "text-xs",
+                  isActive ? "font-bold" : "font-medium",
+                )}
+              >
                 {item.label}
               </span>
             </Link>

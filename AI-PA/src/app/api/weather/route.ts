@@ -1,4 +1,4 @@
-import { NextRequest, NextResponse } from 'next/server';
+import { NextRequest, NextResponse } from "next/server";
 
 interface WeatherData {
   main: string;
@@ -31,28 +31,33 @@ export async function POST(request: NextRequest) {
     const { lat, lon } = await request.json();
 
     // Validate coordinates
-    if (typeof lat !== 'number' || typeof lon !== 'number') {
+    if (typeof lat !== "number" || typeof lon !== "number") {
       return NextResponse.json(
-        { error: 'Invalid coordinates. lat and lon must be numbers.' },
-        { status: 400 }
+        { error: "Invalid coordinates. lat and lon must be numbers." },
+        { status: 400 },
       );
     }
 
     // Validate latitude and longitude ranges
     if (lat < -90 || lat > 90 || lon < -180 || lon > 180) {
       return NextResponse.json(
-        { error: 'Invalid coordinates. Latitude must be between -90 and 90, longitude between -180 and 180.' },
-        { status: 400 }
+        {
+          error:
+            "Invalid coordinates. Latitude must be between -90 and 90, longitude between -180 and 180.",
+        },
+        { status: 400 },
       );
     }
 
     const apiKey = process.env.OPENWEATHER_API_KEY;
 
     if (!apiKey) {
-      console.error('❌ OPENWEATHER_API_KEY is not set in environment variables');
+      console.error(
+        "❌ OPENWEATHER_API_KEY is not set in environment variables",
+      );
       return NextResponse.json(
-        { error: 'Weather API key is not configured' },
-        { status: 500 }
+        { error: "Weather API key is not configured" },
+        { status: 500 },
       );
     }
 
@@ -62,17 +67,19 @@ export async function POST(request: NextRequest) {
     console.log(`🌤️ Fetching weather for coordinates: lat=${lat}, lon=${lon}`);
 
     const weatherResponse = await fetch(weatherUrl, {
-      method: 'GET',
+      method: "GET",
       headers: {
-        'Content-Type': 'application/json',
+        "Content-Type": "application/json",
       },
     });
 
     if (!weatherResponse.ok) {
-      console.error(`❌ OpenWeatherMap API error: ${weatherResponse.status} ${weatherResponse.statusText}`);
+      console.error(
+        `❌ OpenWeatherMap API error: ${weatherResponse.status} ${weatherResponse.statusText}`,
+      );
       return NextResponse.json(
         { error: `Weather API error: ${weatherResponse.statusText}` },
-        { status: weatherResponse.status }
+        { status: weatherResponse.status },
       );
     }
 
@@ -93,11 +100,10 @@ export async function POST(request: NextRequest) {
 
     return NextResponse.json(weatherData, { status: 200 });
   } catch (error) {
-    console.error('❌ Error in weather API:', error);
+    console.error("❌ Error in weather API:", error);
     return NextResponse.json(
-      { error: 'Failed to fetch weather data' },
-      { status: 500 }
+      { error: "Failed to fetch weather data" },
+      { status: 500 },
     );
   }
 }
-

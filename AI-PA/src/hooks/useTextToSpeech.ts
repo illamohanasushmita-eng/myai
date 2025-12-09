@@ -1,6 +1,6 @@
-'use client';
+"use client";
 
-import { useCallback, useRef, useState } from 'react';
+import { useCallback, useRef, useState } from "react";
 
 interface UseTextToSpeechOptions {
   rate?: number; // 0.1 to 10
@@ -26,19 +26,21 @@ interface UseTextToSpeechReturn {
  * Hook for text-to-speech using Web Speech API
  * Provides real-time voice output for Lara responses
  */
-export function useTextToSpeech(options: UseTextToSpeechOptions = {}): UseTextToSpeechReturn {
+export function useTextToSpeech(
+  options: UseTextToSpeechOptions = {},
+): UseTextToSpeechReturn {
   const [isSpeaking, setIsSpeaking] = useState(false);
   const utteranceRef = useRef<SpeechSynthesisUtterance | null>(null);
 
   const isSupported =
-    typeof window !== 'undefined' &&
+    typeof window !== "undefined" &&
     (!!window.speechSynthesis || !!(window as any).webkitSpeechSynthesis);
 
   const speak = useCallback(
     (text: string) => {
       if (!isSupported) {
-        console.warn('⚠️ Speech Synthesis not supported');
-        options.onError?.('Speech Synthesis not supported');
+        console.warn("⚠️ Speech Synthesis not supported");
+        options.onError?.("Speech Synthesis not supported");
         return;
       }
 
@@ -52,23 +54,23 @@ export function useTextToSpeech(options: UseTextToSpeechOptions = {}): UseTextTo
       utterance.rate = options.rate ?? 1;
       utterance.pitch = options.pitch ?? 1;
       utterance.volume = options.volume ?? 1;
-      utterance.lang = options.lang ?? 'en-US';
+      utterance.lang = options.lang ?? "en-US";
 
       // Setup event handlers
       utterance.onstart = () => {
-        console.log('🗣️ Lara is speaking...');
+        console.log("🗣️ Lara is speaking...");
         setIsSpeaking(true);
         options.onStart?.();
       };
 
       utterance.onend = () => {
-        console.log('✅ Lara finished speaking');
+        console.log("✅ Lara finished speaking");
         setIsSpeaking(false);
         options.onEnd?.();
       };
 
       utterance.onerror = (event) => {
-        console.error('❌ Speech error:', event.error);
+        console.error("❌ Speech error:", event.error);
         setIsSpeaking(false);
         options.onError?.(event.error);
       };
@@ -76,7 +78,7 @@ export function useTextToSpeech(options: UseTextToSpeechOptions = {}): UseTextTo
       // Speak the text
       window.speechSynthesis.speak(utterance);
     },
-    [isSupported, options]
+    [isSupported, options],
   );
 
   const stop = useCallback(() => {
@@ -111,4 +113,3 @@ export function useTextToSpeech(options: UseTextToSpeechOptions = {}): UseTextTo
     cancel,
   };
 }
-

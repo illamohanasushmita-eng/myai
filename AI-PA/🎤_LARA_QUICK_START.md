@@ -9,6 +9,7 @@
 ## 🚀 Get Started in 2 Minutes
 
 ### 1. Start the App
+
 ```bash
 cd AI-PA
 npm run dev
@@ -16,25 +17,31 @@ npm run dev
 ```
 
 ### 2. Click "Start" Button
+
 - Grant microphone permission
 - Status will show "Listening for 'Hey Lara'..."
 
 ### 3. Say "Hey Lara"
+
 - Speak clearly into your microphone
 - Wait for Lara to respond
 
 ### 4. Lara Responds
+
 - Hears: "How can I help you?"
 - Now listening for your command
 
 ### 5. Say Your Command
+
 Examples:
+
 - "Play a song"
 - "Show my tasks"
 - "Add a reminder"
 - "Go to home page"
 
 ### 6. Lara Executes
+
 - Performs the action
 - Speaks confirmation
 - Loops back to step 3
@@ -44,6 +51,7 @@ Examples:
 ## 📁 What Was Created
 
 ### Core Files (5 files)
+
 ```
 src/lib/voice/lara-assistant.ts
 ├── wakeWordListener()
@@ -80,6 +88,7 @@ src/app/test-lara/page.tsx
 ## 💻 Integration Examples
 
 ### Add to Dashboard
+
 ```typescript
 import { LaraAssistant } from '@/components/LaraAssistant';
 
@@ -94,6 +103,7 @@ export function Dashboard() {
 ```
 
 ### Use Hook in Component
+
 ```typescript
 import { useLara } from '@/hooks/useLara';
 
@@ -116,25 +126,30 @@ export function MyComponent() {
 ## 🎯 Supported Commands
 
 ### Music
+
 - "Play a song"
 - "Play Telugu song"
 - "Play [artist/song name]"
 
 ### Tasks
+
 - "Show my tasks"
 - "Add a task"
 - "Open tasks page"
 
 ### Reminders
+
 - "Show my reminders"
 - "Add a reminder"
 
 ### Navigation
+
 - "Go to home page"
 - "Open professional page"
 - "Open personal growth page"
 
 ### Generic
+
 - "Tell me something"
 - "Search something"
 - Any other query
@@ -144,11 +159,13 @@ export function MyComponent() {
 ## 🔧 Configuration
 
 ### Environment Variables
+
 ```
 OPENAI_API_KEY=sk-proj-...
 ```
 
 ### Customize System Prompt
+
 Edit `src/lib/voice/lara-assistant.ts` in `parseIntent()`:
 
 ```typescript
@@ -182,21 +199,25 @@ Supported intents:
 ## 🐛 Troubleshooting
 
 ### "Microphone access denied"
+
 - Check browser permissions
 - Reload page
 - Try different browser
 
 ### "No audio output"
+
 - Check speaker volume
 - Verify browser volume
 - Test with different browser
 
 ### "Intent not recognized"
+
 - Speak more clearly
 - Use specific commands
 - Check OpenAI API key
 
 ### "Navigation not working"
+
 - Check router configuration
 - Verify page paths
 - Check browser console
@@ -228,9 +249,11 @@ Loop back to step 1
 ## 🎓 API Endpoints
 
 ### POST `/api/ai/parse-intent`
+
 Parse user command into structured intent
 
 **Request**:
+
 ```json
 {
   "userText": "Play a song",
@@ -239,6 +262,7 @@ Parse user command into structured intent
 ```
 
 **Response**:
+
 ```json
 {
   "success": true,
@@ -270,6 +294,7 @@ Parse user command into structured intent
 ## 🚀 Next Steps
 
 1. **Test the app**
+
    ```bash
    npm run dev
    # Navigate to /test-lara
@@ -310,4 +335,3 @@ Lara Voice Assistant is ready to use!
 ---
 
 **Happy voice commanding! 🎤✨**
-

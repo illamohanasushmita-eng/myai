@@ -51,17 +51,19 @@ The problem was in `src/lib/services/index.ts` using `export *` which re-exports
 Changed from **star exports** to **named exports with aliases** in `src/lib/services/index.ts`.
 
 ### Before (❌ Conflicting):
+
 ```typescript
-export * from './healthRecordService';
-export * from './healthService';        // ← Conflicts!
-export * from './settingsService';
-export * from './habitService';
-export * from './automotiveService';
-export * from './professionalService';
-export * from './generalService';       // ← Conflicts with multiple!
+export * from "./healthRecordService";
+export * from "./healthService"; // ← Conflicts!
+export * from "./settingsService";
+export * from "./habitService";
+export * from "./automotiveService";
+export * from "./professionalService";
+export * from "./generalService"; // ← Conflicts with multiple!
 ```
 
 ### After (✅ Fixed):
+
 All services now use **named exports with service-specific aliases** to prevent conflicts:
 
 ```typescript
@@ -70,14 +72,14 @@ export {
   getUserHealthRecords as getHealthRecordsFromHealthRecordService,
   createHealthRecord as createHealthRecordFromHealthRecordService,
   // ... other health record functions
-} from './healthRecordService';
+} from "./healthRecordService";
 
 // ===== HEALTH SERVICE =====
 export {
   getUserHealthRecords as getHealthRecordsFromHealthService,
   createHealthRecord as createHealthRecordFromHealthService,
   // ... other health functions
-} from './healthService';
+} from "./healthService";
 
 // ===== SETTINGS SERVICE =====
 export {
@@ -88,7 +90,7 @@ export {
   getUserNotifications as getSettingsUserNotifications,
   createNotification as createSettingsNotification,
   // ... other settings functions
-} from './settingsService';
+} from "./settingsService";
 
 // ===== HABIT SERVICE =====
 export {
@@ -96,7 +98,7 @@ export {
   getActiveHabits,
   createHabit,
   // ... other habit functions
-} from './habitService';
+} from "./habitService";
 
 // ===== AUTOMOTIVE SERVICE =====
 export {
@@ -105,7 +107,7 @@ export {
   getUserRoutes as getAutomotiveUserRoutes,
   createRoute as createAutomotiveRoute,
   // ... other automotive functions
-} from './automotiveService';
+} from "./automotiveService";
 
 // ===== PROFESSIONAL SERVICE =====
 export {
@@ -116,7 +118,7 @@ export {
   getUserAILogs as getProfessionalUserAILogs,
   createAILog as createProfessionalAILog,
   // ... other professional functions
-} from './professionalService';
+} from "./professionalService";
 
 // ===== GENERAL SERVICE =====
 export {
@@ -131,7 +133,7 @@ export {
   getUserAILogs as getGeneralUserAILogs,
   createAILog as createGeneralAILog,
   // ... other general functions
-} from './generalService';
+} from "./generalService";
 ```
 
 ---
@@ -142,54 +144,57 @@ export {
 
 Functions with the same name are now exported with **service-specific prefixes**:
 
-| Original Name | HealthRecord | Health | Settings | Professional | Automotive | General |
-|---|---|---|---|---|---|---|
-| `getUserHealthRecords` | `getHealthRecordsFromHealthRecordService` | `getHealthRecordsFromHealthService` | - | - | - | - |
-| `createHealthRecord` | `createHealthRecordFromHealthRecordService` | `createHealthRecordFromHealthService` | - | - | - | - |
-| `updateHealthRecord` | `updateHealthRecordFromHealthRecordService` | `updateHealthRecordFromHealthService` | - | - | - | - |
-| `deleteHealthRecord` | `deleteHealthRecordFromHealthRecordService` | `deleteHealthRecordFromHealthService` | - | - | - | - |
-| `getUserSymptoms` | `getUserSymptomsFromHealthRecordService` | `getUserSymptomsFromHealthService` | - | - | - | - |
-| `createSymptom` | `createSymptomFromHealthRecordService` | `createSymptomFromHealthService` | - | - | - | - |
-| `updateSymptom` | `updateSymptomFromHealthRecordService` | `updateSymptomFromHealthService` | - | - | - | - |
-| `deleteSymptom` | `deleteSymptomFromHealthRecordService` | `deleteSymptomFromHealthService` | - | - | - | - |
-| `getUserNotifications` | - | - | `getSettingsUserNotifications` | `getProfessionalUserNotifications` | - | - |
-| `createNotification` | - | - | `createSettingsNotification` | `createProfessionalNotification` | - | - |
-| `updateNotification` | - | - | `updateSettingsNotification` | - | - | - |
-| `deleteNotification` | - | - | `deleteSettingsNotification` | - | - | - |
-| `getUserVehicles` | - | - | - | - | `getAutomotiveUserVehicles` | `getGeneralUserVehicles` |
-| `createVehicle` | - | - | - | - | `createAutomotiveVehicle` | `createGeneralVehicle` |
-| `getUserRoutes` | - | - | - | - | `getAutomotiveUserRoutes` | `getGeneralUserRoutes` |
-| `createRoute` | - | - | - | - | `createAutomotiveRoute` | `createGeneralRoute` |
-| `getVehicleMaintenanceLogs` | - | - | - | - | `getAutomotiveMaintenanceLogs` | `getGeneralMaintenanceLogs` |
-| `createMaintenanceLog` | - | - | - | - | `createAutomotiveMaintenanceLog` | `createGeneralMaintenanceLog` |
-| `getUserAILogs` | - | - | - | `getProfessionalUserAILogs` | - | `getGeneralUserAILogs` |
-| `createAILog` | - | - | - | `createProfessionalAILog` | - | `createGeneralAILog` |
-| `getUserLearningModules` | - | - | - | - | - | `getGeneralUserLearningModules` |
-| `createLearningModule` | - | - | - | - | - | `createGeneralLearningModule` |
+| Original Name               | HealthRecord                                | Health                                | Settings                       | Professional                       | Automotive                       | General                         |
+| --------------------------- | ------------------------------------------- | ------------------------------------- | ------------------------------ | ---------------------------------- | -------------------------------- | ------------------------------- |
+| `getUserHealthRecords`      | `getHealthRecordsFromHealthRecordService`   | `getHealthRecordsFromHealthService`   | -                              | -                                  | -                                | -                               |
+| `createHealthRecord`        | `createHealthRecordFromHealthRecordService` | `createHealthRecordFromHealthService` | -                              | -                                  | -                                | -                               |
+| `updateHealthRecord`        | `updateHealthRecordFromHealthRecordService` | `updateHealthRecordFromHealthService` | -                              | -                                  | -                                | -                               |
+| `deleteHealthRecord`        | `deleteHealthRecordFromHealthRecordService` | `deleteHealthRecordFromHealthService` | -                              | -                                  | -                                | -                               |
+| `getUserSymptoms`           | `getUserSymptomsFromHealthRecordService`    | `getUserSymptomsFromHealthService`    | -                              | -                                  | -                                | -                               |
+| `createSymptom`             | `createSymptomFromHealthRecordService`      | `createSymptomFromHealthService`      | -                              | -                                  | -                                | -                               |
+| `updateSymptom`             | `updateSymptomFromHealthRecordService`      | `updateSymptomFromHealthService`      | -                              | -                                  | -                                | -                               |
+| `deleteSymptom`             | `deleteSymptomFromHealthRecordService`      | `deleteSymptomFromHealthService`      | -                              | -                                  | -                                | -                               |
+| `getUserNotifications`      | -                                           | -                                     | `getSettingsUserNotifications` | `getProfessionalUserNotifications` | -                                | -                               |
+| `createNotification`        | -                                           | -                                     | `createSettingsNotification`   | `createProfessionalNotification`   | -                                | -                               |
+| `updateNotification`        | -                                           | -                                     | `updateSettingsNotification`   | -                                  | -                                | -                               |
+| `deleteNotification`        | -                                           | -                                     | `deleteSettingsNotification`   | -                                  | -                                | -                               |
+| `getUserVehicles`           | -                                           | -                                     | -                              | -                                  | `getAutomotiveUserVehicles`      | `getGeneralUserVehicles`        |
+| `createVehicle`             | -                                           | -                                     | -                              | -                                  | `createAutomotiveVehicle`        | `createGeneralVehicle`          |
+| `getUserRoutes`             | -                                           | -                                     | -                              | -                                  | `getAutomotiveUserRoutes`        | `getGeneralUserRoutes`          |
+| `createRoute`               | -                                           | -                                     | -                              | -                                  | `createAutomotiveRoute`          | `createGeneralRoute`            |
+| `getVehicleMaintenanceLogs` | -                                           | -                                     | -                              | -                                  | `getAutomotiveMaintenanceLogs`   | `getGeneralMaintenanceLogs`     |
+| `createMaintenanceLog`      | -                                           | -                                     | -                              | -                                  | `createAutomotiveMaintenanceLog` | `createGeneralMaintenanceLog`   |
+| `getUserAILogs`             | -                                           | -                                     | -                              | `getProfessionalUserAILogs`        | -                                | `getGeneralUserAILogs`          |
+| `createAILog`               | -                                           | -                                     | -                              | `createProfessionalAILog`          | -                                | `createGeneralAILog`            |
+| `getUserLearningModules`    | -                                           | -                                     | -                              | -                                  | -                                | `getGeneralUserLearningModules` |
+| `createLearningModule`      | -                                           | -                                     | -                              | -                                  | -                                | `createGeneralLearningModule`   |
 
 ---
 
 ## 📝 How to Use
 
 ### Import from Automotive Service
+
 ```typescript
 import {
   getAutomotiveUserVehicles,
   createAutomotiveVehicle,
   getAutomotiveUserRoutes,
   createAutomotiveRoute,
-} from '@/lib/services';
+} from "@/lib/services";
 ```
 
 ### Import from Professional Service
+
 ```typescript
 import {
   getProfessionalUserAILogs,
   createProfessionalAILog,
-} from '@/lib/services';
+} from "@/lib/services";
 ```
 
 ### Import from General Service
+
 ```typescript
 import {
   getGeneralUserVehicles,
@@ -198,17 +203,18 @@ import {
   createGeneralLearningModule,
   getGeneralUserAILogs,
   createGeneralAILog,
-} from '@/lib/services';
+} from "@/lib/services";
 ```
 
 ### Import from Habit Service (No conflicts)
+
 ```typescript
 import {
   getUserHabits,
   createHabit,
-  getUserLearningModules,  // ← From habitService
-  createLearningModule,    // ← From habitService
-} from '@/lib/services';
+  getUserLearningModules, // ← From habitService
+  createLearningModule, // ← From habitService
+} from "@/lib/services";
 ```
 
 ---
@@ -216,6 +222,7 @@ import {
 ## ✅ Verification
 
 ### Before Fix
+
 ```
 ❌ Console Error: conflicting star exports for 'createAILog'
 ❌ Console Error: conflicting star exports for 'getUserAILogs'
@@ -237,6 +244,7 @@ import {
 ```
 
 ### After Fix
+
 ```
 ✅ No console errors
 ✅ All functions properly exported with unique names
@@ -269,4 +277,3 @@ import {
 ---
 
 **Your application is now error-free!** 🎉
-

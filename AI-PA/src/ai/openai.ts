@@ -1,9 +1,9 @@
-import OpenAI from 'openai';
+import OpenAI from "openai";
 
 const apiKey = process.env.OPENAI_API_KEY;
 
 if (!apiKey) {
-  throw new Error('OPENAI_API_KEY environment variable is not set');
+  throw new Error("OPENAI_API_KEY environment variable is not set");
 }
 
 export const openai = new OpenAI({
@@ -16,17 +16,18 @@ export const openai = new OpenAI({
 export async function callOpenAI<T = any>(
   prompt: string,
   schema?: any,
-  model: string = 'gpt-4-turbo'
+  model: string = "gpt-4-turbo",
 ): Promise<T> {
   const response = await openai.chat.completions.create({
     model,
     messages: [
       {
-        role: 'system',
-        content: 'You are a helpful AI assistant. Always respond with valid JSON when requested.',
+        role: "system",
+        content:
+          "You are a helpful AI assistant. Always respond with valid JSON when requested.",
       },
       {
-        role: 'user',
+        role: "user",
         content: prompt,
       },
     ],
@@ -36,7 +37,7 @@ export async function callOpenAI<T = any>(
 
   const content = response.choices[0]?.message?.content;
   if (!content) {
-    throw new Error('No response from OpenAI');
+    throw new Error("No response from OpenAI");
   }
 
   if (schema) {
@@ -52,8 +53,7 @@ export async function callOpenAI<T = any>(
 export async function callOpenAIStructured<T = any>(
   prompt: string,
   schema: any,
-  model: string = 'gpt-4-turbo'
+  model: string = "gpt-4-turbo",
 ): Promise<T> {
   return callOpenAI<T>(prompt, schema, model);
 }
-

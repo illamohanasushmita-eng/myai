@@ -5,6 +5,7 @@
 ### Problem: Reminder not being created
 
 **Step 1: Check Intent Detection**
+
 ```bash
 curl -X POST http://localhost:3002/api/intent \
   -H "Content-Type: application/json" \
@@ -12,6 +13,7 @@ curl -X POST http://localhost:3002/api/intent \
 ```
 
 Expected:
+
 ```json
 {
   "intent": "reminder_create",
@@ -61,7 +63,7 @@ Look at terminal running `npm run dev`:
 
 ```sql
 -- Check if reminder was created
-SELECT * FROM reminders 
+SELECT * FROM reminders
 WHERE user_id = '020cf70e-5fc8-431a-94ff-bd8b1eec400c'
 ORDER BY created_at DESC LIMIT 1;
 
@@ -69,7 +71,7 @@ ORDER BY created_at DESC LIMIT 1;
 SELECT * FROM pg_policies WHERE tablename = 'reminders';
 
 -- Check if RLS is enabled
-SELECT tablename, rowsecurity FROM pg_tables 
+SELECT tablename, rowsecurity FROM pg_tables
 WHERE tablename = 'reminders';
 ```
 
@@ -80,6 +82,7 @@ WHERE tablename = 'reminders';
 **Cause:** Reminder created but not fetched
 
 **Solution:**
+
 1. Check if `/api/reminders?userId=...` returns the reminder
 2. Check if userId is stored in localStorage
 3. Refresh the page
@@ -89,6 +92,7 @@ WHERE tablename = 'reminders';
 **Cause:** Regex pattern doesn't match your phrase
 
 **Solution:**
+
 1. Test the regex at https://regex101.com
 2. Update pattern in `src/lib/lara/cohere-intent.ts`
 3. Test with API endpoint
@@ -98,6 +102,7 @@ WHERE tablename = 'reminders';
 **Cause:** Time parsing failed
 
 **Solution:**
+
 1. Check console logs for `[CONVERT-TIMESTAMP]` messages
 2. Verify time format (should be "HH:MM" or "H:MM am/pm")
 3. Check if "tomorrow" keyword is detected
@@ -107,6 +112,7 @@ WHERE tablename = 'reminders';
 **Cause:** Validation failed
 
 **Solution:**
+
 1. Check server logs for validation errors
 2. Verify all required fields are present:
    - `title` (required)
@@ -119,6 +125,7 @@ WHERE tablename = 'reminders';
 **Cause:** Database error
 
 **Solution:**
+
 1. Check server logs for database error details
 2. Verify RLS policies are enabled
 3. Verify user profile exists
@@ -127,15 +134,18 @@ WHERE tablename = 'reminders';
 ## Log Locations
 
 ### Browser Console
+
 - Open DevTools (F12)
 - Go to Console tab
 - Look for logs starting with `📌 [REMINDER-VOICE]`
 
 ### Server Terminal
+
 - Look for logs starting with `[REMINDER-CREATE]`
 - Look for logs starting with `[CONVERT-TIMESTAMP]`
 
 ### Database Logs
+
 - Supabase Dashboard → Logs
 - Filter by table: `reminders`
 
@@ -206,4 +216,3 @@ curl "http://localhost:3002/api/reminders?userId=020cf70e-5fc8-431a-94ff-bd8b1ee
 3. Restart the dev server
 4. Clear browser cache
 5. Check database directly
-

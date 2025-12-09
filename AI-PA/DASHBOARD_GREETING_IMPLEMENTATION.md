@@ -20,34 +20,41 @@ Replace the hardcoded "Hello, Alex!" greeting on the dashboard with the authenti
 ## 📝 Implementation Details
 
 ### File Modified
+
 **`AI-PA/src/app/dashboard/page.tsx`**
 
 ### Changes Made
 
 #### 1. Import User Service (Line 20)
+
 ```typescript
 import { getUser } from "@/lib/services/userService";
 ```
 
 #### 2. Add User Name State (Line 34)
+
 ```typescript
 const [userName, setUserName] = useState<string>("User");
 ```
 
 #### 3. Fetch User Profile (Lines 36-70)
+
 ```typescript
 // Get authenticated user ID from Supabase and fetch user name
 useEffect(() => {
   const getAuthenticatedUser = async () => {
     try {
-      const { data: { user }, error } = await supabase.auth.getUser();
+      const {
+        data: { user },
+        error,
+      } = await supabase.auth.getUser();
       if (error) {
-        console.error('Error getting user:', error);
+        console.error("Error getting user:", error);
         return;
       }
       if (user) {
         // Store in localStorage for other components
-        localStorage.setItem('userId', user.id);
+        localStorage.setItem("userId", user.id);
 
         // Fetch user profile to get the name
         try {
@@ -58,12 +65,12 @@ useEffect(() => {
             setUserName("User");
           }
         } catch (error) {
-          console.error('Error fetching user profile:', error);
+          console.error("Error fetching user profile:", error);
           setUserName("User");
         }
       }
     } catch (error) {
-      console.error('Error fetching authenticated user:', error);
+      console.error("Error fetching authenticated user:", error);
     }
   };
 
@@ -72,6 +79,7 @@ useEffect(() => {
 ```
 
 #### 4. Update Greeting Display (Line 121)
+
 ```typescript
 // BEFORE
 <h1 className="text-lg font-bold">Hello, Alex!</h1>
@@ -106,13 +114,13 @@ Greeting renders with user's name
 
 ## 🛡️ Error Handling
 
-| Scenario | Behavior |
-|----------|----------|
-| User profile not found | Shows "Hello, User!" |
-| Name field is empty | Shows "Hello, User!" |
-| Database fetch fails | Shows "Hello, User!" (error logged) |
-| User not authenticated | Shows "Hello, User!" |
-| Network error | Shows "Hello, User!" (error logged) |
+| Scenario               | Behavior                            |
+| ---------------------- | ----------------------------------- |
+| User profile not found | Shows "Hello, User!"                |
+| Name field is empty    | Shows "Hello, User!"                |
+| Database fetch fails   | Shows "Hello, User!" (error logged) |
+| User not authenticated | Shows "Hello, User!"                |
+| Network error          | Shows "Hello, User!" (error logged) |
 
 ---
 
@@ -128,11 +136,13 @@ Greeting renders with user's name
 ## 📊 Database Integration
 
 ### Data Source
+
 - **Table**: `users`
 - **Column**: `name`
 - **Lookup**: `user_id` = authenticated user's ID
 
 ### Service Used
+
 - **Function**: `getUser(userId: string)`
 - **Location**: `@/lib/services/userService`
 - **Returns**: User object with all fields including `name`
@@ -142,6 +152,7 @@ Greeting renders with user's name
 ## 🧪 Testing
 
 ### Test Case 1: User with Name
+
 ```
 Setup: User profile has name = "John Doe"
 Action: Navigate to /dashboard
@@ -149,6 +160,7 @@ Expected: Greeting shows "Hello, John Doe!"
 ```
 
 ### Test Case 2: User without Name
+
 ```
 Setup: User profile has name = null or empty
 Action: Navigate to /dashboard
@@ -156,6 +168,7 @@ Expected: Greeting shows "Hello, User!"
 ```
 
 ### Test Case 3: Database Error
+
 ```
 Setup: Simulate database connection error
 Action: Navigate to /dashboard
@@ -163,6 +176,7 @@ Expected: Greeting shows "Hello, User!" (error in console)
 ```
 
 ### Test Case 4: Not Authenticated
+
 ```
 Setup: User not logged in
 Action: Navigate to /dashboard
@@ -193,13 +207,16 @@ Expected: Greeting shows "Hello, User!" (or redirects to signin)
 ## 📚 Related Files
 
 ### Modified
+
 - `src/app/dashboard/page.tsx`
 
 ### Used Services
+
 - `src/lib/services/userService.ts` (getUser function)
 - `src/lib/supabaseClient.ts` (Supabase client)
 
 ### Database
+
 - `users` table (name column)
 
 ---
@@ -261,6 +278,7 @@ Expected: Greeting shows "Hello, User!" (or redirects to signin)
 ## 📞 Support
 
 For issues or questions:
+
 1. Check console logs for error messages
 2. Verify user profile has name field set
 3. Verify database connection is working
@@ -273,4 +291,3 @@ For issues or questions:
 The dashboard greeting has been successfully updated to display the authenticated user's actual name from the database. The implementation is complete, tested, and ready for deployment.
 
 **Status: ✅ READY FOR IMMEDIATE DEPLOYMENT**
-

@@ -15,44 +15,44 @@ export interface NavigationTarget {
 
 export const NAVIGATION_TARGETS: Record<string, NavigationTarget> = {
   tasks: {
-    path: '/professional',
-    label: 'Tasks',
-    aliases: ['tasks', 'task', 'my tasks', 'task list', 'todo', 'to do'],
+    path: "/professional",
+    label: "Tasks",
+    aliases: ["tasks", "task", "my tasks", "task list", "todo", "to do"],
   },
   reminders: {
-    path: '/reminders',
-    label: 'Reminders',
-    aliases: ['reminders', 'reminder', 'my reminders', 'reminder list'],
+    path: "/reminders",
+    label: "Reminders",
+    aliases: ["reminders", "reminder", "my reminders", "reminder list"],
   },
   health: {
-    path: '/healthcare',
-    label: 'Health',
-    aliases: ['health', 'healthcare', 'health data', 'medical', 'doctor'],
+    path: "/healthcare",
+    label: "Health",
+    aliases: ["health", "healthcare", "health data", "medical", "doctor"],
   },
   professional: {
-    path: '/professional',
-    label: 'Professional',
-    aliases: ['professional', 'work', 'my work', 'projects', 'meetings'],
+    path: "/professional",
+    label: "Professional",
+    aliases: ["professional", "work", "my work", "projects", "meetings"],
   },
   home: {
-    path: '/at-home',
-    label: 'Home',
-    aliases: ['home', 'at home', 'home tasks', 'chores', 'family'],
+    path: "/at-home",
+    label: "Home",
+    aliases: ["home", "at home", "home tasks", "chores", "family"],
   },
   growth: {
-    path: '/personal-growth',
-    label: 'Personal Growth',
-    aliases: ['growth', 'personal growth', 'learning', 'habits', 'goals'],
+    path: "/personal-growth",
+    label: "Personal Growth",
+    aliases: ["growth", "personal growth", "learning", "habits", "goals"],
   },
   dashboard: {
-    path: '/dashboard',
-    label: 'Dashboard',
-    aliases: ['dashboard', 'home', 'main', 'start'],
+    path: "/dashboard",
+    label: "Dashboard",
+    aliases: ["dashboard", "home", "main", "start"],
   },
   profile: {
-    path: '/profile',
-    label: 'Profile',
-    aliases: ['profile', 'my profile', 'settings', 'account'],
+    path: "/profile",
+    label: "Profile",
+    aliases: ["profile", "my profile", "settings", "account"],
   },
 };
 
@@ -60,7 +60,9 @@ export const NAVIGATION_TARGETS: Record<string, NavigationTarget> = {
 // RESOLVE NAVIGATION TARGET
 // ============================================================================
 
-export function resolveNavigationTarget(query: string): NavigationTarget | null {
+export function resolveNavigationTarget(
+  query: string,
+): NavigationTarget | null {
   const lowerQuery = query.toLowerCase().trim();
 
   for (const [key, target] of Object.entries(NAVIGATION_TARGETS)) {
@@ -80,7 +82,7 @@ export function resolveNavigationTarget(query: string): NavigationTarget | null 
 
 export async function navigateVoice(
   destination: string,
-  router?: any
+  router?: any,
 ): Promise<{ success: boolean; path: string; message: string }> {
   try {
     const target = resolveNavigationTarget(destination);
@@ -88,7 +90,7 @@ export async function navigateVoice(
     if (!target) {
       return {
         success: false,
-        path: '',
+        path: "",
         message: `Could not find destination: ${destination}`,
       };
     }
@@ -103,12 +105,13 @@ export async function navigateVoice(
       message: `Navigating to ${target.label}`,
     };
   } catch (error) {
-    const errorMessage = error instanceof Error ? error.message : 'Unknown error';
-    console.error('Navigation error:', error);
+    const errorMessage =
+      error instanceof Error ? error.message : "Unknown error";
+    console.error("Navigation error:", error);
 
     return {
       success: false,
-      path: '',
+      path: "",
       message: `Failed to navigate: ${errorMessage}`,
     };
   }
@@ -152,6 +155,5 @@ export function suggestDestination(query: string): NavigationTarget | null {
 
 export function getNavigationSummaryVoice(): string {
   const destinations = getAvailableDestinations();
-  return `You can navigate to: ${destinations.join(', ')}.`;
+  return `You can navigate to: ${destinations.join(", ")}.`;
 }
-

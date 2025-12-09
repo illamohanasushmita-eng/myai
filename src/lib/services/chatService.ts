@@ -1,37 +1,40 @@
-import { supabase } from '@/lib/supabaseClient';
-import { Chat } from '@/lib/types/database';
+import { supabase } from "@/lib/supabaseClient";
+import { Chat } from "@/lib/types/database";
 
 // Get all chats for a user
 export async function getUserChats(userId: string): Promise<Chat[]> {
   try {
     const { data, error } = await supabase
-      .from('chats')
-      .select('*')
-      .eq('user_id', userId)
-      .order('timestamp', { ascending: true });
+      .from("chats")
+      .select("*")
+      .eq("user_id", userId)
+      .order("timestamp", { ascending: true });
 
     if (error) throw error;
     return data || [];
   } catch (error) {
-    console.error('Error fetching chats:', error);
+    console.error("Error fetching chats:", error);
     throw error;
   }
 }
 
 // Get recent chats
-export async function getRecentChats(userId: string, limit: number = 50): Promise<Chat[]> {
+export async function getRecentChats(
+  userId: string,
+  limit: number = 50,
+): Promise<Chat[]> {
   try {
     const { data, error } = await supabase
-      .from('chats')
-      .select('*')
-      .eq('user_id', userId)
-      .order('timestamp', { ascending: false })
+      .from("chats")
+      .select("*")
+      .eq("user_id", userId)
+      .order("timestamp", { ascending: false })
       .limit(limit);
 
     if (error) throw error;
     return data || [];
   } catch (error) {
-    console.error('Error fetching recent chats:', error);
+    console.error("Error fetching recent chats:", error);
     throw error;
   }
 }
@@ -39,11 +42,11 @@ export async function getRecentChats(userId: string, limit: number = 50): Promis
 // Create a new chat message
 export async function createChat(
   userId: string,
-  chatData: Omit<Chat, 'chat_id' | 'user_id' | 'timestamp'>
+  chatData: Omit<Chat, "chat_id" | "user_id" | "timestamp">,
 ): Promise<Chat> {
   try {
     const { data, error } = await supabase
-      .from('chats')
+      .from("chats")
       .insert([
         {
           user_id: userId,
@@ -56,7 +59,7 @@ export async function createChat(
     if (error) throw error;
     return data;
   } catch (error) {
-    console.error('Error creating chat:', error);
+    console.error("Error creating chat:", error);
     throw error;
   }
 }
@@ -64,20 +67,20 @@ export async function createChat(
 // Update a chat message
 export async function updateChat(
   chatId: string,
-  updates: Partial<Chat>
+  updates: Partial<Chat>,
 ): Promise<Chat> {
   try {
     const { data, error } = await supabase
-      .from('chats')
+      .from("chats")
       .update(updates)
-      .eq('chat_id', chatId)
+      .eq("chat_id", chatId)
       .select()
       .single();
 
     if (error) throw error;
     return data;
   } catch (error) {
-    console.error('Error updating chat:', error);
+    console.error("Error updating chat:", error);
     throw error;
   }
 }
@@ -86,13 +89,13 @@ export async function updateChat(
 export async function deleteChat(chatId: string): Promise<void> {
   try {
     const { error } = await supabase
-      .from('chats')
+      .from("chats")
       .delete()
-      .eq('chat_id', chatId);
+      .eq("chat_id", chatId);
 
     if (error) throw error;
   } catch (error) {
-    console.error('Error deleting chat:', error);
+    console.error("Error deleting chat:", error);
     throw error;
   }
 }
@@ -100,21 +103,20 @@ export async function deleteChat(chatId: string): Promise<void> {
 // Get chats by sender
 export async function getChatsBySender(
   userId: string,
-  sender: 'user' | 'ai'
+  sender: "user" | "ai",
 ): Promise<Chat[]> {
   try {
     const { data, error } = await supabase
-      .from('chats')
-      .select('*')
-      .eq('user_id', userId)
-      .eq('sender', sender)
-      .order('timestamp', { ascending: false });
+      .from("chats")
+      .select("*")
+      .eq("user_id", userId)
+      .eq("sender", sender)
+      .order("timestamp", { ascending: false });
 
     if (error) throw error;
     return data || [];
   } catch (error) {
-    console.error('Error fetching chats by sender:', error);
+    console.error("Error fetching chats by sender:", error);
     throw error;
   }
 }
-

@@ -1,21 +1,21 @@
-import { z } from 'zod';
-import { openai } from '@/ai/openai-client';
+import { z } from "zod";
+import { openai } from "@/ai/openai-client";
 
 // Strict JSON schema for intent classification
 export const IntentSchema = z.object({
   intent: z.enum([
-    'play_music',
-    'add_task',
-    'show_tasks',
-    'add_reminder',
-    'show_reminders',
-    'navigate',
-    'general_query',
+    "play_music",
+    "add_task",
+    "show_tasks",
+    "add_reminder",
+    "show_reminders",
+    "navigate",
+    "general_query",
   ]),
   query: z.string().nullable(),
   taskText: z.string().nullable(),
   musicQuery: z.string().nullable(),
-  navigationTarget: z.enum(['/tasks', '/reminders']).nullable(),
+  navigationTarget: z.enum(["/tasks", "/reminders"]).nullable(),
   time: z.string().nullable(),
 });
 
@@ -23,13 +23,13 @@ export type Intent = z.infer<typeof IntentSchema>;
 
 export async function classifyIntent(text: string): Promise<Intent> {
   try {
-    console.log('🎤 Classifying intent for:', text);
+    console.log("🎤 Classifying intent for:", text);
 
     const response = await openai.chat.completions.create({
-      model: 'gpt-4o-mini',
+      model: "gpt-4o-mini",
       messages: [
         {
-          role: 'system',
+          role: "system",
           content: `You are an intent classifier for a voice assistant. Analyze the user's command and return STRICT JSON.
 
 Return ONLY valid JSON matching this schema:
@@ -54,7 +54,7 @@ Rules:
 Be precise. Return ONLY the JSON object, no other text.`,
         },
         {
-          role: 'user',
+          role: "user",
           content: `Classify this command: ${text}`,
         },
       ],
@@ -64,7 +64,7 @@ Be precise. Return ONLY the JSON object, no other text.`,
 
     const content = response.choices[0]?.message?.content;
     if (!content) {
-      throw new Error('Failed to classify intent');
+      throw new Error("Failed to classify intent");
     }
 
     // Parse the JSON response
@@ -72,12 +72,11 @@ Be precise. Return ONLY the JSON object, no other text.`,
 
     // Validate the output matches our schema
     const validatedIntent = IntentSchema.parse(output);
-    console.log('✅ Intent classified:', validatedIntent);
+    console.log("✅ Intent classified:", validatedIntent);
 
     return validatedIntent;
   } catch (error) {
-    console.error('❌ Error classifying intent:', error);
+    console.error("❌ Error classifying intent:", error);
     throw error;
   }
 }
-

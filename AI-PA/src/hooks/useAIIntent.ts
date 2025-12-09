@@ -1,6 +1,6 @@
-'use client';
+"use client";
 
-import { useState, useCallback } from 'react';
+import { useState, useCallback } from "react";
 
 export interface IntentResult {
   mood: string | null;
@@ -22,30 +22,31 @@ export function useAIIntent() {
         setLoading(true);
         setError(null);
 
-        const response = await fetch('/api/ai/intent', {
-          method: 'POST',
+        const response = await fetch("/api/ai/intent", {
+          method: "POST",
           headers: {
-            'Content-Type': 'application/json',
+            "Content-Type": "application/json",
           },
           body: JSON.stringify({ text, userId }),
         });
 
         if (!response.ok) {
-          throw new Error('Failed to detect intent');
+          throw new Error("Failed to detect intent");
         }
 
         const data = await response.json();
         setIntent(data);
         return data;
       } catch (err) {
-        const errorMessage = err instanceof Error ? err.message : 'Unknown error';
+        const errorMessage =
+          err instanceof Error ? err.message : "Unknown error";
         setError(errorMessage);
         return null;
       } finally {
         setLoading(false);
       }
     },
-    []
+    [],
   );
 
   const reset = useCallback(() => {
@@ -61,4 +62,3 @@ export function useAIIntent() {
     reset,
   };
 }
-

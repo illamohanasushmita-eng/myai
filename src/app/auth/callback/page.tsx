@@ -1,52 +1,55 @@
-'use client';
+"use client";
 
-import { useEffect, useState } from 'react';
-import { useRouter, useSearchParams } from 'next/navigation';
-import { supabase } from '@/lib/supabaseClient';
+import { useEffect, useState } from "react";
+import { useRouter, useSearchParams } from "next/navigation";
+import { supabase } from "@/lib/supabaseClient";
 
 export default function AuthCallback() {
   const router = useRouter();
   const searchParams = useSearchParams();
-  const [message, setMessage] = useState('Verifying your email...');
+  const [message, setMessage] = useState("Verifying your email...");
 
   useEffect(() => {
     const handleAuthCallback = async () => {
       try {
         // Get token and type from URL params
-        const token = searchParams.get('token');
-        const type = searchParams.get('type');
+        const token = searchParams.get("token");
+        const type = searchParams.get("type");
 
         if (token && type) {
           // Verify the OTP token
           const { data, error } = await supabase.auth.verifyOtp({
             token_hash: token,
-            type: type as 'signup' | 'recovery' | 'invite',
+            type: type as "signup" | "recovery" | "invite",
           });
 
           if (error) {
-            console.error('Error verifying OTP:', error);
-            setMessage('Email verification failed. Please try again.');
-            setTimeout(() => router.push('/signin?error=verification_failed'), 2000);
+            console.error("Error verifying OTP:", error);
+            setMessage("Email verification failed. Please try again.");
+            setTimeout(
+              () => router.push("/signin?error=verification_failed"),
+              2000,
+            );
             return;
           }
 
           if (data.user) {
-            setMessage('Email verified successfully! Redirecting...');
-            setTimeout(() => router.push('/dashboard'), 1000);
+            setMessage("Email verified successfully! Redirecting...");
+            setTimeout(() => router.push("/dashboard"), 1000);
           }
         } else {
           // Check if user is already authenticated
           const { data: sessionData } = await supabase.auth.getSession();
           if (sessionData.session) {
-            router.push('/dashboard');
+            router.push("/dashboard");
           } else {
-            router.push('/signin?error=no_token');
+            router.push("/signin?error=no_token");
           }
         }
       } catch (error) {
-        console.error('Auth callback error:', error);
-        setMessage('An error occurred during verification.');
-        setTimeout(() => router.push('/signin?error=callback_error'), 2000);
+        console.error("Auth callback error:", error);
+        setMessage("An error occurred during verification.");
+        setTimeout(() => router.push("/signin?error=callback_error"), 2000);
       }
     };
 

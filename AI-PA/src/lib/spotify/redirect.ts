@@ -15,13 +15,13 @@
  * @returns Sanitized query
  */
 export function sanitizeMusicQuery(query: string): string {
-  if (!query) return '';
+  if (!query) return "";
 
   // Remove punctuation and extra whitespace
   return query
-    .replace(/[.,!?;:'"]/g, '') // Remove punctuation
+    .replace(/[.,!?;:'"]/g, "") // Remove punctuation
     .trim()
-    .replace(/\s+/g, ' '); // Normalize whitespace
+    .replace(/\s+/g, " "); // Normalize whitespace
 }
 
 /**
@@ -42,21 +42,29 @@ function isIOS(): boolean {
  * Detect if running on Windows desktop
  */
 function isWindowsDesktop(): boolean {
-  return /Windows/i.test(navigator.userAgent) && !/Android/i.test(navigator.userAgent);
+  return (
+    /Windows/i.test(navigator.userAgent) &&
+    !/Android/i.test(navigator.userAgent)
+  );
 }
 
 /**
  * Detect if running on macOS desktop
  */
 function isMacDesktop(): boolean {
-  return /Macintosh|Mac OS X/i.test(navigator.userAgent) && !/Android|iPhone|iPad|iPod/i.test(navigator.userAgent);
+  return (
+    /Macintosh|Mac OS X/i.test(navigator.userAgent) &&
+    !/Android|iPhone|iPad|iPod/i.test(navigator.userAgent)
+  );
 }
 
 /**
  * Detect if running on Linux desktop
  */
 function isLinuxDesktop(): boolean {
-  return /Linux/i.test(navigator.userAgent) && !/Android/i.test(navigator.userAgent);
+  return (
+    /Linux/i.test(navigator.userAgent) && !/Android/i.test(navigator.userAgent)
+  );
 }
 
 /**
@@ -78,10 +86,25 @@ function isLinuxDesktop(): boolean {
  * @param onFallback - Callback when falling back to web player
  * @returns Promise that resolves when the URI scheme attempt is complete (after timeout or app opens)
  */
-function openUriScheme(uri: string, webUrl: string, timeoutMs?: number, onFallback?: (reason: string) => void): Promise<void> {
+function openUriScheme(
+  uri: string,
+  webUrl: string,
+  timeoutMs?: number,
+  onFallback?: (reason: string) => void,
+): Promise<void> {
   return new Promise((resolve) => {
     console.log(`🔗 [SPOTIFY REDIRECT] Attempting to open URI: ${uri}`);
-    const platform = isAndroid() ? 'Android' : isIOS() ? 'iOS' : isWindowsDesktop() ? 'Windows' : isMacDesktop() ? 'macOS' : isLinuxDesktop() ? 'Linux' : 'Unknown';
+    const platform = isAndroid()
+      ? "Android"
+      : isIOS()
+        ? "iOS"
+        : isWindowsDesktop()
+          ? "Windows"
+          : isMacDesktop()
+            ? "macOS"
+            : isLinuxDesktop()
+              ? "Linux"
+              : "Unknown";
     console.log(`📱 [SPOTIFY REDIRECT] Platform: ${platform}`);
 
     const timeout = timeoutMs ?? (isAndroid() ? 2500 : 2000);
@@ -93,33 +116,38 @@ function openUriScheme(uri: string, webUrl: string, timeoutMs?: number, onFallba
     if (isAndroid()) {
       // Android: Try direct URI scheme first (works with Spotify app)
       // If that fails, the browser will show an error and we'll fallback to web
-      console.log('📱 [SPOTIFY REDIRECT] Using Android URI scheme approach');
+      console.log("📱 [SPOTIFY REDIRECT] Using Android URI scheme approach");
       console.log(`🔗 [SPOTIFY REDIRECT] Direct URI: ${uri}`);
 
       // Create an iframe to attempt the URI scheme
       // This prevents page navigation if the app isn't installed
-      const iframe = document.createElement('iframe');
-      iframe.style.display = 'none';
-      iframe.style.width = '0';
-      iframe.style.height = '0';
-      iframe.style.border = 'none';
+      const iframe = document.createElement("iframe");
+      iframe.style.display = "none";
+      iframe.style.width = "0";
+      iframe.style.height = "0";
+      iframe.style.border = "none";
       iframe.src = uri;
       document.body.appendChild(iframe);
 
-      console.log('📱 [SPOTIFY REDIRECT] Created iframe with URI scheme');
+      console.log("📱 [SPOTIFY REDIRECT] Created iframe with URI scheme");
 
       // Monitor visibility to detect if app opened
       const handleVisibilityChange = () => {
         if (document.hidden) {
           appOpened = true;
-          console.log('✅ [SPOTIFY REDIRECT] Spotify app opened (page lost focus)');
+          console.log(
+            "✅ [SPOTIFY REDIRECT] Spotify app opened (page lost focus)",
+          );
           clearTimeout(fallbackTimer);
-          document.removeEventListener('visibilitychange', handleVisibilityChange);
+          document.removeEventListener(
+            "visibilitychange",
+            handleVisibilityChange,
+          );
           resolve(); // Resolve promise when app opens
         }
       };
 
-      document.addEventListener('visibilitychange', handleVisibilityChange);
+      document.addEventListener("visibilitychange", handleVisibilityChange);
 
       // Fallback to web player if app doesn't open
       const fallbackTimer = setTimeout(() => {
@@ -128,11 +156,14 @@ function openUriScheme(uri: string, webUrl: string, timeoutMs?: number, onFallba
           const reason = `Spotify app not found on Android after ${timeout}ms`;
           console.log(`⏱️ [SPOTIFY REDIRECT] ${reason}`);
           console.log(`🌐 [SPOTIFY REDIRECT] Opening web player: ${webUrl}`);
-          document.removeEventListener('visibilitychange', handleVisibilityChange);
+          document.removeEventListener(
+            "visibilitychange",
+            handleVisibilityChange,
+          );
           onFallback?.(reason);
           // Use window.open instead of window.location.href to avoid page navigation
           // This opens the web player in a new tab/window without disrupting the current page
-          window.open(webUrl, '_blank');
+          window.open(webUrl, "_blank");
           resolve(); // Resolve promise when fallback is triggered
         }
       }, timeout);
@@ -147,35 +178,41 @@ function openUriScheme(uri: string, webUrl: string, timeoutMs?: number, onFallba
           // Iframe might already be removed
         }
       }, 100);
-
     } else if (isWindowsDesktop() || isMacDesktop() || isLinuxDesktop()) {
       // Desktop: Use iframe approach with URI scheme (doesn't navigate away from page)
-      console.log(`🖥️ [SPOTIFY REDIRECT] Using iframe-based URI scheme approach for ${platform}`);
+      console.log(
+        `🖥️ [SPOTIFY REDIRECT] Using iframe-based URI scheme approach for ${platform}`,
+      );
 
       // Create an iframe to attempt the URI scheme
       // This prevents page navigation if the app isn't installed
-      const iframe = document.createElement('iframe');
-      iframe.style.display = 'none';
-      iframe.style.width = '0';
-      iframe.style.height = '0';
-      iframe.style.border = 'none';
+      const iframe = document.createElement("iframe");
+      iframe.style.display = "none";
+      iframe.style.width = "0";
+      iframe.style.height = "0";
+      iframe.style.border = "none";
       iframe.src = uri;
       document.body.appendChild(iframe);
 
-      console.log('🖥️ [SPOTIFY REDIRECT] Created iframe with URI scheme');
+      console.log("🖥️ [SPOTIFY REDIRECT] Created iframe with URI scheme");
 
       // Monitor visibility to detect if app opened
       const handleVisibilityChange = () => {
         if (document.hidden) {
           appOpened = true;
-          console.log('✅ [SPOTIFY REDIRECT] Spotify app opened (page lost focus)');
+          console.log(
+            "✅ [SPOTIFY REDIRECT] Spotify app opened (page lost focus)",
+          );
           clearTimeout(fallbackTimer);
-          document.removeEventListener('visibilitychange', handleVisibilityChange);
+          document.removeEventListener(
+            "visibilitychange",
+            handleVisibilityChange,
+          );
           resolve(); // Resolve promise when app opens
         }
       };
 
-      document.addEventListener('visibilitychange', handleVisibilityChange);
+      document.addEventListener("visibilitychange", handleVisibilityChange);
 
       // Fallback to web player if app doesn't open
       const fallbackTimer = setTimeout(() => {
@@ -184,11 +221,14 @@ function openUriScheme(uri: string, webUrl: string, timeoutMs?: number, onFallba
           const reason = `Spotify app not found on ${platform} after ${timeout}ms`;
           console.log(`⏱️ [SPOTIFY REDIRECT] ${reason}`);
           console.log(`🌐 [SPOTIFY REDIRECT] Opening web player: ${webUrl}`);
-          document.removeEventListener('visibilitychange', handleVisibilityChange);
+          document.removeEventListener(
+            "visibilitychange",
+            handleVisibilityChange,
+          );
           onFallback?.(reason);
           // Use window.open instead of window.location.href to avoid page navigation
           // This opens the web player in a new tab/window without disrupting the current page
-          window.open(webUrl, '_blank');
+          window.open(webUrl, "_blank");
           resolve(); // Resolve promise when fallback is triggered
         }
       }, timeout);
@@ -203,16 +243,17 @@ function openUriScheme(uri: string, webUrl: string, timeoutMs?: number, onFallba
           // Iframe might already be removed
         }
       }, 100);
-
     } else {
       // iOS: Use iframe approach (doesn't navigate away from page)
-      console.log('📱 [SPOTIFY REDIRECT] Using iframe-based URI scheme approach for iOS');
+      console.log(
+        "📱 [SPOTIFY REDIRECT] Using iframe-based URI scheme approach for iOS",
+      );
 
-      const iframe = document.createElement('iframe');
-      iframe.style.display = 'none';
-      iframe.style.width = '0';
-      iframe.style.height = '0';
-      iframe.style.border = 'none';
+      const iframe = document.createElement("iframe");
+      iframe.style.display = "none";
+      iframe.style.width = "0";
+      iframe.style.height = "0";
+      iframe.style.border = "none";
 
       console.log(`🔗 [SPOTIFY REDIRECT] Creating iframe with URI: ${uri}`);
       iframe.src = uri;
@@ -222,14 +263,19 @@ function openUriScheme(uri: string, webUrl: string, timeoutMs?: number, onFallba
       const handleVisibilityChange = () => {
         if (document.hidden) {
           appOpened = true;
-          console.log('✅ [SPOTIFY REDIRECT] Spotify app opened (page lost focus)');
+          console.log(
+            "✅ [SPOTIFY REDIRECT] Spotify app opened (page lost focus)",
+          );
           clearTimeout(fallbackTimer);
-          document.removeEventListener('visibilitychange', handleVisibilityChange);
+          document.removeEventListener(
+            "visibilitychange",
+            handleVisibilityChange,
+          );
           resolve(); // Resolve promise when app opens
         }
       };
 
-      document.addEventListener('visibilitychange', handleVisibilityChange);
+      document.addEventListener("visibilitychange", handleVisibilityChange);
 
       // Fallback to web player if app doesn't open
       const fallbackTimer = setTimeout(() => {
@@ -238,11 +284,14 @@ function openUriScheme(uri: string, webUrl: string, timeoutMs?: number, onFallba
           const reason = `Spotify app not found on iOS after ${timeout}ms`;
           console.log(`⏱️ [SPOTIFY REDIRECT] ${reason}`);
           console.log(`🌐 [SPOTIFY REDIRECT] Opening web player: ${webUrl}`);
-          document.removeEventListener('visibilitychange', handleVisibilityChange);
+          document.removeEventListener(
+            "visibilitychange",
+            handleVisibilityChange,
+          );
           onFallback?.(reason);
           // Use window.open instead of window.location.href to avoid page navigation
           // This opens the web player in a new tab/window without disrupting the current page
-          window.open(webUrl, '_blank');
+          window.open(webUrl, "_blank");
           resolve(); // Resolve promise when fallback is triggered
         }
       }, timeout);
@@ -270,13 +319,16 @@ function openUriScheme(uri: string, webUrl: string, timeoutMs?: number, onFallba
  * @param onFallback - Optional callback when falling back to web player
  * @returns Promise that resolves when redirect is initiated
  */
-export async function playInSpotifyApp(trackId: string, onFallback?: (reason: string) => void): Promise<void> {
+export async function playInSpotifyApp(
+  trackId: string,
+  onFallback?: (reason: string) => void,
+): Promise<void> {
   try {
     console.log(`🎵 [SPOTIFY REDIRECT] Opening track: ${trackId}`);
 
     if (!trackId || trackId.trim().length === 0) {
-      console.error('❌ [SPOTIFY REDIRECT] Invalid track ID provided');
-      throw new Error('Track ID is required');
+      console.error("❌ [SPOTIFY REDIRECT] Invalid track ID provided");
+      throw new Error("Track ID is required");
     }
 
     // Use standard Spotify URI scheme format for all platforms
@@ -289,10 +341,11 @@ export async function playInSpotifyApp(trackId: string, onFallback?: (reason: st
 
     // Open Spotify app with web player fallback
     openUriScheme(spotifyUri, webUrl, undefined, onFallback);
-
   } catch (error) {
-    console.error('❌ [SPOTIFY REDIRECT] Error opening track:', error);
-    onFallback?.(`Error opening track: ${error instanceof Error ? error.message : 'Unknown error'}`);
+    console.error("❌ [SPOTIFY REDIRECT] Error opening track:", error);
+    onFallback?.(
+      `Error opening track: ${error instanceof Error ? error.message : "Unknown error"}`,
+    );
   }
 }
 
@@ -306,13 +359,16 @@ export async function playInSpotifyApp(trackId: string, onFallback?: (reason: st
  * @param onFallback - Optional callback when falling back to web player
  * @returns Promise that resolves when redirect is initiated
  */
-export async function searchInSpotifyApp(query: string, onFallback?: (reason: string) => void): Promise<void> {
+export async function searchInSpotifyApp(
+  query: string,
+  onFallback?: (reason: string) => void,
+): Promise<void> {
   try {
     console.log(`🔍 [SPOTIFY REDIRECT] Searching for: ${query}`);
 
     if (!query || query.trim().length === 0) {
-      console.error('❌ [SPOTIFY REDIRECT] Invalid search query provided');
-      throw new Error('Search query is required');
+      console.error("❌ [SPOTIFY REDIRECT] Invalid search query provided");
+      throw new Error("Search query is required");
     }
 
     // Encode query for URI scheme
@@ -329,41 +385,42 @@ export async function searchInSpotifyApp(query: string, onFallback?: (reason: st
     // Open Spotify app with web player fallback
     // Wait for the URI scheme attempt to complete (either app opens or timeout)
     await openUriScheme(spotifyUri, webUrl, undefined, onFallback);
-
   } catch (error) {
-    console.error('❌ [SPOTIFY REDIRECT] Error searching Spotify:', error);
-    onFallback?.(`Error searching Spotify: ${error instanceof Error ? error.message : 'Unknown error'}`);
+    console.error("❌ [SPOTIFY REDIRECT] Error searching Spotify:", error);
+    onFallback?.(
+      `Error searching Spotify: ${error instanceof Error ? error.message : "Unknown error"}`,
+    );
   }
 }
 
 /**
  * Open Spotify home page
  * Opens the Spotify web player home page
- * 
+ *
  * @returns Promise that resolves when redirect is initiated
  */
 export async function openSpotifyHome(): Promise<void> {
   try {
-    console.log('🏠 [SPOTIFY REDIRECT] Opening Spotify home');
+    console.log("🏠 [SPOTIFY REDIRECT] Opening Spotify home");
 
-    const spotifyHomeUrl = 'https://open.spotify.com';
+    const spotifyHomeUrl = "https://open.spotify.com";
     console.log(`🏠 [SPOTIFY REDIRECT] Opening: ${spotifyHomeUrl}`);
 
     window.location.href = spotifyHomeUrl;
   } catch (error) {
-    console.error('❌ [SPOTIFY REDIRECT] Error opening Spotify home:', error);
+    console.error("❌ [SPOTIFY REDIRECT] Error opening Spotify home:", error);
   }
 }
 
 /**
  * Helper function to validate Spotify track ID format
  * Spotify track IDs are typically 22 characters long
- * 
+ *
  * @param trackId - Track ID to validate
  * @returns true if valid, false otherwise
  */
 export function isValidSpotifyTrackId(trackId: string): boolean {
-  if (!trackId || typeof trackId !== 'string') {
+  if (!trackId || typeof trackId !== "string") {
     return false;
   }
   // Spotify track IDs are typically 22 characters of alphanumeric characters
@@ -375,7 +432,7 @@ export function isValidSpotifyTrackId(trackId: string): boolean {
  * Handles formats like:
  * - https://open.spotify.com/track/123abc
  * - spotify:track:123abc
- * 
+ *
  * @param url - Spotify URL or URI
  * @returns Track ID or null if not found
  */
@@ -395,7 +452,7 @@ export function extractTrackIdFromUrl(url: string): string | null {
 
     return null;
   } catch (error) {
-    console.error('❌ [SPOTIFY REDIRECT] Error extracting track ID:', error);
+    console.error("❌ [SPOTIFY REDIRECT] Error extracting track ID:", error);
     return null;
   }
 }
@@ -418,27 +475,31 @@ export function extractTrackIdFromUrl(url: string): string | null {
 export async function playTrackWithAutoPlay(
   trackId: string,
   userId: string,
-  trackName: string = 'track'
+  trackName: string = "track",
 ): Promise<boolean> {
   try {
-    console.log(`🎵 [SPOTIFY REDIRECT] Attempting auto-play fallback for: ${trackName} (ID: ${trackId})`);
+    console.log(
+      `🎵 [SPOTIFY REDIRECT] Attempting auto-play fallback for: ${trackName} (ID: ${trackId})`,
+    );
 
     if (!trackId || trackId.trim().length === 0) {
-      console.error('❌ [SPOTIFY REDIRECT] Invalid track ID provided');
+      console.error("❌ [SPOTIFY REDIRECT] Invalid track ID provided");
       return false;
     }
 
     if (!userId || userId.trim().length === 0) {
-      console.error('❌ [SPOTIFY REDIRECT] User ID required for auto-play');
+      console.error("❌ [SPOTIFY REDIRECT] User ID required for auto-play");
       return false;
     }
 
     // Call the Spotify playback API endpoint
-    console.log(`🎵 [SPOTIFY REDIRECT] Calling /api/spotify/play for auto-play fallback`);
-    const response = await fetch('/api/spotify/play', {
-      method: 'POST',
+    console.log(
+      `🎵 [SPOTIFY REDIRECT] Calling /api/spotify/play for auto-play fallback`,
+    );
+    const response = await fetch("/api/spotify/play", {
+      method: "POST",
       headers: {
-        'Content-Type': 'application/json',
+        "Content-Type": "application/json",
       },
       body: JSON.stringify({
         trackId,
@@ -447,24 +508,32 @@ export async function playTrackWithAutoPlay(
     });
 
     if (!response.ok) {
-      console.error(`❌ [SPOTIFY REDIRECT] Auto-play API error: ${response.status} ${response.statusText}`);
+      console.error(
+        `❌ [SPOTIFY REDIRECT] Auto-play API error: ${response.status} ${response.statusText}`,
+      );
       const errorData = await response.json().catch(() => ({}));
-      console.error('❌ [SPOTIFY REDIRECT] Error details:', errorData);
+      console.error("❌ [SPOTIFY REDIRECT] Error details:", errorData);
       return false;
     }
 
     const data = await response.json();
 
     if (data.success) {
-      console.log(`✅ [SPOTIFY REDIRECT] Auto-play fallback successful for: ${trackName}`);
+      console.log(
+        `✅ [SPOTIFY REDIRECT] Auto-play fallback successful for: ${trackName}`,
+      );
       return true;
     } else {
-      console.warn(`⚠️ [SPOTIFY REDIRECT] Auto-play returned success=false: ${data.error || 'Unknown error'}`);
+      console.warn(
+        `⚠️ [SPOTIFY REDIRECT] Auto-play returned success=false: ${data.error || "Unknown error"}`,
+      );
       return false;
     }
-
   } catch (error) {
-    console.error('❌ [SPOTIFY REDIRECT] Error during auto-play fallback:', error);
+    console.error(
+      "❌ [SPOTIFY REDIRECT] Error during auto-play fallback:",
+      error,
+    );
     return false;
   }
 }

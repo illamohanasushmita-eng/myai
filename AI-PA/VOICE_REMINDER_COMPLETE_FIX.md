@@ -3,6 +3,7 @@
 ## Problem Summary
 
 When users created reminders via voice command (e.g., "Remind me to call my mom tomorrow, 5:00 PM"), the system would:
+
 1. ✅ Detect the intent correctly as `reminder_create`
 2. ✅ Extract entities (description and time)
 3. ❌ **NOT actually create the reminder** - just navigate to `/reminders/add` page
@@ -11,6 +12,7 @@ When users created reminders via voice command (e.g., "Remind me to call my mom 
 ## Root Causes Identified
 
 ### Issue 1: Intent Handler Conflict ❌
+
 **File:** `src/lib/lara/intentRouter.ts` (Line 107)
 
 The generic reminder handler was matching `reminder_create` intent BEFORE the specific handler that actually creates reminders:
@@ -29,17 +31,21 @@ if (intent === 'reminder_create') {
 ```
 
 ### Issue 2: Incorrect Entity Extraction ❌
+
 **File:** `src/lib/lara/cohere-intent.ts` (Line 193)
 
 The regex pattern didn't handle commas or time patterns properly:
 
 ```typescript
 // OLD REGEX - Doesn't match "tomorrow, 5:00 PM"
-const match = lowerText.match(/(?:remind|set\s+reminder)\s+me\s+(?:to\s+)?(.+?)(?:\s+at\s+(.+))?$/i);
+const match = lowerText.match(
+  /(?:remind|set\s+reminder)\s+me\s+(?:to\s+)?(.+?)(?:\s+at\s+(.+))?$/i,
+);
 // Result: description="call my mom tomorrow, 5:00 pm.", time=""
 ```
 
 ### Issue 3: Invalid Timestamp Format ❌
+
 **File:** `src/lib/voice/reminder-automation.ts` (Line 77)
 
 The time was being sent as partial string instead of full ISO timestamp:
@@ -53,24 +59,30 @@ reminderTime = parseTimeFromText(reminderText) || new Date().toISOString();
 ## Solutions Implemented
 
 ### Fix 1: Remove Intent Handler Conflict ✅
+
 **File:** `src/lib/lara/intentRouter.ts`
 
 Removed `reminder_create` from the generic handler so the specific handler is used:
 
 ```typescript
 // FIXED: Removed reminder_create from this condition
-if (intent === 'reminder.create' || intent === 'reminder.add' || intent === 'add_reminder') {
+if (
+  intent === "reminder.create" ||
+  intent === "reminder.add" ||
+  intent === "add_reminder"
+) {
   // Generic handler - just navigates
 }
 
 // Now this handler is reached for reminder_create
-if (intent === 'reminder_create') {
+if (intent === "reminder_create") {
   // Specific handler - actually creates reminder
   context.onAddReminder(description, time);
 }
 ```
 
 ### Fix 2: Improved Entity Extraction ✅
+
 **File:** `src/lib/lara/cohere-intent.ts`
 
 Updated regex to handle multiple formats:
@@ -88,6 +100,7 @@ Updated regex to handle multiple formats:
 ```
 
 ### Fix 3: Proper Timestamp Conversion ✅
+
 **File:** `src/lib/voice/reminder-automation.ts`
 
 Added `convertToISOTimestamp()` function:
@@ -97,7 +110,6 @@ export function convertToISOTimestamp(text: string, timeStr?: string): string {
   // Detects "tomorrow", "today" keywords
   // Parses time from text or uses provided time
   // Returns full ISO timestamp
-  
   // Example:
   // Input: text="call my mom tomorrow", timeStr="5:00 pm."
   // Output: "2025-11-13T17:00:00.000Z"
@@ -105,9 +117,11 @@ export function convertToISOTimestamp(text: string, timeStr?: string): string {
 ```
 
 ### Fix 4: Comprehensive Logging ✅
+
 **Files:** All three files above
 
 Added detailed logging at each step:
+
 - Entity extraction logs
 - Timestamp conversion logs
 - API call logs
@@ -154,6 +168,7 @@ Added detailed logging at each step:
 ## Testing
 
 ### Test Command
+
 ```bash
 curl -X POST http://localhost:3002/api/intent \
   -H "Content-Type: application/json" \
@@ -161,6 +176,7 @@ curl -X POST http://localhost:3002/api/intent \
 ```
 
 ### Expected Response
+
 ```json
 {
   "intent": "reminder_create",
@@ -173,6 +189,7 @@ curl -X POST http://localhost:3002/api/intent \
 ```
 
 ### Voice Test
+
 1. Go to http://localhost:3002/test-lara
 2. Click Start
 3. Say "Hey Lara"
@@ -190,6 +207,7 @@ ORDER BY created_at DESC LIMIT 1;
 ```
 
 Expected:
+
 - `title`: "call my mom tomorrow, 5:00 PM"
 - `reminder_time`: Valid ISO timestamp (e.g., "2025-11-13T17:00:00.000Z")
 - `status`: "pending"
@@ -221,4 +239,3 @@ Expected:
 ## 🎉 Result
 
 Voice reminder creation is now **fully functional**!
-

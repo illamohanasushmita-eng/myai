@@ -1,7 +1,7 @@
 # ⚡ Wake Word Detection - Quick Reference
 
 **Status**: ✅ COMPLETE  
-**File Modified**: `src/lib/voice/lara-assistant.ts`  
+**File Modified**: `src/lib/voice/lara-assistant.ts`
 
 ---
 
@@ -12,6 +12,7 @@
 **Problem**: Resolved on error without checking wake word
 
 **Solution**:
+
 ```typescript
 // Added flag to track detection
 let wakeWordDetected = false;
@@ -20,12 +21,12 @@ let wakeWordDetected = false;
 timeoutId = setTimeout(() => {
   if (!wakeWordDetected) {
     recognition.abort();
-    reject(new Error('Wake word detection timeout...'));
+    reject(new Error("Wake word detection timeout..."));
   }
 }, 30000);
 
 // Only resolve after wake word detected
-if (transcript.toLowerCase().includes('hey lara')) {
+if (transcript.toLowerCase().includes("hey lara")) {
   wakeWordDetected = true;
   clearTimeout(timeoutId);
   recognition.abort();
@@ -33,8 +34,8 @@ if (transcript.toLowerCase().includes('hey lara')) {
 }
 
 // Continue listening on no-speech error
-if (event.error === 'no-speech') {
-  console.warn('⚠️ No speech detected, continuing to listen...');
+if (event.error === "no-speech") {
+  console.warn("⚠️ No speech detected, continuing to listen...");
   return; // ✅ Don't resolve
 }
 
@@ -51,21 +52,24 @@ recognition.onend = () => {
 **Added**: Female voice support
 
 ```typescript
-export async function speak(text: string, isFemaleVoice: boolean = true): Promise<void> {
+export async function speak(
+  text: string,
+  isFemaleVoice: boolean = true,
+): Promise<void> {
   // ... setup
   utterance.pitch = isFemaleVoice ? 1.5 : 1; // Higher pitch
-  
+
   // Select female voice
   if (isFemaleVoice) {
     const voices = window.speechSynthesis.getVoices();
     const femaleVoice = voices.find(
       (voice) =>
-        voice.name.toLowerCase().includes('female') ||
-        voice.name.toLowerCase().includes('woman') ||
-        voice.name.toLowerCase().includes('samantha') ||
-        voice.name.toLowerCase().includes('victoria') ||
-        voice.name.toLowerCase().includes('karen') ||
-        voice.name.toLowerCase().includes('moira')
+        voice.name.toLowerCase().includes("female") ||
+        voice.name.toLowerCase().includes("woman") ||
+        voice.name.toLowerCase().includes("samantha") ||
+        voice.name.toLowerCase().includes("victoria") ||
+        voice.name.toLowerCase().includes("karen") ||
+        voice.name.toLowerCase().includes("moira"),
     );
     if (femaleVoice) {
       utterance.voice = femaleVoice;
@@ -78,10 +82,10 @@ export async function speak(text: string, isFemaleVoice: boolean = true): Promis
 
 ```typescript
 // Before:
-await speak('How can I help you?');
+await speak("How can I help you?");
 
 // After:
-await speak('How can I help you?', true); // Use female voice
+await speak("How can I help you?", true); // Use female voice
 ```
 
 ---
@@ -89,6 +93,7 @@ await speak('How can I help you?', true); // Use female voice
 ## 📊 Before vs After
 
 ### Before (Broken)
+
 ```
 Click Button
     ↓
@@ -104,6 +109,7 @@ Process any speech as command ❌
 ```
 
 ### After (Fixed)
+
 ```
 Click Button
     ↓
@@ -127,6 +133,7 @@ Loop back to wake word
 ## 🎯 Testing
 
 ### Quick Test
+
 ```
 1. Click microphone button
 2. Say "hello world" → Should be ignored
@@ -135,6 +142,7 @@ Loop back to wake word
 ```
 
 ### Expected Console Logs
+
 ```
 👂 Listening for wake word "Hey Lara"...
 🎤 Detected speech: hello world
@@ -168,9 +176,8 @@ All changes are complete and ready for testing!
 ✅ Ignores all other speech  
 ✅ Greeting uses female voice  
 ✅ Proper error handling  
-✅ Auto-restart on errors  
+✅ Auto-restart on errors
 
 ---
 
 **Wake word detection is now working correctly! 🎤✨**
-

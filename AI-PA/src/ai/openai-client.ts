@@ -1,6 +1,6 @@
-'use server';
+"use server";
 
-import OpenAI from 'openai';
+import OpenAI from "openai";
 
 export interface DailyPlanOutput {
   morning: string;
@@ -43,16 +43,16 @@ If any field is missing, fill it with a short string.
       name: profile.name || "User",
       preferences: profile.preferences || "None",
       pastActivities: profile.pastActivities || "None",
-      upcomingDeadlines: profile.upcomingDeadlines || "None"
+      upcomingDeadlines: profile.upcomingDeadlines || "None",
     };
 
     const response = await openai.chat.completions.create({
       model: "gpt-4o-mini",
       messages: [
         { role: "system", content: systemPrompt },
-        { role: "user", content: JSON.stringify(userPrompt) }
+        { role: "user", content: JSON.stringify(userPrompt) },
       ],
-      temperature: 0.3
+      temperature: 0.3,
     });
 
     let raw = response.choices[0]?.message?.content || "";
@@ -77,18 +77,19 @@ If any field is missing, fill it with a short string.
       morning: String(parsed.morning || ""),
       afternoon: String(parsed.afternoon || ""),
       evening: String(parsed.evening || ""),
-      message: String(parsed.message || "")
+      message: String(parsed.message || ""),
     };
-
   } catch (error) {
     console.error("[OPENAI] Error generating daily plan:", error);
 
     // ✅ Fallback string-only plan
     return {
-      morning: "Start your day reviewing your priorities and working on your top task.",
-      afternoon: "Continue work, collaborate with teammates, and handle deadlines.",
+      morning:
+        "Start your day reviewing your priorities and working on your top task.",
+      afternoon:
+        "Continue work, collaborate with teammates, and handle deadlines.",
       evening: "Wind down, review your day, and prepare for tomorrow.",
-      message: "Stay focused and take breaks. You’re doing great!"
+      message: "Stay focused and take breaks. You’re doing great!",
     };
   }
 }

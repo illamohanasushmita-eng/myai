@@ -2,31 +2,36 @@
 
 **Status**: ✅ Ready to Use  
 **Location**: `/dashboard` page  
-**Button**: Bottom-right microphone icon  
+**Button**: Bottom-right microphone icon
 
 ---
 
 ## ⚡ Quick Start (30 seconds)
 
 ### 1. Open Dashboard
+
 ```
 http://localhost:3002/dashboard
 ```
 
 ### 2. Look for Microphone Button
+
 - Bottom-right corner
 - Red when listening
 - Gray when stopped
 
 ### 3. Click Microphone Button
+
 - Button turns red
 - Shows "Listening for Hey Lara..."
 
 ### 4. Say "Hey Lara"
+
 - Speak clearly
 - Wait for response
 
 ### 5. Say Your Command
+
 ```
 "Play a song"
 "Show my tasks"
@@ -35,6 +40,7 @@ http://localhost:3002/dashboard
 ```
 
 ### 6. Lara Executes
+
 - Command is processed
 - Action is performed
 - Voice confirmation
@@ -44,6 +50,7 @@ http://localhost:3002/dashboard
 ## 🎤 Voice Commands
 
 ### Music
+
 ```
 "Play a song"
 "Play [artist name]"
@@ -52,6 +59,7 @@ http://localhost:3002/dashboard
 ```
 
 ### Tasks
+
 ```
 "Show my tasks"
 "Add a task"
@@ -59,6 +67,7 @@ http://localhost:3002/dashboard
 ```
 
 ### Reminders
+
 ```
 "Show my reminders"
 "Add a reminder"
@@ -66,6 +75,7 @@ http://localhost:3002/dashboard
 ```
 
 ### Navigation
+
 ```
 "Go to home page"
 "Open professional page"
@@ -74,6 +84,7 @@ http://localhost:3002/dashboard
 ```
 
 ### General
+
 ```
 "What's the weather?"
 "Tell me a joke"
@@ -88,30 +99,34 @@ http://localhost:3002/dashboard
 ✅ **Continuous Listening** - Listens for wake word  
 ✅ **Voice Feedback** - Speaks confirmations  
 ✅ **Visual Feedback** - Shows listening state  
-✅ **Error Handling** - Graceful error recovery  
+✅ **Error Handling** - Graceful error recovery
 
 ---
 
 ## 🔧 Troubleshooting
 
 ### Microphone Button Not Visible
+
 - Scroll to bottom-right of dashboard
 - Check if browser window is large enough
 - Refresh page
 
 ### "Hey Lara" Not Detected
+
 - Speak clearly and naturally
 - Check microphone is enabled
 - Check browser permissions
 - Try again
 
 ### Command Not Executed
+
 - Check internet connection
 - Check OpenAI API key is valid
 - Check browser console for errors
 - Try a simpler command
 
 ### No Voice Feedback
+
 - Check speaker/headphones are connected
 - Check volume is not muted
 - Check browser permissions for audio
@@ -121,10 +136,12 @@ http://localhost:3002/dashboard
 ## 📊 What Changed
 
 ### Before
+
 - No voice assistant on dashboard
 - Had to go to `/test-lara` page
 
 ### After
+
 - Voice assistant on dashboard
 - Microphone button always visible
 - Uses authenticated user ID
@@ -137,22 +154,25 @@ http://localhost:3002/dashboard
 ✅ Uses authenticated user ID from Supabase  
 ✅ Stores user ID in localStorage  
 ✅ Validates user exists  
-✅ Graceful error handling  
+✅ Graceful error handling
 
 ---
 
 ## 📝 Technical Details
 
 ### Files Modified
+
 - `src/app/dashboard/page.tsx`
 
 ### Changes Made
+
 1. Import Supabase client
 2. Add userId state
 3. Get authenticated user ID
 4. Pass userId to VoiceCommandButton
 
 ### No UI Changes
+
 - Maintains existing dashboard design
 - Microphone button already existed
 - Only added functionality
@@ -188,4 +208,3 @@ http://localhost:3002/dashboard
 ---
 
 **Happy voice commanding! 🚀**
-

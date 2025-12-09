@@ -22,7 +22,10 @@ import { useRouter } from "next/navigation";
 import { CalendarIcon } from "lucide-react";
 import { format } from "date-fns";
 import { cn } from "@/lib/utils";
-import { getUserGrowthGoals, updateGrowthGoal } from "@/lib/services/habitService";
+import {
+  getUserGrowthGoals,
+  updateGrowthGoal,
+} from "@/lib/services/habitService";
 import { GrowthGoal } from "@/lib/types/database";
 import { useToast } from "@/hooks/use-toast";
 import React from "react";
@@ -48,14 +51,14 @@ export default function EditGoalPage({ params }: EditGoalPageProps) {
   useEffect(() => {
     const loadGoal = async () => {
       try {
-        const userId = localStorage.getItem('userId');
+        const userId = localStorage.getItem("userId");
         if (!userId) {
-          router.push('/signin');
+          router.push("/signin");
           return;
         }
 
         const goals = await getUserGrowthGoals(userId);
-        const foundGoal = goals.find(g => g.goal_id === goalId);
+        const foundGoal = goals.find((g) => g.goal_id === goalId);
 
         if (!foundGoal) {
           toast({
@@ -63,7 +66,7 @@ export default function EditGoalPage({ params }: EditGoalPageProps) {
             description: "The goal you're trying to edit doesn't exist.",
             variant: "destructive",
           });
-          router.push('/personal-growth');
+          router.push("/personal-growth");
           return;
         }
 
@@ -75,7 +78,7 @@ export default function EditGoalPage({ params }: EditGoalPageProps) {
           setDate(new Date(foundGoal.target_date));
         }
       } catch (error) {
-        console.error('Error loading goal:', error);
+        console.error("Error loading goal:", error);
         toast({
           title: "Error loading goal",
           description: "Failed to load goal data.",
@@ -109,9 +112,9 @@ export default function EditGoalPage({ params }: EditGoalPageProps) {
         description: "Your goal has been updated.",
       });
 
-      router.push('/personal-growth');
+      router.push("/personal-growth");
     } catch (error) {
-      console.error('Error updating goal:', error);
+      console.error("Error updating goal:", error);
       toast({
         title: "Error updating goal",
         description: "Failed to update the goal. Please try again.",
@@ -140,7 +143,9 @@ export default function EditGoalPage({ params }: EditGoalPageProps) {
       <header className="sticky top-0 z-10 flex items-center justify-between border-b border-gray-200/50 bg-background-light/80 p-4 backdrop-blur-sm dark:border-gray-800/50 dark:bg-background-dark/80">
         <Button asChild variant="ghost" size="icon">
           <Link href="/personal-growth">
-            <span className="material-symbols-outlined">arrow_back_ios_new</span>
+            <span className="material-symbols-outlined">
+              arrow_back_ios_new
+            </span>
           </Link>
         </Button>
         <h1 className="text-lg font-bold">Edit Goal</h1>
@@ -196,7 +201,7 @@ export default function EditGoalPage({ params }: EditGoalPageProps) {
                   variant={"outline"}
                   className={cn(
                     "w-full justify-start text-left font-normal rounded-lg border-gray-300 bg-white/70 hover:bg-white/90 dark:border-gray-600 dark:bg-gray-700/60 dark:hover:bg-gray-700/80",
-                    !date && "text-muted-foreground"
+                    !date && "text-muted-foreground",
                   )}
                 >
                   <CalendarIcon className="mr-2 h-4 w-4" />
@@ -226,7 +231,9 @@ export default function EditGoalPage({ params }: EditGoalPageProps) {
                 <SelectValue placeholder="Select a category" />
               </SelectTrigger>
               <SelectContent>
-                <SelectItem value="skill-acquisition">Skill Acquisition</SelectItem>
+                <SelectItem value="skill-acquisition">
+                  Skill Acquisition
+                </SelectItem>
                 <SelectItem value="reading-list">Reading List</SelectItem>
                 <SelectItem value="habit-formation">Habit Formation</SelectItem>
                 <SelectItem value="fitness">Fitness</SelectItem>
@@ -238,7 +245,11 @@ export default function EditGoalPage({ params }: EditGoalPageProps) {
           </div>
 
           <div className="flex flex-col sm:flex-row gap-4 pt-4">
-            <Button type="submit" disabled={loading} className="w-full sm:w-1/2">
+            <Button
+              type="submit"
+              disabled={loading}
+              className="w-full sm:w-1/2"
+            >
               {loading ? "Updating..." : "Update Goal"}
             </Button>
             <Button asChild variant="secondary" className="w-full sm:w-1/2">

@@ -3,7 +3,7 @@
 **Status**: DIAGNOSED  
 **Date**: 2025-11-08  
 **Issue**: System stuck in infinite restart loop  
-**Severity**: CRITICAL  
+**Severity**: CRITICAL
 
 ---
 
@@ -39,18 +39,18 @@ const {
   enabled: enableWakeWord && wakeWordActive && !isListening,
   onWakeWordDetected: () => {
     // This callback is recreated on EVERY render!
-    console.log('🎤 Wake word detected in component');
-    setFeedbackType('success');
-    setFeedbackMessage('Wake word detected! Listening for command...');
+    console.log("🎤 Wake word detected in component");
+    setFeedbackType("success");
+    setFeedbackMessage("Wake word detected! Listening for command...");
     setShowFeedback(true);
     stopWakeWordListener();
     activateFromWakeWord();
   },
   onError: (err) => {
     // This callback is also recreated on EVERY render!
-    if (err && !err.includes('aborted') && !err.includes('No speech')) {
-      console.error('Wake word error:', err);
-      setFeedbackType('error');
+    if (err && !err.includes("aborted") && !err.includes("No speech")) {
+      console.error("Wake word error:", err);
+      setFeedbackType("error");
       setFeedbackMessage(err);
       setShowFeedback(true);
       setTimeout(() => setShowFeedback(false), 3000);
@@ -59,7 +59,8 @@ const {
 });
 ```
 
-**Problem**: 
+**Problem**:
+
 - `onWakeWordDetected` callback is recreated on every render
 - `onError` callback is recreated on every render
 - These are dependencies in `useWakeWord` hook (line 207)
@@ -75,6 +76,7 @@ enabled: enableWakeWord && wakeWordActive && !isListening,
 ```
 
 **Problem**:
+
 - `enabled` state changes frequently
 - When `enabled` changes, it triggers re-initialization
 - This can cause the listener to restart unexpectedly
@@ -84,6 +86,7 @@ enabled: enableWakeWord && wakeWordActive && !isListening,
 **Location**: `VoiceCommandButton.tsx` lines 72-91
 
 **Problem**:
+
 - Callbacks are not memoized with `useCallback`
 - They change on every render
 - This causes `setupRecognition` to be recreated
@@ -95,30 +98,33 @@ enabled: enableWakeWord && wakeWordActive && !isListening,
 
 ```typescript
 recognition.onend = () => {
-  console.log('🎤 Wake word recognition ended');
+  console.log("🎤 Wake word recognition ended");
 
   if (!isMountedRef.current) {
-    console.log('🎤 Component unmounted, not restarting');
+    console.log("🎤 Component unmounted, not restarting");
     return;
   }
 
   setIsListeningForWakeWord(false);
 
   // Check if we should restart
-  const shouldRestart = enabledRef.current && !wakeWordDetectedRef.current && !isStoppingRef.current;
+  const shouldRestart =
+    enabledRef.current &&
+    !wakeWordDetectedRef.current &&
+    !isStoppingRef.current;
 
   if (shouldRestart) {
-    console.log('🎤 Restarting wake word listener...');
+    console.log("🎤 Restarting wake word listener...");
     setTimeout(() => {
       if (!isMountedRef.current) return;
 
       try {
-        console.log('🎤 Starting wake word recognition again');
+        console.log("🎤 Starting wake word recognition again");
         recognition.start();
       } catch (e) {
         // Ignore errors when restarting
-        if (e instanceof Error && !e.message.includes('already started')) {
-          console.error('Error restarting wake word listener:', e);
+        if (e instanceof Error && !e.message.includes("already started")) {
+          console.error("Error restarting wake word listener:", e);
         }
       }
     }, 500);
@@ -127,6 +133,7 @@ recognition.onend = () => {
 ```
 
 **Problem**:
+
 - When recognition ends, it immediately tries to restart
 - If `enabled` is true and no wake word detected, it restarts
 - But if callbacks keep changing, recognition keeps re-initializing
@@ -169,6 +176,7 @@ recognition.onend = () => {
 ## 🎯 WHY IT'S HAPPENING NOW
 
 ### Timeline
+
 1. Previous fix separated mount tracking from recognition setup
 2. This was correct, but didn't address callback dependency issue
 3. When component renders, callbacks are recreated
@@ -183,19 +191,23 @@ recognition.onend = () => {
 ## ✅ SOLUTION REQUIRED
 
 ### Fix 1: Memoize Callbacks in VoiceCommandButton
+
 - Wrap `onWakeWordDetected` with `useCallback`
 - Wrap `onError` with `useCallback`
 - This prevents callbacks from being recreated on every render
 
 ### Fix 2: Stabilize Enabled State
+
 - Use `useCallback` for enabled state logic
 - Or pass stable boolean instead of computed value
 
 ### Fix 3: Add Debouncing to Recognition Restart
+
 - Add delay before restarting recognition
 - Prevent rapid restart cycles
 
 ### Fix 4: Add Recognition State Tracking
+
 - Track if recognition is currently running
 - Prevent multiple simultaneous instances
 
@@ -204,6 +216,7 @@ recognition.onend = () => {
 ## 📋 CONSOLE LOGS TO EXPECT
 
 ### Current (BROKEN)
+
 ```
 🎤 Wake word recognition ended
 🎤 Restarting wake word listener...
@@ -214,6 +227,7 @@ recognition.onend = () => {
 ```
 
 ### After Fix (EXPECTED)
+
 ```
 🎤 Starting wake word listener
 🎤 Wake word recognition ended
@@ -243,11 +257,10 @@ recognition.onend = () => {
 ## 📞 DIAGNOSIS COMPLETE
 
 The infinite loop is caused by:
+
 1. ❌ Callbacks recreated on every render
 2. ❌ Dependencies change constantly
 3. ❌ Recognition re-initialized repeatedly
 4. ❌ Restart logic triggers infinite cycle
 
 **Solution**: Memoize callbacks and stabilize dependencies
-
-

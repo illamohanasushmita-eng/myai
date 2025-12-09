@@ -1,6 +1,6 @@
-'use client';
+"use client";
 
-import { useEffect, useRef, useState, useCallback } from 'react';
+import { useEffect, useRef, useState, useCallback } from "react";
 
 interface UseWakeWordOptions {
   wakeWord?: string;
@@ -22,38 +22,40 @@ interface UseWakeWordReturn {
 
 // Phonetic variations of "Hey Lara"
 const WAKE_WORD_VARIATIONS = [
-  'hey lara',
-  'hey laura',
-  'hey lora',
-  'hey larra',
-  'hey laira',
-  'hey lera',
+  "hey lara",
+  "hey laura",
+  "hey lora",
+  "hey larra",
+  "hey laira",
+  "hey lera",
 ];
 
 // Helper function to check if transcript contains any wake word variation
 function isWakeWordDetected(transcript: string): boolean {
   const lowerTranscript = transcript.toLowerCase().trim();
-  return WAKE_WORD_VARIATIONS.some(variation =>
-    lowerTranscript.includes(variation)
+  return WAKE_WORD_VARIATIONS.some((variation) =>
+    lowerTranscript.includes(variation),
   );
 }
 
 // Helper function to get the detected variation for logging
 function getDetectedVariation(transcript: string): string {
   const lowerTranscript = transcript.toLowerCase().trim();
-  const detected = WAKE_WORD_VARIATIONS.find(variation =>
-    lowerTranscript.includes(variation)
+  const detected = WAKE_WORD_VARIATIONS.find((variation) =>
+    lowerTranscript.includes(variation),
   );
-  return detected || 'unknown';
+  return detected || "unknown";
 }
 
-export function useWakeWord(options: UseWakeWordOptions = {}): UseWakeWordReturn {
+export function useWakeWord(
+  options: UseWakeWordOptions = {},
+): UseWakeWordReturn {
   const {
-    wakeWord = 'hey lara',
+    wakeWord = "hey lara",
     enabled = true,
     onWakeWordDetected,
     onError,
-    language = 'en-US',
+    language = "en-US",
   } = options;
 
   const [isListeningForWakeWord, setIsListeningForWakeWord] = useState(false);
@@ -62,7 +64,7 @@ export function useWakeWord(options: UseWakeWordOptions = {}): UseWakeWordReturn
   const [error, setError] = useState<string | null>(null);
 
   const recognitionRef = useRef<any>(null);
-  const interimTranscriptRef = useRef('');
+  const interimTranscriptRef = useRef("");
   const enabledRef = useRef(enabled);
   const isMountedRef = useRef(true);
   const isRecognitionRunningRef = useRef(false);
@@ -91,11 +93,13 @@ export function useWakeWord(options: UseWakeWordOptions = {}): UseWakeWordReturn
 
   // Initialize speech recognition - use useCallback to memoize the setup
   const setupRecognition = useCallback(() => {
-    const SpeechRecognition = (window as any).SpeechRecognition || (window as any).webkitSpeechRecognition;
+    const SpeechRecognition =
+      (window as any).SpeechRecognition ||
+      (window as any).webkitSpeechRecognition;
 
     if (!SpeechRecognition) {
       setIsSupported(false);
-      const errorMsg = 'Speech recognition not supported in this browser';
+      const errorMsg = "Speech recognition not supported in this browser";
       setError(errorMsg);
       onError?.(errorMsg);
       return;
@@ -116,14 +120,14 @@ export function useWakeWord(options: UseWakeWordOptions = {}): UseWakeWordReturn
       isRecognitionRunningRef.current = true;
       setIsListeningForWakeWord(true);
       setError(null);
-      interimTranscriptRef.current = '';
-      console.log('🎤 Wake word listener started');
+      interimTranscriptRef.current = "";
+      console.log("🎤 Wake word listener started");
     };
 
     recognition.onresult = (event: any) => {
       if (!isMountedRef.current) return;
 
-      let interimTranscript = '';
+      let interimTranscript = "";
 
       for (let i = event.resultIndex; i < event.results.length; i++) {
         const transcript = event.results[i][0].transcript;
@@ -131,12 +135,12 @@ export function useWakeWord(options: UseWakeWordOptions = {}): UseWakeWordReturn
         if (event.results[i].isFinal) {
           // Check for wake word in final transcript
           const lowerTranscript = transcript.toLowerCase().trim();
-          console.log('🎤 Final transcript:', lowerTranscript);
+          console.log("🎤 Final transcript:", lowerTranscript);
 
           // Check if any wake word variation is detected
           if (isWakeWordDetected(lowerTranscript)) {
             const detectedVariation = getDetectedVariation(lowerTranscript);
-            console.log('✅ Wake word detected:', detectedVariation);
+            console.log("✅ Wake word detected:", detectedVariation);
             setWakeWordDetected(true);
             setIsListeningForWakeWord(false);
             isManuallyStoppedRef.current = true;
@@ -145,12 +149,12 @@ export function useWakeWord(options: UseWakeWordOptions = {}): UseWakeWordReturn
             try {
               recognition.stop();
             } catch (e) {
-              console.error('Error stopping recognition:', e);
+              console.error("Error stopping recognition:", e);
             }
 
             // Call the callback via ref to ensure we call the latest version
             if (!isMountedRef.current) return;
-            console.log('🎤 Calling onWakeWordDetected callback');
+            console.log("🎤 Calling onWakeWordDetected callback");
             callbackRef.current?.();
 
             return;
@@ -167,48 +171,52 @@ export function useWakeWord(options: UseWakeWordOptions = {}): UseWakeWordReturn
       if (!isMountedRef.current) return;
 
       // Ignore 'aborted' errors - these are normal when recognition is stopped
-      if (event.error === 'aborted') {
+      if (event.error === "aborted") {
         return;
       }
 
       // Handle 'no-speech' error by restarting recognition
       // This is a common timeout error that can be recovered from
-      if (event.error === 'no-speech') {
-        console.log('🎤 No speech detected, restarting recognition...');
+      if (event.error === "no-speech") {
+        console.log("🎤 No speech detected, restarting recognition...");
         // Restart recognition after a short delay
         if (restartTimeoutRef.current) {
           clearTimeout(restartTimeoutRef.current);
         }
         restartTimeoutRef.current = setTimeout(() => {
-          if (isMountedRef.current && !isManuallyStoppedRef.current && enabledRef.current) {
+          if (
+            isMountedRef.current &&
+            !isManuallyStoppedRef.current &&
+            enabledRef.current
+          ) {
             try {
               if (recognitionRef.current && !isRecognitionRunningRef.current) {
                 isRecognitionRunningRef.current = true;
                 recognitionRef.current.start();
               }
             } catch (e) {
-              console.error('Error restarting recognition:', e);
+              console.error("Error restarting recognition:", e);
             }
           }
         }, 500);
         return;
       }
 
-      console.error('Wake word recognition error:', event.error);
-      let errorMsg = 'Speech recognition error';
+      console.error("Wake word recognition error:", event.error);
+      let errorMsg = "Speech recognition error";
 
       switch (event.error) {
-        case 'audio-capture':
-          errorMsg = 'No microphone found. Ensure it is connected.';
+        case "audio-capture":
+          errorMsg = "No microphone found. Ensure it is connected.";
           break;
-        case 'network':
-          errorMsg = 'Network error. Please check your connection.';
+        case "network":
+          errorMsg = "Network error. Please check your connection.";
           break;
-        case 'not-allowed':
-          errorMsg = 'Microphone permission denied.';
+        case "not-allowed":
+          errorMsg = "Microphone permission denied.";
           break;
-        case 'service-not-allowed':
-          errorMsg = 'Speech recognition service not allowed.';
+        case "service-not-allowed":
+          errorMsg = "Speech recognition service not allowed.";
           break;
       }
 
@@ -217,11 +225,11 @@ export function useWakeWord(options: UseWakeWordOptions = {}): UseWakeWordReturn
     };
 
     recognition.onend = () => {
-      console.log('🎤 Wake word recognition ended');
+      console.log("🎤 Wake word recognition ended");
       isRecognitionRunningRef.current = false;
 
       if (!isMountedRef.current) {
-        console.log('🎤 Component unmounted, not restarting');
+        console.log("🎤 Component unmounted, not restarting");
         return;
       }
 
@@ -229,19 +237,19 @@ export function useWakeWord(options: UseWakeWordOptions = {}): UseWakeWordReturn
 
       // If manually stopped, don't restart
       if (isManuallyStoppedRef.current) {
-        console.log('🎤 Wake word listener stopped intentionally');
+        console.log("🎤 Wake word listener stopped intentionally");
         return;
       }
 
       // If disabled, don't restart
       if (!enabledRef.current) {
-        console.log('🎤 Wake word listener disabled');
+        console.log("🎤 Wake word listener disabled");
         return;
       }
 
       // Only restart if not already pending
       if (!pendingRestartRef.current) {
-        console.log('🎤 Scheduling wake word listener restart...');
+        console.log("🎤 Scheduling wake word listener restart...");
         pendingRestartRef.current = true;
 
         // Clear any existing restart timeout
@@ -252,38 +260,38 @@ export function useWakeWord(options: UseWakeWordOptions = {}): UseWakeWordReturn
         // Restart after 500ms to allow state to settle
         restartTimeoutRef.current = setTimeout(() => {
           if (!isMountedRef.current) {
-            console.log('🎤 Component unmounted, cancelling restart');
+            console.log("🎤 Component unmounted, cancelling restart");
             pendingRestartRef.current = false;
             return;
           }
 
           if (!enabledRef.current) {
-            console.log('🎤 Wake word listener disabled, cancelling restart');
+            console.log("🎤 Wake word listener disabled, cancelling restart");
             pendingRestartRef.current = false;
             return;
           }
 
           if (isManuallyStoppedRef.current) {
-            console.log('🎤 Manually stopped, cancelling restart');
+            console.log("🎤 Manually stopped, cancelling restart");
             pendingRestartRef.current = false;
             return;
           }
 
           if (isRecognitionRunningRef.current) {
-            console.log('🎤 Recognition already running, skipping restart');
+            console.log("🎤 Recognition already running, skipping restart");
             pendingRestartRef.current = false;
             return;
           }
 
           try {
-            console.log('🎤 Starting wake word recognition again');
+            console.log("🎤 Starting wake word recognition again");
             isRecognitionRunningRef.current = true;
             recognition.start();
           } catch (e) {
             isRecognitionRunningRef.current = false;
             pendingRestartRef.current = false;
-            if (e instanceof Error && !e.message.includes('already started')) {
-              console.error('Error restarting wake word listener:', e);
+            if (e instanceof Error && !e.message.includes("already started")) {
+              console.error("Error restarting wake word listener:", e);
             }
           }
         }, 500);
@@ -308,16 +316,17 @@ export function useWakeWord(options: UseWakeWordOptions = {}): UseWakeWordReturn
   }, [setupRecognition]);
 
   const startWakeWordListener = useCallback(() => {
-    if (!recognitionRef.current || !isSupported || !isMountedRef.current) return;
+    if (!recognitionRef.current || !isSupported || !isMountedRef.current)
+      return;
 
     // Don't start if already running
     if (isRecognitionRunningRef.current) {
-      console.log('🎤 Recognition already running, skipping start');
+      console.log("🎤 Recognition already running, skipping start");
       return;
     }
 
     try {
-      console.log('🎤 Starting wake word listener');
+      console.log("🎤 Starting wake word listener");
       setWakeWordDetected(false);
       isManuallyStoppedRef.current = false;
       setError(null);
@@ -325,8 +334,8 @@ export function useWakeWord(options: UseWakeWordOptions = {}): UseWakeWordReturn
       recognitionRef.current.start();
     } catch (e) {
       isRecognitionRunningRef.current = false;
-      console.error('Error starting wake word listener:', e);
-      const errorMsg = 'Failed to start wake word listener';
+      console.error("Error starting wake word listener:", e);
+      const errorMsg = "Failed to start wake word listener";
       setError(errorMsg);
       onError?.(errorMsg);
     }
@@ -340,15 +349,16 @@ export function useWakeWord(options: UseWakeWordOptions = {}): UseWakeWordReturn
       recognitionRef.current.stop();
       setIsListeningForWakeWord(false);
     } catch (e) {
-      console.error('Error stopping wake word listener:', e);
+      console.error("Error stopping wake word listener:", e);
     }
   }, []);
 
   const restartWakeWordListener = useCallback(() => {
-    if (!recognitionRef.current || !isSupported || !isMountedRef.current) return;
+    if (!recognitionRef.current || !isSupported || !isMountedRef.current)
+      return;
 
     try {
-      console.log('🎤 Explicitly restarting wake word listener');
+      console.log("🎤 Explicitly restarting wake word listener");
       isManuallyStoppedRef.current = false;
       pendingRestartRef.current = false;
       setWakeWordDetected(false);
@@ -371,11 +381,11 @@ export function useWakeWord(options: UseWakeWordOptions = {}): UseWakeWordReturn
           recognitionRef.current.start();
         } catch (e) {
           isRecognitionRunningRef.current = false;
-          console.error('Error restarting wake word listener:', e);
+          console.error("Error restarting wake word listener:", e);
         }
       }, 100);
     } catch (e) {
-      console.error('Error in restartWakeWordListener:', e);
+      console.error("Error in restartWakeWordListener:", e);
     }
   }, [isSupported]);
 
@@ -389,4 +399,3 @@ export function useWakeWord(options: UseWakeWordOptions = {}): UseWakeWordReturn
     error,
   };
 }
-

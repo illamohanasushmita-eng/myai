@@ -12,6 +12,7 @@
 Complete Vosk integration for wake-word detection and speech recognition in the browser.
 
 **Features**:
+
 - ✅ Load Vosk model from `/public/vosk/model.zip`
 - ✅ Continuous microphone audio streaming
 - ✅ Wake-word detection: "hey lara"
@@ -58,17 +59,21 @@ Complete Vosk integration for wake-word detection and speech recognition in the 
 ### 1. Basic Usage (Low-level)
 
 ```typescript
-import { startRecognizer, stopRecognizer, loadVoskModel } from '@/lib/voice/vosk-recognizer';
+import {
+  startRecognizer,
+  stopRecognizer,
+  loadVoskModel,
+} from "@/lib/voice/vosk-recognizer";
 
 // Load model
-await loadVoskModel('/vosk/model.zip');
+await loadVoskModel("/vosk/model.zip");
 
 // Start recognizer
 await startRecognizer(
-  () => console.log('Wake word detected!'),
-  (text) => console.log('Recognized:', text),
-  (error) => console.error('Error:', error),
-  (partial) => console.log('Partial:', partial)
+  () => console.log("Wake word detected!"),
+  (text) => console.log("Recognized:", text),
+  (error) => console.error("Error:", error),
+  (partial) => console.log("Partial:", partial),
 );
 
 // Stop recognizer
@@ -103,12 +108,12 @@ export function MyComponent() {
 ### 3. Workflow Class Usage
 
 ```typescript
-import { getVoskWorkflow } from '@/lib/voice/vosk-integration';
+import { getVoskWorkflow } from "@/lib/voice/vosk-integration";
 
 const workflow = getVoskWorkflow({
-  onWakeWordDetected: () => console.log('Wake word!'),
-  onCommandRecognized: (cmd) => console.log('Command:', cmd),
-  onError: (err) => console.error('Error:', err),
+  onWakeWordDetected: () => console.log("Wake word!"),
+  onCommandRecognized: (cmd) => console.log("Command:", cmd),
+  onError: (err) => console.error("Error:", err),
 });
 
 await workflow.initialize();
@@ -137,13 +142,15 @@ export default function Page() {
 Loads the Vosk model from the specified path.
 
 **Parameters**:
+
 - `modelPath` (optional): Path to model.zip (default: `/vosk/model.zip`)
 
 **Returns**: Promise resolving to Vosk model instance
 
 **Example**:
+
 ```typescript
-const model = await loadVoskModel('/vosk/model.zip');
+const model = await loadVoskModel("/vosk/model.zip");
 ```
 
 ---
@@ -153,18 +160,20 @@ const model = await loadVoskModel('/vosk/model.zip');
 Starts the recognizer with callbacks.
 
 **Parameters**:
+
 - `onWakeWord()`: Called when "hey lara" is detected
 - `onRecognize(text)`: Called when text is recognized
 - `onError(error)`: Called on error
 - `onPartialResult(text)`: Called with partial results
 
 **Example**:
+
 ```typescript
 await startRecognizer(
-  () => console.log('Wake word!'),
-  (text) => console.log('Recognized:', text),
-  (error) => console.error('Error:', error),
-  (partial) => console.log('Partial:', partial)
+  () => console.log("Wake word!"),
+  (text) => console.log("Recognized:", text),
+  (error) => console.error("Error:", error),
+  (partial) => console.log("Partial:", partial),
 );
 ```
 
@@ -175,6 +184,7 @@ await startRecognizer(
 Stops the recognizer and closes audio context.
 
 **Example**:
+
 ```typescript
 stopRecognizer();
 ```
@@ -186,6 +196,7 @@ stopRecognizer();
 React hook for Vosk recognizer.
 
 **Options**:
+
 ```typescript
 {
   autoStart?: boolean;           // Auto-start on mount
@@ -198,6 +209,7 @@ React hook for Vosk recognizer.
 ```
 
 **Returns**:
+
 ```typescript
 {
   start: () => Promise<void>;    // Start recognizer
@@ -267,6 +279,7 @@ React hook for Vosk recognizer.
 - ✅ Edge
 
 **Requirements**:
+
 - HTTPS (or localhost)
 - Microphone permission
 - Modern browser with Web Audio API
@@ -279,7 +292,7 @@ React hook for Vosk recognizer.
 
 ```typescript
 const { start } = useVoskRecognizer({
-  onWakeWord: () => console.log('✅ Wake word detected!'),
+  onWakeWord: () => console.log("✅ Wake word detected!"),
 });
 
 await start();
@@ -291,7 +304,7 @@ await start();
 
 ```typescript
 const { start } = useVoskRecognizer({
-  onRecognize: (text) => console.log('Command:', text),
+  onRecognize: (text) => console.log("Command:", text),
 });
 
 await start();
@@ -303,7 +316,7 @@ await start();
 
 ```typescript
 const { start, error } = useVoskRecognizer({
-  onError: (err) => console.error('Error:', err),
+  onError: (err) => console.error("Error:", err),
 });
 
 // Without microphone permission
@@ -378,7 +391,7 @@ const { start } = useVoskRecognizer({
 const { start } = useVoskRecognizer({
   onWakeWord: () => {
     // Speak response
-    speakText('Yes, how can I help?');
+    speakText("Yes, how can I help?");
   },
 });
 
@@ -393,10 +406,10 @@ function speakText(text: string) {
 ```typescript
 const { start } = useVoskRecognizer({
   onRecognize: (text) => {
-    if (text.includes('tasks')) {
-      router.push('/professional');
-    } else if (text.includes('reminders')) {
-      router.push('/reminders');
+    if (text.includes("tasks")) {
+      router.push("/professional");
+    } else if (text.includes("reminders")) {
+      router.push("/reminders");
     }
   },
 });
@@ -406,16 +419,16 @@ const { start } = useVoskRecognizer({
 
 ## ✅ Status
 
-| Item | Status |
-|------|--------|
-| Model Loading | ✅ Complete |
+| Item                | Status      |
+| ------------------- | ----------- |
+| Model Loading       | ✅ Complete |
 | Wake-Word Detection | ✅ Complete |
-| Speech Recognition | ✅ Complete |
-| React Integration | ✅ Complete |
-| Error Handling | ✅ Complete |
-| Documentation | ✅ Complete |
-| Testing | ✅ Ready |
-| Production Ready | ✅ Yes |
+| Speech Recognition  | ✅ Complete |
+| React Integration   | ✅ Complete |
+| Error Handling      | ✅ Complete |
+| Documentation       | ✅ Complete |
+| Testing             | ✅ Ready    |
+| Production Ready    | ✅ Yes      |
 
 ---
 
@@ -429,5 +442,3 @@ const { start } = useVoskRecognizer({
 ---
 
 **Vosk integration is complete and ready to use!** 🎤
-
-

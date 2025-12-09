@@ -1,6 +1,7 @@
 # Voice Assistant Fixes - Testing Guide
 
 ## Prerequisites
+
 - Dev server running: `npm run dev` (port 3002)
 - Browser console open (F12)
 - Microphone enabled
@@ -11,6 +12,7 @@
 ## Test 1: Reminder Text Transformation
 
 ### Steps
+
 1. Open browser console (F12)
 2. Navigate to reminders page
 3. Click microphone button
@@ -18,6 +20,7 @@
 5. Wait for response
 
 ### Expected Results
+
 - **Console Output**:
   ```
   📌 [REMINDER-TRANSFORM] Original: "add reminder to call my mom" → Transformed: "Call your mom"
@@ -28,6 +31,7 @@
 - **Database**: Supabase shows reminder with title "Call your mom"
 
 ### Variations to Test
+
 - "remind me to buy milk" → "Buy milk"
 - "remind me to pay bills tomorrow" → "Pay your bills tomorrow"
 - "add reminder I need to finish my report" → "You need to finish your report"
@@ -38,6 +42,7 @@
 ## Test 2: Reminder Creation Voice Feedback
 
 ### Steps
+
 1. Open browser console (F12)
 2. Navigate to reminders page
 3. Click microphone button
@@ -45,6 +50,7 @@
 5. Listen for audio feedback
 
 ### Expected Results
+
 - **Audio**: Hear "Reminder added" BEFORE page navigation
 - **Console Output**:
   ```
@@ -59,6 +65,7 @@
 ## Test 3: Task Creation Voice Feedback
 
 ### Steps
+
 1. Open browser console (F12)
 2. Navigate to tasks page
 3. Click microphone button
@@ -66,6 +73,7 @@
 5. Listen for audio feedback
 
 ### Expected Results
+
 - **Audio**: Hear "Task added" BEFORE page navigation
 - **Console Output**:
   ```
@@ -80,12 +88,14 @@
 ## Test 4: Navigation Voice Feedback
 
 ### Test 4a: Open Tasks
+
 1. Open browser console (F12)
 2. Click microphone button
 3. Say: **"show me my tasks"**
 4. Listen for audio feedback
 
 **Expected Results**:
+
 - **Audio**: Hear "Opening tasks"
 - **Console Output**:
   ```
@@ -95,12 +105,14 @@
 - **Navigation**: Navigate to /tasks page
 
 ### Test 4b: Open Reminders
+
 1. Open browser console (F12)
 2. Click microphone button
 3. Say: **"open reminders"**
 4. Listen for audio feedback
 
 **Expected Results**:
+
 - **Audio**: Hear "Opening reminders"
 - **Console Output**:
   ```
@@ -114,6 +126,7 @@
 ## Test 5: Multiple Reminders with Transformation
 
 ### Steps
+
 1. Open browser console (F12)
 2. Navigate to reminders page
 3. Say: **"add reminder to call my mom"**
@@ -124,6 +137,7 @@
 8. Wait for confirmation
 
 ### Expected Results
+
 - **Console Output** (3 transformation logs):
   ```
   📌 [REMINDER-TRANSFORM] Original: "add reminder to call my mom" → Transformed: "Call your mom"
@@ -139,12 +153,14 @@
 ## Test 6: Error Handling
 
 ### Test 6a: Empty Reminder
+
 1. Say: **"add reminder"** (without text)
 2. Check console for error handling
 
 **Expected**: Error message, no reminder created
 
 ### Test 6b: Network Error
+
 1. Disable network (DevTools → Network → Offline)
 2. Say: **"add reminder to call my mom"**
 3. Check console for error handling
@@ -156,6 +172,7 @@
 ## Console Log Reference
 
 ### Successful Reminder Creation
+
 ```
 📌 [REMINDER-VOICE] Starting reminder creation
 📌 [REMINDER-VOICE] Input - reminderText: "add reminder to call my mom"
@@ -167,6 +184,7 @@
 ```
 
 ### Successful Task Creation
+
 ```
 📝 [TASK-VOICE] Starting task creation process...
 📝 [TASK-VOICE] Task created successfully, now providing voice feedback...
@@ -176,6 +194,7 @@
 ```
 
 ### Navigation Feedback
+
 ```
 📋 Opening tasks page
 📋 Using onNavigate callback
@@ -188,22 +207,26 @@
 ## Troubleshooting
 
 ### No Audio Feedback
+
 - Check browser volume
 - Check microphone permissions
 - Check console for TTS errors
 - Verify `speak()` function is being called
 
 ### Text Not Transformed
+
 - Check console for transformation log
 - Verify command phrases are being removed
 - Check database for stored text
 
 ### Navigation Not Working
+
 - Check console for navigation logs
 - Verify router context is available
 - Check for JavaScript errors
 
 ### Multiple Reminders Not Appearing
+
 - Check optimistic UI update logs
 - Verify reminders are being added to state
 - Check for duplicate prevention logic
@@ -213,6 +236,7 @@
 ## Success Criteria
 
 ✅ All tests pass when:
+
 1. Reminder text is transformed from first-person to second-person
 2. Voice feedback plays for reminder creation ("Reminder added")
 3. Voice feedback plays for task creation ("Task added")
@@ -223,4 +247,3 @@
 8. UI displays transformed text
 9. No errors in console
 10. All feedback is non-blocking and graceful
-

@@ -1,9 +1,9 @@
-'use client';
+"use client";
 
-import { useState } from 'react';
-import { Button } from '@/components/ui/button';
-import { Input } from '@/components/ui/input';
-import { Textarea } from '@/components/ui/textarea';
+import { useState } from "react";
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import { Textarea } from "@/components/ui/textarea";
 import {
   Dialog,
   DialogContent,
@@ -11,15 +11,15 @@ import {
   DialogHeader,
   DialogTitle,
   DialogFooter,
-} from '@/components/ui/dialog';
+} from "@/components/ui/dialog";
 import {
   Select,
   SelectContent,
   SelectItem,
   SelectTrigger,
   SelectValue,
-} from '@/components/ui/select';
-import { createMedication } from '@/lib/services/healthRecordService';
+} from "@/components/ui/select";
+import { createMedication } from "@/lib/services/healthRecordService";
 
 interface AddMedicationModalProps {
   isOpen: boolean;
@@ -28,46 +28,50 @@ interface AddMedicationModalProps {
 }
 
 const FREQUENCY_OPTIONS = [
-  { id: 'once-daily', label: 'Once Daily' },
-  { id: 'twice-daily', label: 'Twice Daily' },
-  { id: 'three-times-daily', label: 'Three Times Daily' },
-  { id: 'four-times-daily', label: 'Four Times Daily' },
-  { id: 'as-needed', label: 'As Needed' },
-  { id: 'weekly', label: 'Weekly' },
-  { id: 'monthly', label: 'Monthly' },
+  { id: "once-daily", label: "Once Daily" },
+  { id: "twice-daily", label: "Twice Daily" },
+  { id: "three-times-daily", label: "Three Times Daily" },
+  { id: "four-times-daily", label: "Four Times Daily" },
+  { id: "as-needed", label: "As Needed" },
+  { id: "weekly", label: "Weekly" },
+  { id: "monthly", label: "Monthly" },
 ];
 
 const TIME_OPTIONS = [
-  { id: 'morning', label: 'Morning' },
-  { id: 'afternoon', label: 'Afternoon' },
-  { id: 'evening', label: 'Evening' },
-  { id: 'night', label: 'Night' },
-  { id: 'with-meals', label: 'With Meals' },
-  { id: 'before-bed', label: 'Before Bed' },
+  { id: "morning", label: "Morning" },
+  { id: "afternoon", label: "Afternoon" },
+  { id: "evening", label: "Evening" },
+  { id: "night", label: "Night" },
+  { id: "with-meals", label: "With Meals" },
+  { id: "before-bed", label: "Before Bed" },
 ];
 
-export function AddMedicationModal({ isOpen, onClose, onSuccess }: AddMedicationModalProps) {
-  const [medicationName, setMedicationName] = useState('');
-  const [dosage, setDosage] = useState('');
-  const [frequency, setFrequency] = useState('once-daily');
-  const [timeOfDay, setTimeOfDay] = useState('morning');
-  const [reason, setReason] = useState('');
-  const [sideEffects, setSideEffects] = useState('');
+export function AddMedicationModal({
+  isOpen,
+  onClose,
+  onSuccess,
+}: AddMedicationModalProps) {
+  const [medicationName, setMedicationName] = useState("");
+  const [dosage, setDosage] = useState("");
+  const [frequency, setFrequency] = useState("once-daily");
+  const [timeOfDay, setTimeOfDay] = useState("morning");
+  const [reason, setReason] = useState("");
+  const [sideEffects, setSideEffects] = useState("");
   const [isLoading, setIsLoading] = useState(false);
-  const [error, setError] = useState('');
+  const [error, setError] = useState("");
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    setError('');
+    setError("");
 
     if (!medicationName.trim()) {
-      setError('Medication name is required');
+      setError("Medication name is required");
       return;
     }
 
-    const userId = localStorage.getItem('userId');
+    const userId = localStorage.getItem("userId");
     if (!userId) {
-      setError('User not authenticated');
+      setError("User not authenticated");
       return;
     }
 
@@ -84,18 +88,22 @@ export function AddMedicationModal({ isOpen, onClose, onSuccess }: AddMedication
       });
 
       // Reset form
-      setMedicationName('');
-      setDosage('');
-      setFrequency('once-daily');
-      setTimeOfDay('morning');
-      setReason('');
-      setSideEffects('');
+      setMedicationName("");
+      setDosage("");
+      setFrequency("once-daily");
+      setTimeOfDay("morning");
+      setReason("");
+      setSideEffects("");
 
       onClose();
       onSuccess?.();
     } catch (err) {
-      console.error('Error creating medication:', err);
-      setError(err instanceof Error ? err.message : 'Failed to add medication. Please try again.');
+      console.error("Error creating medication:", err);
+      setError(
+        err instanceof Error
+          ? err.message
+          : "Failed to add medication. Please try again.",
+      );
     } finally {
       setIsLoading(false);
     }
@@ -107,7 +115,8 @@ export function AddMedicationModal({ isOpen, onClose, onSuccess }: AddMedication
         <DialogHeader>
           <DialogTitle>Add Medication</DialogTitle>
           <DialogDescription>
-            Add a new medication to your reminders. You'll get notifications for each dose.
+            Add a new medication to your reminders. You'll get notifications for
+            each dose.
           </DialogDescription>
         </DialogHeader>
         <form onSubmit={handleSubmit} className="space-y-4">
@@ -134,7 +143,11 @@ export function AddMedicationModal({ isOpen, onClose, onSuccess }: AddMedication
           <div className="grid grid-cols-2 gap-4">
             <div className="space-y-2">
               <label className="text-sm font-medium">Frequency</label>
-              <Select value={frequency} onValueChange={setFrequency} disabled={isLoading}>
+              <Select
+                value={frequency}
+                onValueChange={setFrequency}
+                disabled={isLoading}
+              >
                 <SelectTrigger>
                   <SelectValue />
                 </SelectTrigger>
@@ -150,7 +163,11 @@ export function AddMedicationModal({ isOpen, onClose, onSuccess }: AddMedication
 
             <div className="space-y-2">
               <label className="text-sm font-medium">Time of Day</label>
-              <Select value={timeOfDay} onValueChange={setTimeOfDay} disabled={isLoading}>
+              <Select
+                value={timeOfDay}
+                onValueChange={setTimeOfDay}
+                disabled={isLoading}
+              >
                 <SelectTrigger>
                   <SelectValue />
                 </SelectTrigger>
@@ -202,7 +219,7 @@ export function AddMedicationModal({ isOpen, onClose, onSuccess }: AddMedication
               Cancel
             </Button>
             <Button type="submit" disabled={isLoading}>
-              {isLoading ? 'Adding...' : 'Add Medication'}
+              {isLoading ? "Adding..." : "Add Medication"}
             </Button>
           </DialogFooter>
         </form>
@@ -210,4 +227,3 @@ export function AddMedicationModal({ isOpen, onClose, onSuccess }: AddMedication
     </Dialog>
   );
 }
-

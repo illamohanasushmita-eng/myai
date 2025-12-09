@@ -1,35 +1,40 @@
 # 🚀 QUICK START GUIDE - VOICE AUTOMATION PIPELINE
 
 **Status**: ✅ READY TO USE  
-**Date**: 2025-11-08  
+**Date**: 2025-11-08
 
 ---
 
 ## ⚡ 5-MINUTE SETUP
 
 ### Step 1: Start Application
+
 ```bash
 npm run dev
 ```
 
 ### Step 2: Open Browser
+
 ```
 http://localhost:3002
 ```
 
 ### Step 3: Open DevTools
+
 ```
 Press: F12
 Tab: Console
 ```
 
 ### Step 4: Grant Microphone Permission
+
 ```
 Browser will ask for microphone access
 Click: Allow
 ```
 
 ### Step 5: Test Voice Command
+
 ```
 Say: "Hey Lara"
 Then say: "play music" or "add task"
@@ -40,6 +45,7 @@ Then say: "play music" or "add task"
 ## 🎤 VOICE COMMANDS
 
 ### Music Commands
+
 ```
 "Hey Lara, play my favorite music"
 "Hey Lara, play rock music"
@@ -47,6 +53,7 @@ Then say: "play music" or "add task"
 ```
 
 ### Task Commands
+
 ```
 "Hey Lara, add task buy groceries"
 "Hey Lara, show my tasks"
@@ -54,6 +61,7 @@ Then say: "play music" or "add task"
 ```
 
 ### Reminder Commands
+
 ```
 "Hey Lara, add reminder call mom at 3pm"
 "Hey Lara, show my reminders"
@@ -61,6 +69,7 @@ Then say: "play music" or "add task"
 ```
 
 ### Navigation Commands
+
 ```
 "Hey Lara, show tasks"
 "Hey Lara, show reminders"
@@ -72,12 +81,14 @@ Then say: "play music" or "add task"
 ## 📊 EXPECTED BEHAVIOR
 
 ### When You Say "Hey Lara"
+
 1. Button turns blue and pulses
 2. Console shows: "🎤 Wake word detected!"
 3. System starts recording
 4. Console shows: "✅ Audio recorded"
 
 ### When You Say a Command
+
 1. Console shows: "✅ Transcribed text: [your command]"
 2. Console shows: "✅ Intent classified: [intent type]"
 3. Console shows: "🎤 Step 5: Routing action"
@@ -90,6 +101,7 @@ Then say: "play music" or "add task"
 ## 🎯 INTEGRATION IN YOUR APP
 
 ### Option 1: Use LaraAssistantButton Component
+
 ```typescript
 import { LaraAssistantButton } from '@/components/voice/LaraAssistantButton';
 
@@ -103,6 +115,7 @@ export default function Dashboard() {
 ```
 
 ### Option 2: Use useLaraAssistant Hook
+
 ```typescript
 import { useLaraAssistant } from '@/hooks/useLaraAssistant';
 
@@ -136,6 +149,7 @@ export default function MyComponent() {
 ## 🔍 CONSOLE LOGS TO LOOK FOR
 
 ### Success Logs
+
 ```
 ✅ Wake word detected: hey lara
 ✅ Audio recorded
@@ -146,6 +160,7 @@ export default function MyComponent() {
 ```
 
 ### Error Logs
+
 ```
 ❌ Error classifying intent: [error]
 ❌ Error routing action: [error]
@@ -157,24 +172,28 @@ export default function MyComponent() {
 ## 🐛 TROUBLESHOOTING
 
 ### Wake word not detected
+
 - Check microphone is connected
 - Check microphone permissions
 - Speak clearly and louder
 - Refresh page (Ctrl+R)
 
 ### Command not recognized
+
 - Speak slowly and clearly
 - Check console for transcribed text
 - Verify intent classification in console
 - Check Gemini API is working
 
 ### Action not executed
+
 - Check console for action routing logs
 - Verify API endpoints exist
 - Check network tab for API calls
 - Check for JavaScript errors
 
 ### Navigation not working
+
 - Verify component is CLIENT component
 - Check router.push() is called
 - Verify navigation target is correct
@@ -184,27 +203,27 @@ export default function MyComponent() {
 
 ## 📁 KEY FILES
 
-| File | Purpose |
-|------|---------|
-| `src/lib/ai/intent-classifier.ts` | Classify intent from text |
-| `src/lib/ai/action-router.ts` | Route and execute actions |
-| `src/hooks/useLaraAssistant.ts` | Complete pipeline hook |
-| `src/app/api/ai/stt/route.ts` | Speech-to-text API |
-| `src/components/voice/LaraAssistantButton.tsx` | UI component |
+| File                                           | Purpose                   |
+| ---------------------------------------------- | ------------------------- |
+| `src/lib/ai/intent-classifier.ts`              | Classify intent from text |
+| `src/lib/ai/action-router.ts`                  | Route and execute actions |
+| `src/hooks/useLaraAssistant.ts`                | Complete pipeline hook    |
+| `src/app/api/ai/stt/route.ts`                  | Speech-to-text API        |
+| `src/components/voice/LaraAssistantButton.tsx` | UI component              |
 
 ---
 
 ## 🎯 SUPPORTED INTENTS
 
-| Intent | Command Example | Action |
-|--------|-----------------|--------|
-| play_music | "play music" | Play on Spotify |
-| add_task | "add task" | Add to tasks |
-| show_tasks | "show tasks" | Navigate to /tasks |
-| add_reminder | "add reminder" | Add reminder |
+| Intent         | Command Example  | Action                 |
+| -------------- | ---------------- | ---------------------- |
+| play_music     | "play music"     | Play on Spotify        |
+| add_task       | "add task"       | Add to tasks           |
+| show_tasks     | "show tasks"     | Navigate to /tasks     |
+| add_reminder   | "add reminder"   | Add reminder           |
 | show_reminders | "show reminders" | Navigate to /reminders |
-| navigate | "navigate to" | Navigate to target |
-| general_query | "what is" | Process query |
+| navigate       | "navigate to"    | Navigate to target     |
+| general_query  | "what is"        | Process query          |
 
 ---
 
@@ -261,6 +280,7 @@ export default function MyComponent() {
 ## 📞 SUPPORT
 
 If you encounter issues:
+
 1. Check console logs (F12)
 2. Verify microphone permissions
 3. Check network tab for API calls
@@ -270,5 +290,3 @@ If you encounter issues:
 ---
 
 **Your voice automation pipeline is ready!** 🎤✨
-
-

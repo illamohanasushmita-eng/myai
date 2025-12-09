@@ -1,6 +1,6 @@
-'use client';
+"use client";
 
-import { useCallback, useRef, useState } from 'react';
+import { useCallback, useRef, useState } from "react";
 
 interface UseVoiceInputOptions {
   onAudioData?: (audioBlob: Blob) => void;
@@ -22,7 +22,9 @@ interface UseVoiceInputReturn {
  * Hook for real-time voice input capture
  * Uses Web Audio API for audio recording
  */
-export function useVoiceInput(options: UseVoiceInputOptions = {}): UseVoiceInputReturn {
+export function useVoiceInput(
+  options: UseVoiceInputOptions = {},
+): UseVoiceInputReturn {
   const [isRecording, setIsRecording] = useState(false);
   const [audioLevel, setAudioLevel] = useState(0);
   const mediaRecorderRef = useRef<MediaRecorder | null>(null);
@@ -32,7 +34,8 @@ export function useVoiceInput(options: UseVoiceInputOptions = {}): UseVoiceInput
   const chunksRef = useRef<Blob[]>([]);
   const animationFrameRef = useRef<number | null>(null);
 
-  const isSupported = typeof window !== 'undefined' && !!navigator.mediaDevices?.getUserMedia;
+  const isSupported =
+    typeof window !== "undefined" && !!navigator.mediaDevices?.getUserMedia;
 
   const updateAudioLevel = useCallback(() => {
     if (!analyserRef.current) return;
@@ -51,14 +54,16 @@ export function useVoiceInput(options: UseVoiceInputOptions = {}): UseVoiceInput
   const startRecording = useCallback(async () => {
     try {
       if (!isSupported) {
-        throw new Error('Web Audio API not supported');
+        throw new Error("Web Audio API not supported");
       }
 
       const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
       streamRef.current = stream;
 
       // Setup audio context for level monitoring
-      const audioContext = new (window.AudioContext || (window as any).webkitAudioContext)();
+      const audioContext = new (
+        window.AudioContext || (window as any).webkitAudioContext
+      )();
       audioContextRef.current = audioContext;
 
       const analyser = audioContext.createAnalyser();
@@ -85,8 +90,9 @@ export function useVoiceInput(options: UseVoiceInputOptions = {}): UseVoiceInput
       // Start monitoring audio level
       updateAudioLevel();
     } catch (error) {
-      const errorMessage = error instanceof Error ? error.message : 'Failed to start recording';
-      console.error('❌ Recording error:', errorMessage);
+      const errorMessage =
+        error instanceof Error ? error.message : "Failed to start recording";
+      console.error("❌ Recording error:", errorMessage);
       options.onError?.(errorMessage);
     }
   }, [isSupported, options, updateAudioLevel]);
@@ -101,8 +107,8 @@ export function useVoiceInput(options: UseVoiceInputOptions = {}): UseVoiceInput
       const mediaRecorder = mediaRecorderRef.current;
 
       mediaRecorder.onstop = () => {
-        const audioBlob = new Blob(chunksRef.current, { type: 'audio/webm' });
-        
+        const audioBlob = new Blob(chunksRef.current, { type: "audio/webm" });
+
         // Cleanup
         streamRef.current?.getTracks().forEach((track) => track.stop());
         audioContextRef.current?.close();
@@ -144,4 +150,3 @@ export function useVoiceInput(options: UseVoiceInputOptions = {}): UseVoiceInput
     audioLevel,
   };
 }
-

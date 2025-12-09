@@ -15,6 +15,7 @@
 ## Problem Statement
 
 When users said "play prabhas songs" on Android:
+
 - ❌ Redirected to Spotify web player
 - ❌ Didn't open native Spotify app
 - ❌ Used unreliable Intent URL format
@@ -25,12 +26,14 @@ When users said "play prabhas songs" on Android:
 ## Root Cause Analysis
 
 The original code used `window.location.href` with Intent URLs:
+
 ```typescript
 // ❌ BROKEN APPROACH
 window.location.href = `intent://search/prabhas%20songs#Intent;scheme=spotify;package=com.spotify.music;end`;
 ```
 
 **Problems:**
+
 1. Full page navigation/reload
 2. Unreliable Intent URL format
 3. Poor visibility detection
@@ -44,12 +47,12 @@ window.location.href = `intent://search/prabhas%20songs#Intent;scheme=spotify;pa
 
 ```typescript
 // ✅ FIXED APPROACH
-const iframe = document.createElement('iframe');
-iframe.src = 'spotify:search:prabhas%20songs';
+const iframe = document.createElement("iframe");
+iframe.src = "spotify:search:prabhas%20songs";
 document.body.appendChild(iframe);
 
 // Monitor if app opens
-document.addEventListener('visibilitychange', () => {
+document.addEventListener("visibilitychange", () => {
   if (document.hidden) {
     // App opened - clear fallback timeout
   }
@@ -58,12 +61,13 @@ document.addEventListener('visibilitychange', () => {
 // Fallback to web player if app not found
 setTimeout(() => {
   if (!appOpened) {
-    window.location.href = 'https://open.spotify.com/search/prabhas%20songs';
+    window.location.href = "https://open.spotify.com/search/prabhas%20songs";
   }
 }, 2500);
 ```
 
 **Benefits:**
+
 1. ✅ No page navigation
 2. ✅ Standard URI scheme format
 3. ✅ Reliable visibility detection
@@ -76,16 +80,19 @@ setTimeout(() => {
 ### File: `AI-PA/src/lib/spotify/redirect.ts`
 
 #### Change 1: openUriScheme() - Android Branch
+
 - **Lines**: 91-143
 - **Change**: Direct navigation → Iframe approach
 - **Impact**: Enables proper fallback handling
 
 #### Change 2: searchInSpotifyApp()
+
 - **Lines**: 275-310
 - **Change**: Platform-specific → Unified URI format
 - **Impact**: Simpler, more reliable
 
 #### Change 3: playInSpotifyApp()
+
 - **Lines**: 239-263
 - **Change**: Platform-specific → Unified URI format
 - **Impact**: Simpler, more reliable
@@ -125,6 +132,7 @@ setTimeout(() => {
 ## Testing Guide
 
 ### Test 1: With Spotify App
+
 ```bash
 Device: Android phone with Spotify app installed
 Command: "play prabhas songs"
@@ -133,6 +141,7 @@ Console: "✅ Spotify app opened (page lost focus)"
 ```
 
 ### Test 2: Without Spotify App
+
 ```bash
 Device: Android phone without Spotify app
 Command: "play prabhas songs"
@@ -141,6 +150,7 @@ Console: "Spotify app not found on Android after 2500ms"
 ```
 
 ### Test 3: Various Queries
+
 ```bash
 "play telugu songs"
 "play favorite songs"
@@ -153,6 +163,7 @@ Console: "Spotify app not found on Android after 2500ms"
 ## Technical Details
 
 ### URI Scheme Format
+
 ```
 spotify:search:{query}       → Search for query
 spotify:track:{ID}           → Play specific track
@@ -162,6 +173,7 @@ spotify:playlist:{ID}        → Open playlist
 ```
 
 ### Timeout Configuration
+
 ```
 Android: 2.5 seconds (allows app launch time)
 iOS: 2.0 seconds
@@ -169,6 +181,7 @@ Desktop: 2.0 seconds
 ```
 
 ### Visibility Detection
+
 ```
 When Spotify app opens:
 - Browser loses focus
@@ -195,6 +208,7 @@ When Spotify app opens:
 ## Backward Compatibility
 
 ✅ **No breaking changes:**
+
 - All callback parameters are optional
 - Existing code without callbacks works
 - Function signatures unchanged
@@ -215,12 +229,14 @@ When Spotify app opens:
 ## Browser Support
 
 ✅ **Android Browsers:**
+
 - Chrome Android
 - Firefox Android
 - Samsung Internet
 - Edge Android
 
 ✅ **Other Platforms:**
+
 - Safari iOS
 - Chrome Desktop
 - Firefox Desktop
@@ -232,6 +248,7 @@ When Spotify app opens:
 ## Console Output Examples
 
 ### Success Case
+
 ```
 🔗 [SPOTIFY REDIRECT] Attempting to open URI: spotify:search:prabhas%20songs
 📱 [SPOTIFY REDIRECT] Platform: Android
@@ -243,6 +260,7 @@ When Spotify app opens:
 ```
 
 ### Fallback Case
+
 ```
 🔗 [SPOTIFY REDIRECT] Attempting to open URI: spotify:search:prabhas%20songs
 📱 [SPOTIFY REDIRECT] Platform: Android
@@ -255,12 +273,12 @@ When Spotify app opens:
 
 ## Troubleshooting
 
-| Issue | Solution |
-|-------|----------|
-| Still opens web player | Verify Spotify app is installed |
-| Slow to open app | Normal - takes 1-2 seconds |
-| App opens but no search | Update Spotify app to latest |
-| Console errors | Check browser console logs |
+| Issue                   | Solution                        |
+| ----------------------- | ------------------------------- |
+| Still opens web player  | Verify Spotify app is installed |
+| Slow to open app        | Normal - takes 1-2 seconds      |
+| App opens but no search | Update Spotify app to latest    |
+| Console errors          | Check browser console logs      |
 
 ---
 
@@ -286,8 +304,8 @@ When Spotify app opens:
 ## Support
 
 For issues or questions:
+
 1. Check console logs for error messages
 2. Verify Spotify app is installed and updated
 3. Review troubleshooting section above
 4. Check related documentation files
-

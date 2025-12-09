@@ -3,15 +3,19 @@
 ## Setup
 
 ### 1. Start Dev Server
+
 ```bash
 npm run dev
 ```
+
 Server will run on `http://localhost:3002`
 
 ### 2. Open Test Page
+
 Navigate to: `http://localhost:3002/test-lara`
 
 ### 3. Open Browser Console
+
 Press `F12` to open developer tools
 Go to "Console" tab to see logs
 
@@ -20,9 +24,11 @@ Go to "Console" tab to see logs
 ## Test 1: Wake Word Response on First Call
 
 ### Objective
+
 Verify that saying "Hey Lara" on the first call triggers the response immediately.
 
 ### Steps
+
 1. **Click the microphone button** on the test page
 2. **Say "Hey Lara"** clearly
 3. **Listen for response**: Should hear "How can I help you?" immediately
@@ -37,10 +43,12 @@ Verify that saying "Hey Lara" on the first call triggers the response immediatel
    ```
 
 ### Expected Result
+
 ✅ Hear "How can I help you?" immediately on first call
 ✅ No need to say "Hey Lara" twice
 
 ### Troubleshooting
+
 - If no response: Check microphone permissions
 - If delayed response: Check browser console for errors
 - If still no response: Try refreshing the page
@@ -50,9 +58,11 @@ Verify that saying "Hey Lara" on the first call triggers the response immediatel
 ## Test 2: Navigation Speed
 
 ### Objective
+
 Verify that navigation happens quickly (within 1-2 seconds) after voice command.
 
 ### Steps
+
 1. **Click the microphone button**
 2. **Say "Hey Lara"**
 3. **Wait for "How can I help you?"**
@@ -61,11 +71,13 @@ Verify that navigation happens quickly (within 1-2 seconds) after voice command.
 6. **Check console**: Should see timing logs
 
 ### Expected Result
+
 ✅ Navigation happens within 1-2 seconds
 ✅ Page changes to tasks page
 ✅ Console shows timing logs
 
 ### Console Logs to Look For
+
 ```
 📝 Command received: "show me my tasks" (2345ms)
 🧠 Parsing intent...
@@ -78,6 +90,7 @@ Verify that navigation happens quickly (within 1-2 seconds) after voice command.
 ```
 
 ### Troubleshooting
+
 - If navigation is slow: Check network tab in console
 - If page doesn't change: Check console for errors
 - If timing is off: Try again, timing can vary
@@ -87,9 +100,11 @@ Verify that navigation happens quickly (within 1-2 seconds) after voice command.
 ## Test 3: Voice Feedback Before Navigation
 
 ### Objective
+
 Verify that voice feedback plays completely before the page changes.
 
 ### Steps
+
 1. **Click the microphone button**
 2. **Say "Hey Lara"**
 3. **Wait for "How can I help you?"**
@@ -98,11 +113,13 @@ Verify that voice feedback plays completely before the page changes.
 6. **Check console**: Should see feedback completed BEFORE navigation
 
 ### Expected Result
+
 ✅ Hear "Opening reminders" before page changes
 ✅ Page changes to reminders page
 ✅ Console shows feedback completed before navigation
 
 ### Console Logs to Look For
+
 ```
 📌 Opening reminders page
 📌 Providing voice feedback BEFORE navigation...
@@ -111,6 +128,7 @@ Verify that voice feedback plays completely before the page changes.
 ```
 
 ### Troubleshooting
+
 - If no voice feedback: Check browser volume
 - If feedback plays after page change: Check console timing
 - If page doesn't change: Check console for errors
@@ -120,9 +138,11 @@ Verify that voice feedback plays completely before the page changes.
 ## Test 4: Multiple Commands
 
 ### Objective
+
 Verify that the fixes work consistently across multiple commands.
 
 ### Steps
+
 1. **Test 3+ different commands**:
    - "show me my tasks"
    - "open reminders"
@@ -136,6 +156,7 @@ Verify that the fixes work consistently across multiple commands.
    - Check console for errors
 
 ### Expected Result
+
 ✅ All commands respond within 1-2 seconds
 ✅ Voice feedback plays for all commands
 ✅ No errors in console
@@ -146,9 +167,11 @@ Verify that the fixes work consistently across multiple commands.
 ## Test 5: Error Handling
 
 ### Objective
+
 Verify that the fixes handle errors gracefully.
 
 ### Steps
+
 1. **Test with microphone disabled**:
    - Disable microphone in browser settings
    - Try to use voice commands
@@ -165,6 +188,7 @@ Verify that the fixes handle errors gracefully.
    - Should hear "Sorry, I did not hear that"
 
 ### Expected Result
+
 ✅ Graceful error handling
 ✅ Clear error messages
 ✅ No crashes or hangs
@@ -174,7 +198,9 @@ Verify that the fixes handle errors gracefully.
 ## Performance Metrics to Track
 
 ### Timing Logs
+
 Look for these in console:
+
 - `Greeting completed (XXXms)` - Should be 1000-2000ms
 - `Command received (XXXms)` - Should be 1000-5000ms
 - `Intent parsed (XXXms)` - Should be 500-1500ms
@@ -182,6 +208,7 @@ Look for these in console:
 - `onNavigate callback executed (XXXms)` - Should be <50ms
 
 ### Expected Ranges
+
 - Total response time: 1-2 seconds
 - Voice feedback: 500-2000ms
 - Navigation: <50ms
@@ -191,30 +218,35 @@ Look for these in console:
 ## Checklist
 
 ### Wake Word Response
+
 - [ ] Responds on first call
 - [ ] Responds immediately
 - [ ] No need to say twice
 - [ ] Console shows "✅ Wake word detected!"
 
 ### Navigation Speed
+
 - [ ] Navigation within 1-2 seconds
 - [ ] Page changes correctly
 - [ ] Console shows timing logs
 - [ ] No errors in console
 
 ### Voice Feedback
+
 - [ ] Feedback plays before page changes
 - [ ] Feedback is audible
 - [ ] Console shows "Voice feedback completed"
 - [ ] Feedback plays for all commands
 
 ### Error Handling
+
 - [ ] Graceful error handling
 - [ ] Clear error messages
 - [ ] No crashes or hangs
 - [ ] Works with network issues
 
 ### Multiple Commands
+
 - [ ] All commands work
 - [ ] Consistent response time
 - [ ] No errors across commands
@@ -232,4 +264,3 @@ If all tests pass:
 ✅ All fixes are working correctly
 
 **Status**: Ready for production deployment
-

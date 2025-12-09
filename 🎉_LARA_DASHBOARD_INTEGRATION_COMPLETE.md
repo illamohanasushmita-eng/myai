@@ -11,23 +11,27 @@
 I have successfully integrated the Lara Voice Assistant into the dashboard page with the following features:
 
 ### ✅ Authenticated User ID
+
 - Retrieves user ID from Supabase authentication
 - Stores in localStorage for other components
 - Passes real user ID to voice assistant
 
 ### ✅ Microphone Button
+
 - Fixed position at bottom-right of dashboard
 - Shows listening/processing states
 - Toggles between active and inactive
 - Provides visual feedback
 
 ### ✅ Voice Commands
+
 - Listens for "Hey Lara" wake word
 - Processes user commands
 - Executes actions (play music, navigate, add tasks, etc.)
 - Provides voice confirmation
 
 ### ✅ No UI Changes
+
 - Maintains existing dashboard design
 - Microphone button already existed
 - Only added functionality, no visual changes
@@ -39,23 +43,29 @@ I have successfully integrated the Lara Voice Assistant into the dashboard page 
 ### File: `src/app/dashboard/page.tsx`
 
 **1. Import Supabase Client**
+
 ```typescript
 import { supabase } from "@/lib/supabaseClient";
 ```
 
 **2. Add userId State**
+
 ```typescript
 const [userId, setUserId] = useState<string | null>(null);
 ```
 
 **3. Get Authenticated User ID**
+
 ```typescript
 useEffect(() => {
   const getAuthenticatedUser = async () => {
-    const { data: { user }, error } = await supabase.auth.getUser();
+    const {
+      data: { user },
+      error,
+    } = await supabase.auth.getUser();
     if (user) {
       setUserId(user.id);
-      localStorage.setItem('userId', user.id);
+      localStorage.setItem("userId", user.id);
     }
   };
   getAuthenticatedUser();
@@ -63,6 +73,7 @@ useEffect(() => {
 ```
 
 **4. Pass userId to VoiceCommandButton**
+
 ```typescript
 <VoiceCommandButton userId={userId || undefined} />
 ```
@@ -72,25 +83,31 @@ useEffect(() => {
 ## 🎤 How to Use
 
 ### Step 1: Open Dashboard
+
 ```
 http://localhost:3002/dashboard
 ```
 
 ### Step 2: Look for Microphone Button
+
 - Located at bottom-right of screen
 - Shows microphone icon
 - Fixed position
 
 ### Step 3: Click Microphone Button
+
 - Button turns red
 - Shows "Listening for Hey Lara..."
 
 ### Step 4: Say "Hey Lara"
+
 - Speak clearly into microphone
 - Wait for response
 
 ### Step 5: Say Your Command
+
 Examples:
+
 - "Play a song"
 - "Show my tasks"
 - "Add a reminder"
@@ -98,6 +115,7 @@ Examples:
 - "Open professional page"
 
 ### Step 6: Lara Executes
+
 - Command is processed
 - Action is performed
 - Voice confirmation is given
@@ -109,27 +127,32 @@ Examples:
 ### Voice Commands Supported
 
 **Music**
+
 - "Play a song"
 - "Play [artist/song name]"
 - "Play Telugu songs"
 
 **Tasks**
+
 - "Show my tasks"
 - "Add a task"
 - "Open tasks page"
 
 **Reminders**
+
 - "Show my reminders"
 - "Add a reminder"
 - "Open reminders page"
 
 **Navigation**
+
 - "Go to home page"
 - "Open professional page"
 - "Open personal growth page"
 - "Go to dashboard"
 
 **General**
+
 - Any other query or command
 
 ---
@@ -139,7 +162,7 @@ Examples:
 ✅ **User ID Source**: Supabase Authentication  
 ✅ **Storage**: localStorage (for session)  
 ✅ **Validation**: Checks if user exists  
-✅ **Error Handling**: Graceful fallback  
+✅ **Error Handling**: Graceful fallback
 
 ---
 
@@ -177,27 +200,32 @@ Dashboard Page
 ## 🚀 Testing Checklist
 
 ### Test 1: Verify User ID
+
 - [ ] Open DevTools (F12)
 - [ ] Go to Application → LocalStorage
 - [ ] Check if `userId` is stored
 - [ ] Should contain authenticated user's ID
 
 ### Test 2: Start Listening
+
 - [ ] Open http://localhost:3002/dashboard
 - [ ] Click microphone button
 - [ ] Button turns red
 - [ ] Shows "Listening for Hey Lara..."
 
 ### Test 3: Wake Word Detection
+
 - [ ] Say "Hey Lara"
 - [ ] Lara responds "How can I help you?"
 
 ### Test 4: Voice Command
+
 - [ ] Say "play a song"
 - [ ] Command is processed
 - [ ] Action is executed
 
 ### Test 5: Stop Listening
+
 - [ ] Click microphone button again
 - [ ] Button returns to normal state
 
@@ -219,7 +247,7 @@ Dashboard Page
 ✅ **No UI Changes**: Maintains current design  
 ✅ **Continuous Listening**: Listens for wake word in loop  
 ✅ **Voice Feedback**: Speaks confirmations  
-✅ **Error Handling**: Graceful error recovery  
+✅ **Error Handling**: Graceful error recovery
 
 ---
 
@@ -231,13 +259,14 @@ Dashboard Page
 ✅ **Continuous listening for voice commands**  
 ✅ **All existing features maintained**  
 ✅ **No UI changes**  
-✅ **Production ready**  
+✅ **Production ready**
 
 ---
 
 ## 🚀 Next Steps
 
 1. **Test on Dashboard**
+
    ```
    http://localhost:3002/dashboard
    ```
@@ -270,4 +299,3 @@ If you encounter any issues:
 **Lara is now integrated into your dashboard! 🎤✨**
 
 **Open the dashboard and click the microphone button to get started! 🚀**
-

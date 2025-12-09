@@ -3,6 +3,7 @@
 ## The Problem
 
 Voice command "play telugu songs" was:
+
 1. Opening web player immediately ❌
 2. Then trying to open native app after 3 seconds
 3. Taking 2+ minutes to redirect/transition
@@ -11,6 +12,7 @@ Voice command "play telugu songs" was:
 ## The Root Cause
 
 The code was using `window.location.href = webUrl` for fallback, which causes:
+
 - Full page navigation
 - Immediate redirect
 - Long transition period
@@ -42,17 +44,18 @@ Changed from `window.location.href` to `window.open(webUrl, '_blank')`:
 
 ## Why This Works
 
-| Issue | Before | After |
-|-------|--------|-------|
-| Web player opens | Immediately ❌ | Only if app not found ✅ |
-| Page navigation | Yes (disruptive) | No (clean) ✅ |
-| Redirect time | 2+ minutes | Instant ✅ |
-| Simultaneous loading | Yes (both) | No (one or other) ✅ |
-| User experience | Poor | Excellent ✅ |
+| Issue                | Before           | After                    |
+| -------------------- | ---------------- | ------------------------ |
+| Web player opens     | Immediately ❌   | Only if app not found ✅ |
+| Page navigation      | Yes (disruptive) | No (clean) ✅            |
+| Redirect time        | 2+ minutes       | Instant ✅               |
+| Simultaneous loading | Yes (both)       | No (one or other) ✅     |
+| User experience      | Poor             | Excellent ✅             |
 
 ## Expected Behavior Now
 
 ### With Spotify App
+
 ```
 "play telugu songs"
     ↓
@@ -61,6 +64,7 @@ No web player appears ✅
 ```
 
 ### Without Spotify App
+
 ```
 "play telugu songs"
     ↓
@@ -104,4 +108,3 @@ Expected: Native app opens (if installed) ✅
 Changed fallback mechanism from page navigation (`window.location.href`) to opening in new tab (`window.open()`), and made Desktop use iframe approach like Android/iOS. This prevents premature web player opening and eliminates the long redirect period.
 
 **Status: Ready for immediate deployment** ✅
-

@@ -13,6 +13,7 @@ Voice command functionality has been successfully integrated into the dashboard.
 ## Features Implemented
 
 ### ✅ Voice Input Capture
+
 - Web Speech API (SpeechRecognition) integration
 - Real-time transcription display
 - Visual feedback with pulsing animation
@@ -20,12 +21,14 @@ Voice command functionality has been successfully integrated into the dashboard.
 - Support for multiple languages (default: en-US)
 
 ### ✅ Gemini AI Integration
+
 - Natural language processing via Gemini 2.5 Flash
 - Intent detection and command parsing
 - Confidence scoring for command accuracy
 - Fallback handling for unclear commands
 
 ### ✅ Command Execution
+
 - Automatic navigation to relevant sections
 - Task and reminder creation
 - Health data display
@@ -34,6 +37,7 @@ Voice command functionality has been successfully integrated into the dashboard.
 - Music player integration
 
 ### ✅ Error Handling
+
 - Microphone permission errors
 - Network error handling
 - Speech recognition errors
@@ -41,6 +45,7 @@ Voice command functionality has been successfully integrated into the dashboard.
 - User-friendly error messages
 
 ### ✅ UI/UX
+
 - Non-intrusive button placement (bottom-right)
 - Maintains existing dashboard design
 - Frosted-glass styling consistency
@@ -71,44 +76,52 @@ src/
 ## Supported Commands
 
 ### Task Management
+
 - "Show my tasks for today"
 - "Add a new task"
 - "Create a task"
 - "List my tasks"
 
 ### Reminders
+
 - "Show my reminders"
 - "Add a reminder"
 - "Set a reminder for tomorrow at 3 PM"
 - "Remind me"
 
 ### Schedule & Planning
+
 - "What's my schedule?"
 - "Show my schedule"
 - "View my schedule"
 
 ### Health & Fitness
+
 - "Show my health data"
 - "Display fitness information"
 - "Show workout data"
 
 ### Professional
+
 - "Show professional tasks"
 - "Show my work"
 - "Display projects"
 - "Show meetings"
 
 ### Home
+
 - "Show home tasks"
 - "Display chores"
 - "Show family tasks"
 
 ### Personal Growth
+
 - "Show personal growth"
 - "Display learning goals"
 - "Show my goals"
 
 ### Music
+
 - "Play my favorite song"
 - "Play music"
 - "Play favorite song"
@@ -121,11 +134,13 @@ src/
 ### 1. Voice Command Service (`src/lib/ai/voice-command.ts`)
 
 **Key Functions:**
+
 - `processVoiceCommand(text)` - Sends transcribed text to API
 - `getErrorMessage(errorCode)` - Returns user-friendly error messages
 - `parseVoiceCommandIntent(text)` - Local intent parsing
 
 **Types:**
+
 - `VoiceCommandIntent` - Intent detection result
 - `VoiceCommandResponse` - API response structure
 - `VoiceCommandError` - Error information
@@ -133,6 +148,7 @@ src/
 ### 2. React Hook (`src/hooks/useVoiceCommand.ts`)
 
 **Features:**
+
 - Web Speech API integration
 - Real-time transcription
 - Error handling
@@ -140,6 +156,7 @@ src/
 - Browser compatibility check
 
 **Return Values:**
+
 ```typescript
 {
   isListening: boolean;           // Currently recording
@@ -159,6 +176,7 @@ src/
 **Endpoint:** `POST /api/ai/voice-command`
 
 **Request:**
+
 ```json
 {
   "text": "Show my tasks for today"
@@ -166,6 +184,7 @@ src/
 ```
 
 **Response:**
+
 ```json
 {
   "success": true,
@@ -183,6 +202,7 @@ src/
 ### 4. UI Component (`src/components/voice/VoiceCommandButton.tsx`)
 
 **Features:**
+
 - Animated microphone button
 - Real-time feedback display
 - Command execution
@@ -251,20 +271,20 @@ export function MyComponent() {
 
 ## Supported Intents
 
-| Intent | Action | Navigation |
-|--------|--------|------------|
-| `show_tasks` | Display tasks | `/professional` |
-| `add_task` | Create new task | `/tasks/add` |
-| `show_reminders` | Display reminders | `/reminders` |
-| `add_reminder` | Create reminder | `/reminders/add` |
-| `show_schedule` | View schedule | `/professional` |
-| `show_health` | Health data | `/healthcare` |
-| `show_professional` | Work section | `/professional` |
-| `show_home` | Home section | `/at-home` |
-| `show_growth` | Growth section | `/personal-growth` |
-| `play_music` | Music player | (in-app) |
-| `navigate` | Custom navigation | (dynamic) |
-| `unknown` | Unrecognized | (no action) |
+| Intent              | Action            | Navigation         |
+| ------------------- | ----------------- | ------------------ |
+| `show_tasks`        | Display tasks     | `/professional`    |
+| `add_task`          | Create new task   | `/tasks/add`       |
+| `show_reminders`    | Display reminders | `/reminders`       |
+| `add_reminder`      | Create reminder   | `/reminders/add`   |
+| `show_schedule`     | View schedule     | `/professional`    |
+| `show_health`       | Health data       | `/healthcare`      |
+| `show_professional` | Work section      | `/professional`    |
+| `show_home`         | Home section      | `/at-home`         |
+| `show_growth`       | Growth section    | `/personal-growth` |
+| `play_music`        | Music player      | (in-app)           |
+| `navigate`          | Custom navigation | (dynamic)          |
+| `unknown`           | Unrecognized      | (no action)        |
 
 ---
 
@@ -272,20 +292,21 @@ export function MyComponent() {
 
 ### Error Codes
 
-| Code | Message | User Message |
-|------|---------|--------------|
-| `NO_SPEECH` | No speech detected | "I did not hear anything. Please try again." |
-| `NETWORK_ERROR` | Network error | "Network error. Please check your connection." |
-| `NOT_ALLOWED` | Permission denied | "Microphone permission denied. Please enable it in settings." |
-| `SERVICE_NOT_AVAILABLE` | Service unavailable | "Speech recognition is not available in your browser." |
-| `GEMINI_ERROR` | Gemini API error | "Failed to process your command. Please try again." |
-| `UNKNOWN_ERROR` | Unknown error | "An unexpected error occurred. Please try again." |
+| Code                    | Message             | User Message                                                  |
+| ----------------------- | ------------------- | ------------------------------------------------------------- |
+| `NO_SPEECH`             | No speech detected  | "I did not hear anything. Please try again."                  |
+| `NETWORK_ERROR`         | Network error       | "Network error. Please check your connection."                |
+| `NOT_ALLOWED`           | Permission denied   | "Microphone permission denied. Please enable it in settings." |
+| `SERVICE_NOT_AVAILABLE` | Service unavailable | "Speech recognition is not available in your browser."        |
+| `GEMINI_ERROR`          | Gemini API error    | "Failed to process your command. Please try again."           |
+| `UNKNOWN_ERROR`         | Unknown error       | "An unexpected error occurred. Please try again."             |
 
 ---
 
 ## Browser Compatibility
 
 ### Supported Browsers
+
 - ✅ Chrome/Chromium (v25+)
 - ✅ Edge (v79+)
 - ✅ Safari (v14.1+)
@@ -293,6 +314,7 @@ export function MyComponent() {
 - ❌ Firefox (limited support)
 
 ### Fallback
+
 If browser doesn't support Web Speech API, the button is disabled with a tooltip.
 
 ---
@@ -311,6 +333,7 @@ const { startListening } = useVoiceCommand({
 ```
 
 ### Supported Languages
+
 - en-US (English - US)
 - en-GB (English - UK)
 - es-ES (Spanish)
@@ -379,18 +402,21 @@ const { startListening } = useVoiceCommand({
 ## Troubleshooting
 
 ### Microphone Not Working
+
 1. Check browser permissions
 2. Ensure microphone is connected
 3. Try a different browser
 4. Restart the application
 
 ### Commands Not Recognized
+
 1. Speak clearly and slowly
 2. Reduce background noise
 3. Check internet connection
 4. Verify Gemini API is configured
 
 ### No Feedback
+
 1. Check browser console for errors
 2. Verify API endpoint is accessible
 3. Check network tab for failed requests
@@ -413,6 +439,7 @@ const { startListening } = useVoiceCommand({
 ## Support
 
 For issues or questions:
+
 1. Check browser console for errors
 2. Review API response in network tab
 3. Verify environment configuration
@@ -423,4 +450,3 @@ For issues or questions:
 **Status**: ✅ PRODUCTION READY  
 **Last Updated**: 2025-11-07  
 **Version**: 1.0
-
