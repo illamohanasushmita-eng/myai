@@ -1,15 +1,21 @@
 import { supabase } from '@/lib/supabaseClient';
 
+<<<<<<< HEAD
 // Cooldown for signup to prevent rate limiting
 let lastSignupTime = 0;
 const SIGNUP_COOLDOWN = 60000; // 60 seconds
 
 // Sign up a new user using Supabase Auth
+=======
+
+// Sign up with Supabase Auth
+>>>>>>> a6255b82338b7ae41ee0071d55d8e67f3c8aa6d2
 export async function signUp(
   email: string,
   password: string,
   name: string,
   phone?: string
+<<<<<<< HEAD
 ): Promise<any> {
   try {
     // Check cooldown
@@ -26,6 +32,10 @@ export async function signUp(
 
     // Step 2: Create Supabase Auth user
     console.log('[SIGNUP] Creating Supabase Auth user...');
+=======
+): Promise<{ user: any; error: any }> {
+  try {
+>>>>>>> a6255b82338b7ae41ee0071d55d8e67f3c8aa6d2
     const { data, error } = await supabase.auth.signUp({
       email,
       password,
@@ -33,6 +43,7 @@ export async function signUp(
         data: {
           name,
           phone,
+<<<<<<< HEAD
         },
       },
     });
@@ -84,11 +95,35 @@ export async function signIn(email: string, password: string): Promise<any> {
     console.log('[SIGNIN] Calling Supabase auth.signInWithPassword...');
 
     // Use Supabase Auth for signin
+=======
+        }
+      }
+    });
+
+    if (error) throw error;
+
+    // If signup successful, create user profile
+    if (data.user) {
+      await createUserProfile(data.user.id, { name, phone, email });
+    }
+
+    return { user: data.user, error: null };
+  } catch (error) {
+    console.error('Error signing up:', error);
+    return { user: null, error };
+  }
+}
+
+// Sign in with Supabase Auth
+export async function signIn(email: string, password: string): Promise<{ user: any; error: any }> {
+  try {
+>>>>>>> a6255b82338b7ae41ee0071d55d8e67f3c8aa6d2
     const { data, error } = await supabase.auth.signInWithPassword({
       email,
       password,
     });
 
+<<<<<<< HEAD
     if (error) {
       console.error('[SIGNIN] Supabase auth error:', error);
       throw new Error(error.message || 'Sign in failed');
@@ -182,10 +217,40 @@ export async function changePassword(
     if (updateError) throw updateError;
   } catch (error) {
     console.error('Error changing password:', error);
+=======
+    if (error) throw error;
+    return { user: data.user, error: null };
+  } catch (error) {
+    console.error('Error signing in:', error);
+    return { user: null, error };
+  }
+}
+
+// Create user profile in your custom users table
+async function createUserProfile(userId: string, userData: { name: string; phone?: string; email: string }) {
+  try {
+    const { error } = await supabase
+      .from('users')
+      .insert([
+        {
+          user_id: userId, // Use Supabase Auth user ID
+          email: userData.email,
+          name: userData.name,
+          phone: userData.phone,
+          theme: 'light',
+          language: 'en',
+        },
+      ]);
+
+    if (error) throw error;
+  } catch (error) {
+    console.error('Error creating user profile:', error);
+>>>>>>> a6255b82338b7ae41ee0071d55d8e67f3c8aa6d2
     throw error;
   }
 }
 
+<<<<<<< HEAD
 // Reset password (send reset link via Supabase Auth)
 export async function requestPasswordReset(email: string): Promise<void> {
   try {
@@ -237,3 +302,16 @@ export async function getSession(): Promise<any> {
     return null;
   }
 }
+=======
+// Get current user
+export async function getCurrentUser() {
+  const { data: { user } } = await supabase.auth.getUser();
+  return user;
+}
+
+// Sign out
+export async function signOut() {
+  const { error } = await supabase.auth.signOut();
+  return { error };
+}
+>>>>>>> a6255b82338b7ae41ee0071d55d8e67f3c8aa6d2
