@@ -1,8 +1,9 @@
-import type { Metadata } from "next";
-import "./globals.css";
-import { Toaster } from "@/components/ui/toaster";
-import { Suspense } from "react";
-import Loading from "@/components/ui/loading";
+import type {Metadata} from 'next';
+import './globals.css';
+import { Toaster } from "@/components/ui/toaster"
+import { Suspense } from 'react';
+import Loading from '@/components/ui/loading';
+import HydrationErrorSuppressor from '@/components/HydrationErrorSuppressor';
 
 export const metadata: Metadata = {
   title: "MyAI - Your Personal AI Assistant",
@@ -34,8 +35,11 @@ export default function RootLayout({
           rel="stylesheet"
         />
       </head>
-      <body className="font-body antialiased">
-        <Suspense fallback={<Loading />}>{children}</Suspense>
+      <body className="font-body antialiased" suppressHydrationWarning>
+        <HydrationErrorSuppressor />
+        <Suspense fallback={<Loading />}>
+          {children}
+        </Suspense>
         <Toaster />
       </body>
     </html>

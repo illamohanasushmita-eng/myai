@@ -126,7 +126,7 @@ export default function DashboardPage() {
               </Link>
             </Button>
             <div className="flex flex-col items-center">
-              <h1 className="text-lg font-bold">Hello, {userName}!</h1>
+              <h1 className="text-lg font-bold">Hello, Alex!</h1>
               <p className="text-sm text-subtle-light dark:text-subtle-dark">
                 Let's make today productive.
               </p>
@@ -134,30 +134,24 @@ export default function DashboardPage() {
             <Dialog>
               <DialogTrigger asChild>
                 <div className="w-12 h-12 rounded-full overflow-hidden cursor-pointer">
-                  {
-                    <Image
-                      src={userImage}
-                      alt="User profile picture"
-                      width={48}
-                      height={48}
-                      className="object-cover"
-                    />
-                  }
+                  {<Image
+                    src={userImage}
+                    alt="User profile picture"
+                    width={48}
+                    height={48}
+                    className="object-cover"
+                  />}
                 </div>
               </DialogTrigger>
               <DialogContent className="p-0 bg-transparent border-none max-w-sm w-full">
-                <DialogTitle className="sr-only">
-                  User Profile Picture
-                </DialogTitle>
+                <DialogTitle className="sr-only">User Profile Picture</DialogTitle>
                 <div className="relative aspect-square w-full h-full">
-                  {
-                    <Image
-                      src={userImage}
-                      alt="User profile picture"
-                      fill
-                      className="object-cover rounded-lg"
-                    />
-                  }
+                  {<Image
+                    src={userImage}
+                    alt="User profile picture"
+                    fill
+                    className="object-cover rounded-lg"
+                  />}
                 </div>
               </DialogContent>
             </Dialog>
@@ -180,9 +174,7 @@ export default function DashboardPage() {
             <div className="bg-card-light dark:bg-card-dark rounded-xl p-6 shadow-md transform hover:scale-[1.02] transition-transform duration-300 frosted-glass border border-white/30 dark:border-white/10">
               <div className="flex justify-between items-center mb-4">
                 <h2 className="text-2xl font-bold">Daily Briefing</h2>
-                <span className="material-symbols-outlined text-primary text-3xl">
-                  flare
-                </span>
+                <span className="material-symbols-outlined text-primary text-3xl">flare</span>
               </div>
               <p className="text-subtle-light dark:text-subtle-dark mb-6">
                 Here's a personalized summary for your day.
@@ -263,19 +255,13 @@ export default function DashboardPage() {
             </div>
           </div>
           <div className="px-6 mt-6">
-            <WeatherScheduler />
-          </div>
-          <div className="px-6 mt-6">
             <div className="flex justify-between items-center mb-4">
               <h2 className="text-2xl font-bold font-display">
                 Categorized Dashboard
               </h2>
             </div>
             <div className="grid grid-cols-2 gap-4">
-              <Link
-                href="/at-home"
-                className="bg-card-light dark:bg-card-dark p-4 rounded-xl shadow-sm flex flex-col items-start text-left cursor-pointer hover:shadow-md transition-shadow duration-300 frosted-glass border border-white/30 dark:border-white/10"
-              >
+              <Link href="/at-home" className="bg-card-light dark:bg-card-dark p-4 rounded-xl shadow-sm flex flex-col items-start text-left cursor-pointer hover:shadow-md transition-shadow duration-300 frosted-glass border border-white/30 dark:border-white/10">
                 <div className="w-12 h-12 flex-shrink-0 bg-blue-100 dark:bg-blue-900/50 rounded-full flex items-center justify-center mb-3">
                   <span className="material-symbols-outlined text-blue-500 dark:text-blue-400 text-2xl">
                     home
@@ -288,10 +274,7 @@ export default function DashboardPage() {
                   Chores, family, pets
                 </p>
               </Link>
-              <Link
-                href="/professional"
-                className="bg-card-light dark:bg-card-dark p-4 rounded-xl shadow-sm flex flex-col items-start text-left cursor-pointer hover:shadow-md transition-shadow duration-300 frosted-glass border border-white/30 dark:border-white/10"
-              >
+              <Link href="/professional" className="bg-card-light dark:bg-card-dark p-4 rounded-xl shadow-sm flex flex-col items-start text-left cursor-pointer hover:shadow-md transition-shadow duration-300 frosted-glass border border-white/30 dark:border-white/10">
                 <div className="w-12 h-12 flex-shrink-0 bg-purple-100 dark:bg-purple-900/50 rounded-full flex items-center justify-center mb-3">
                   <span className="material-symbols-outlined text-purple-500 dark:text-purple-400 text-2xl">
                     business_center
@@ -304,10 +287,7 @@ export default function DashboardPage() {
                   Work, projects, meetings
                 </p>
               </Link>
-              <Link
-                href="/personal-growth"
-                className="bg-card-light dark:bg-card-dark p-4 rounded-xl shadow-sm flex flex-col items-start text-left cursor-pointer hover:shadow-md transition-shadow duration-300 frosted-glass border border-white/30 dark:border-white/10"
-              >
+              <Link href="/personal-growth" className="bg-card-light dark:bg-card-dark p-4 rounded-xl shadow-sm flex flex-col items-start text-left cursor-pointer hover:shadow-md transition-shadow duration-300 frosted-glass border border-white/30 dark:border-white/10">
                 <div className="w-12 h-12 flex-shrink-0 bg-green-100 dark:bg-green-900/50 rounded-full flex items-center justify-center mb-3">
                   <span className="material-symbols-outlined text-green-500 dark:text-green-400 text-2xl">
                     self_improvement
@@ -320,10 +300,7 @@ export default function DashboardPage() {
                   Learning, habits, goals
                 </p>
               </Link>
-              <Link
-                href="/automotive"
-                className="bg-card-light dark:bg-card-dark p-4 rounded-xl shadow-sm flex flex-col items-start text-left cursor-pointer hover:shadow-md transition-shadow duration-300 frosted-glass border border-white/30 dark:border-white/10"
-              >
+              <Link href="/automotive" className="bg-card-light dark:bg-card-dark p-4 rounded-xl shadow-sm flex flex-col items-start text-left cursor-pointer hover:shadow-md transition-shadow duration-300 frosted-glass border border-white/30 dark:border-white/10">
                 <div className="w-12 h-12 flex-shrink-0 bg-orange-100 dark:bg-orange-900/50 rounded-full flex items-center justify-center mb-3">
                   <span className="material-symbols-outlined text-orange-500 dark:text-orange-400 text-2xl">
                     directions_car
@@ -336,11 +313,8 @@ export default function DashboardPage() {
                   Maintenance, trips
                 </p>
               </Link>
-              <Link
-                href="/healthcare"
-                className="bg-card-light dark:bg-card-dark p-4 rounded-xl shadow-sm flex flex-col items-start text-left cursor-pointer hover:shadow-md transition-shadow duration-300 frosted-glass border border-white/30 dark:border-white/10 "
-              >
-                
+              <Link href="/healthcare" className="bg-card-light dark:bg-card-dark p-4 rounded-xl shadow-sm flex flex-col items-start text-left cursor-pointer hover:shadow-md transition-shadow duration-300 frosted-glass border border-white/30 dark:border-white/10 col-span-2">
+                <div className="flex items-center gap-3">
                   <div className="w-12 h-12 flex-shrink-0 bg-red-100 dark:bg-red-900/50 rounded-full flex items-center justify-center">
                     <span className="material-symbols-outlined text-red-500 dark:text-red-400 text-2xl">
                       health_and_safety
@@ -354,10 +328,10 @@ export default function DashboardPage() {
                       Appointments, fitness
                     </p>
                   </div>
-                
+                </div>
               </Link>
-              <Link href="/ai-local-discovery" className="bg-card-light dark:bg-card-dark p-4 rounded-xl shadow-sm flex flex-col items-start text-left cursor-pointer hover:shadow-md transition-shadow duration-300 frosted-glass border border-white/30 dark:border-white/10 ">
-                
+              <Link href="/ai-local-discovery" className="bg-card-light dark:bg-card-dark p-4 rounded-xl shadow-sm flex flex-col items-start text-left cursor-pointer hover:shadow-md transition-shadow duration-300 frosted-glass border border-white/30 dark:border-white/10 col-span-2">
+                <div className="flex items-center gap-3">
                   <div className="w-12 h-12 flex-shrink-0 bg-teal-100 dark:bg-teal-900/50 rounded-full flex items-center justify-center">
                     <span className="material-symbols-outlined text-teal-500 dark:text-teal-400 text-2xl">
                       explore
@@ -371,10 +345,12 @@ export default function DashboardPage() {
                       Discover nearby places and services
                     </p>
                   </div>
-                
+                </div>
               </Link>
             </div>
           </div>
+         
+          
           <div className="px-6 mt-8">
             <h2 className="text-2xl font-bold mb-4">Quick Actions</h2>
             <div className="bg-card-light dark:bg-card-dark rounded-xl p-2 space-y-2 frosted-glass border border-white/30 dark:border-white/10">
@@ -429,3 +405,4 @@ export default function DashboardPage() {
     </>
   );
 }
+

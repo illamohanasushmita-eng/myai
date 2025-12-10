@@ -193,7 +193,7 @@ export default function AILocalDiscoveryPage() {
           // Reverse geocode to get city name (using OpenWeather API)
           try {
             const response = await fetch(
-              https://api.openweathermap.org/geo/1.0/reverse?lat=${latitude}&lon=${longitude}&limit=1&appid=${process.env.NEXT_PUBLIC_OPENWEATHER_API_KEY || '72f5c4b9ba0b32305cc8d8e3a1ee58c4'}
+              `https://api.openweathermap.org/geo/1.0/reverse?lat=${latitude}&lon=${longitude}&limit=1&appid=${process.env.NEXT_PUBLIC_OPENWEATHER_API_KEY || '72f5c4b9ba0b32305cc8d8e3a1ee58c4'}`
             );
             const data = await response.json();
             
@@ -207,7 +207,7 @@ export default function AILocalDiscoveryPage() {
               
               toast({
                 title: '📍 Location Detected',
-                description: ${data[0].name}, ${data[0].state},
+                description: `${data[0].name}, ${data[0].state}`,
               });
             }
           } catch (error) {
@@ -245,7 +245,7 @@ export default function AILocalDiscoveryPage() {
   const handleManualLocation = async () => {
     if (!manualLocation.trim()) {
       toast({
-        title: '⚠ Invalid Location',
+        title: '⚠️ Invalid Location',
         description: 'Please enter a valid city or area name',
         variant: 'destructive',
       });
@@ -256,7 +256,7 @@ export default function AILocalDiscoveryPage() {
     try {
       // Geocode the manual location
       const response = await fetch(
-        https://api.openweathermap.org/geo/1.0/direct?q=${encodeURIComponent(manualLocation)}&limit=1&appid=${process.env.NEXT_PUBLIC_OPENWEATHER_API_KEY || '72f5c4b9ba0b32305cc8d8e3a1ee58c4'}
+        `https://api.openweathermap.org/geo/1.0/direct?q=${encodeURIComponent(manualLocation)}&limit=1&appid=${process.env.NEXT_PUBLIC_OPENWEATHER_API_KEY || '72f5c4b9ba0b32305cc8d8e3a1ee58c4'}`
       );
       const data = await response.json();
 
@@ -270,7 +270,7 @@ export default function AILocalDiscoveryPage() {
 
         toast({
           title: '✅ Location Set',
-          description: ${data[0].name}, ${data[0].state || data[0].country},
+          description: `${data[0].name}, ${data[0].state || data[0].country}`,
         });
       } else {
         toast({
@@ -304,17 +304,17 @@ export default function AILocalDiscoveryPage() {
     setLoading(true);
     try {
       // Build query URL with brand filter if specified
-      let queryUrl = /api/nearwise/places?latitude=${location.latitude}&longitude=${location.longitude}&radius=${radius}&category=${selectedCategory};
+      let queryUrl = `/api/nearwise/places?latitude=${location.latitude}&longitude=${location.longitude}&radius=${radius}&category=${selectedCategory}`;
 
       if (brandSearch.trim()) {
-        queryUrl += &brand=${encodeURIComponent(brandSearch.trim())};
+        queryUrl += `&brand=${encodeURIComponent(brandSearch.trim())}`;
       }
 
       const response = await fetch(queryUrl);
 
       if (!response.ok) {
         const errorData = await response.json().catch(() => ({}));
-        throw new Error(errorData.error || Server error: ${response.status});
+        throw new Error(errorData.error || `Server error: ${response.status}`);
       }
 
       const data = await response.json();
@@ -325,7 +325,7 @@ export default function AILocalDiscoveryPage() {
         // Show different message if using mock data
         if (data.usingMockData) {
           toast({
-            title: '⚠ Using Sample Data',
+            title: '⚠️ Using Sample Data',
             description: data.message || 'Showing sample places. Real data temporarily unavailable.',
           });
         } else if (data.fromCache) {
@@ -344,7 +344,7 @@ export default function AILocalDiscoveryPage() {
         if (brandSearch.trim() && data.count === 0) {
           toast({
             title: '🔍 No Results',
-            description: No places found matching "${brandSearch}" within ${radius}km,
+            description: `No places found matching "${brandSearch}" within ${radius}km`,
           });
         }
       } else {
@@ -369,11 +369,11 @@ export default function AILocalDiscoveryPage() {
     setSocialLoading(true);
     try {
       const response = await fetch(
-        /api/nearwise/social?latitude=${location.latitude}&longitude=${location.longitude}&radius=${radius}&platform=${socialPlatformFilter}
+        `/api/nearwise/social?latitude=${location.latitude}&longitude=${location.longitude}&radius=${radius}&platform=${socialPlatformFilter}`
       );
 
       if (!response.ok) {
-        throw new Error(Server error: ${response.status});
+        throw new Error(`Server error: ${response.status}`);
       }
 
       const data = await response.json();
@@ -383,7 +383,7 @@ export default function AILocalDiscoveryPage() {
 
         if (data.usingMockData) {
           toast({
-            title: '⚠ Using Sample Social Data',
+            title: '⚠️ Using Sample Social Data',
             description: data.message || 'Showing sample social media posts.',
           });
         }
@@ -409,11 +409,11 @@ export default function AILocalDiscoveryPage() {
     setEventsLoading(true);
     try {
       const response = await fetch(
-        /api/nearwise/events?latitude=${location.latitude}&longitude=${location.longitude}&radius=${radius}
+        `/api/nearwise/events?latitude=${location.latitude}&longitude=${location.longitude}&radius=${radius}`
       );
 
       if (!response.ok) {
-        throw new Error(Server error: ${response.status});
+        throw new Error(`Server error: ${response.status}`);
       }
 
       const data = await response.json();
@@ -423,7 +423,7 @@ export default function AILocalDiscoveryPage() {
 
         if (data.usingMockData) {
           toast({
-            title: '⚠ Using Sample Events',
+            title: '⚠️ Using Sample Events',
             description: data.message || 'Showing sample events.',
           });
         }
@@ -470,7 +470,7 @@ export default function AILocalDiscoveryPage() {
 
     try {
       const radiusInMeters = radius * 1000; // Convert km to meters
-      const apiUrl = /api/nearwise/brand-finder?message=${encodeURIComponent(brandFinderQuery)}&latitude=${location.latitude}&longitude=${location.longitude}&radius=${radiusInMeters};
+      const apiUrl = `/api/nearwise/brand-finder?message=${encodeURIComponent(brandFinderQuery)}&latitude=${location.latitude}&longitude=${location.longitude}&radius=${radiusInMeters}`;
 
       console.log('[BRAND-FINDER-UI] API URL:', apiUrl);
 
@@ -481,7 +481,7 @@ export default function AILocalDiscoveryPage() {
       if (!response.ok) {
         const errorData = await response.json().catch(() => ({}));
         console.error('[BRAND-FINDER-UI] Server error:', errorData);
-        throw new Error(errorData.error || Server error: ${response.status});
+        throw new Error(errorData.error || `Server error: ${response.status}`);
       }
 
       const data = await response.json();
@@ -575,9 +575,9 @@ export default function AILocalDiscoveryPage() {
     const hours = Math.floor(diff / 3600000);
     const days = Math.floor(diff / 86400000);
 
-    if (minutes < 60) return ${minutes}m ago;
-    if (hours < 24) return ${hours}h ago;
-    return ${days}d ago;
+    if (minutes < 60) return `${minutes}m ago`;
+    if (hours < 24) return `${hours}h ago`;
+    return `${days}d ago`;
   };
 
   // Format event date
@@ -589,7 +589,7 @@ export default function AILocalDiscoveryPage() {
     const startTimeStr = start.toLocaleTimeString('en-US', { hour: 'numeric', minute: '2-digit' });
     const endTimeStr = end.toLocaleTimeString('en-US', { hour: 'numeric', minute: '2-digit' });
 
-    return ${dateStr} • ${startTimeStr} - ${endTimeStr};
+    return `${dateStr} • ${startTimeStr} - ${endTimeStr}`;
   };
 
   // Format offer expiration
@@ -601,8 +601,8 @@ export default function AILocalDiscoveryPage() {
     const days = Math.floor(diff / 86400000);
     const hours = Math.floor(diff / 3600000);
 
-    if (days > 1) return Expires in ${days} days;
-    if (hours > 1) return Expires in ${hours} hours;
+    if (days > 1) return `Expires in ${days} days`;
+    if (hours > 1) return `Expires in ${hours} hours`;
     return 'Expires soon!';
   };
 
@@ -626,14 +626,14 @@ export default function AILocalDiscoveryPage() {
     const stars = [];
 
     for (let i = 0; i < fullStars; i++) {
-      stars.push(<span key={full-${i}} className="text-yellow-500">★</span>);
+      stars.push(<span key={`full-${i}`} className="text-yellow-500">★</span>);
     }
     if (hasHalfStar) {
       stars.push(<span key="half" className="text-yellow-500">⯨</span>);
     }
     const emptyStars = 5 - Math.ceil(rating);
     for (let i = 0; i < emptyStars; i++) {
-      stars.push(<span key={empty-${i}} className="text-gray-300 dark:text-gray-600">★</span>);
+      stars.push(<span key={`empty-${i}`} className="text-gray-300 dark:text-gray-600">★</span>);
     }
 
     return <div className="flex items-center gap-0.5">{stars}</div>;
@@ -1093,7 +1093,7 @@ export default function AILocalDiscoveryPage() {
                                     size="sm"
                                     className="w-full text-teal-500 border-teal-500 hover:bg-teal-500/10 mt-2"
                                     onClick={() => {
-                                      window.open(https://www.google.com/maps/dir/?api=1&destination=${store.lat},${store.lon}, '_blank');
+                                      window.open(`https://www.google.com/maps/dir/?api=1&destination=${store.lat},${store.lon}`, '_blank');
                                     }}
                                   >
                                     <span className="material-symbols-outlined text-base mr-1">directions</span>
@@ -1483,7 +1483,7 @@ export default function AILocalDiscoveryPage() {
                           size="sm"
                           className="flex-1 min-w-[120px] text-teal-500 border-teal-500 hover:bg-teal-500/10"
                           onClick={() => {
-                            window.open(https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(place.name + ' ' + place.address)}, '_blank');
+                            window.open(`https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(place.name + ' ' + place.address)}`, '_blank');
                           }}
                         >
                           <span className="material-symbols-outlined text-base mr-1">directions</span>
@@ -1497,3 +1497,510 @@ export default function AILocalDiscoveryPage() {
                             onClick={() => {
                               window.open(place.website, '_blank');
                             }}
+                          >
+                            <span className="material-symbols-outlined text-base mr-1">shopping_cart</span>
+                            Shop Online
+                          </Button>
+                        )}
+                        {place.website && !place.hasOnlineStore && (
+                          <Button
+                            variant="outline"
+                            size="sm"
+                            className="flex-1 min-w-[120px] text-purple-500 border-purple-500 hover:bg-purple-500/10"
+                            onClick={() => {
+                              window.open(place.website, '_blank');
+                            }}
+                          >
+                            <span className="material-symbols-outlined text-base mr-1">language</span>
+                            Website
+                          </Button>
+                        )}
+                      </div>
+                    </div>
+                  ))}
+              </div>
+            )}
+          </div>
+
+          {/* Social Buzz & Events Section */}
+          {location && (
+            <div id="social-buzz-section" className="px-6 pb-6">
+              <div className="bg-card-light dark:bg-card-dark rounded-xl p-6 shadow-md frosted-glass border border-white/30 dark:border-white/10">
+                <div className="flex items-center justify-between mb-4">
+                  <h2 className="text-xl font-bold flex items-center gap-2">
+                    <span className="material-symbols-outlined text-teal-500">trending_up</span>
+                    Social Buzz & Events
+                  </h2>
+                  <Button
+                    variant="outline"
+                    size="sm"
+                    onClick={() => setShowSocialBuzz(!showSocialBuzz)}
+                  >
+                    {showSocialBuzz ? 'Hide' : 'Show'}
+                  </Button>
+                </div>
+
+                {showSocialBuzz && (
+                  <>
+                    {/* Platform Filter */}
+                    <div className="mb-4">
+                      <div className="flex items-center gap-2 mb-2">
+                        <span className="material-symbols-outlined text-sm">filter_list</span>
+                        <span className="text-sm font-semibold">Platform</span>
+                      </div>
+                      <div className="flex gap-2 flex-wrap">
+                        <Button
+                          variant={socialPlatformFilter === 'all' ? 'default' : 'outline'}
+                          size="sm"
+                          onClick={() => {
+                            setSocialPlatformFilter('all');
+                            fetchSocialMedia();
+                          }}
+                          className={socialPlatformFilter === 'all' ? 'bg-teal-500 hover:bg-teal-600' : ''}
+                        >
+                          All
+                        </Button>
+                        <Button
+                          variant={socialPlatformFilter === 'facebook' ? 'default' : 'outline'}
+                          size="sm"
+                          onClick={() => {
+                            setSocialPlatformFilter('facebook');
+                            fetchSocialMedia();
+                          }}
+                          className={socialPlatformFilter === 'facebook' ? 'bg-blue-600 hover:bg-blue-700' : ''}
+                        >
+                          📘 Facebook
+                        </Button>
+                        <Button
+                          variant={socialPlatformFilter === 'instagram' ? 'default' : 'outline'}
+                          size="sm"
+                          onClick={() => {
+                            setSocialPlatformFilter('instagram');
+                            fetchSocialMedia();
+                          }}
+                          className={socialPlatformFilter === 'instagram' ? 'bg-pink-600 hover:bg-pink-700' : ''}
+                        >
+                          📷 Instagram
+                        </Button>
+                        <Button
+                          variant={socialPlatformFilter === 'twitter' ? 'default' : 'outline'}
+                          size="sm"
+                          onClick={() => {
+                            setSocialPlatformFilter('twitter');
+                            fetchSocialMedia();
+                          }}
+                          className={socialPlatformFilter === 'twitter' ? 'bg-sky-500 hover:bg-sky-600' : ''}
+                        >
+                          𝕏 Twitter
+                        </Button>
+                      </div>
+                    </div>
+
+                    {/* Content Type Filter */}
+                    <div className="mb-4">
+                      <div className="flex items-center gap-2 mb-2">
+                        <span className="material-symbols-outlined text-sm">category</span>
+                        <span className="text-sm font-semibold">Content Type</span>
+                      </div>
+                      <div className="flex gap-2 flex-wrap">
+                        <Button
+                          variant={socialContentFilter === 'all' ? 'default' : 'outline'}
+                          size="sm"
+                          onClick={() => setSocialContentFilter('all')}
+                          className={socialContentFilter === 'all' ? 'bg-teal-500 hover:bg-teal-600' : ''}
+                        >
+                          All Posts
+                        </Button>
+                        <Button
+                          variant={socialContentFilter === 'new_openings' ? 'default' : 'outline'}
+                          size="sm"
+                          onClick={() => setSocialContentFilter('new_openings')}
+                          className={socialContentFilter === 'new_openings' ? 'bg-green-600 hover:bg-green-700' : ''}
+                        >
+                          🎉 New Openings
+                        </Button>
+                        <Button
+                          variant={socialContentFilter === 'deals' ? 'default' : 'outline'}
+                          size="sm"
+                          onClick={() => setSocialContentFilter('deals')}
+                          className={socialContentFilter === 'deals' ? 'bg-orange-600 hover:bg-orange-700' : ''}
+                        >
+                          💰 Deals & Offers
+                        </Button>
+                        <Button
+                          variant={socialContentFilter === 'top_rated' ? 'default' : 'outline'}
+                          size="sm"
+                          onClick={() => setSocialContentFilter('top_rated')}
+                          className={socialContentFilter === 'top_rated' ? 'bg-yellow-600 hover:bg-yellow-700' : ''}
+                        >
+                          ⭐ Top Rated
+                        </Button>
+                      </div>
+                    </div>
+
+                    {/* Sort Options */}
+                    <div className="mb-4">
+                      <div className="flex items-center gap-2 mb-2">
+                        <span className="material-symbols-outlined text-sm">sort</span>
+                        <span className="text-sm font-semibold">Sort By</span>
+                      </div>
+                      <div className="flex gap-2 flex-wrap">
+                        <Button
+                          variant={socialSortBy === 'recent' ? 'default' : 'outline'}
+                          size="sm"
+                          onClick={() => setSocialSortBy('recent')}
+                          className={socialSortBy === 'recent' ? 'bg-teal-500 hover:bg-teal-600' : ''}
+                        >
+                          <span className="material-symbols-outlined text-sm mr-1">schedule</span>
+                          Recent
+                        </Button>
+                        <Button
+                          variant={socialSortBy === 'engagement' ? 'default' : 'outline'}
+                          size="sm"
+                          onClick={() => setSocialSortBy('engagement')}
+                          className={socialSortBy === 'engagement' ? 'bg-teal-500 hover:bg-teal-600' : ''}
+                        >
+                          <span className="material-symbols-outlined text-sm mr-1">favorite</span>
+                          Most Engaged
+                        </Button>
+                        <Button
+                          variant={socialSortBy === 'nearest' ? 'default' : 'outline'}
+                          size="sm"
+                          onClick={() => setSocialSortBy('nearest')}
+                          className={socialSortBy === 'nearest' ? 'bg-teal-500 hover:bg-teal-600' : ''}
+                        >
+                          <span className="material-symbols-outlined text-sm mr-1">near_me</span>
+                          Nearest
+                        </Button>
+                        <Button
+                          variant={socialSortBy === 'rating' ? 'default' : 'outline'}
+                          size="sm"
+                          onClick={() => setSocialSortBy('rating')}
+                          className={socialSortBy === 'rating' ? 'bg-teal-500 hover:bg-teal-600' : ''}
+                        >
+                          <span className="material-symbols-outlined text-sm mr-1">star</span>
+                          Top Rated
+                        </Button>
+                      </div>
+                    </div>
+
+                    {/* Social Posts */}
+                    {socialLoading ? (
+                      <div className="flex items-center justify-center py-12">
+                        <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-teal-500"></div>
+                      </div>
+                    ) : getSortedSocialPosts().length > 0 ? (
+                      <div className="space-y-4 max-h-[600px] overflow-y-auto">
+                        {getSortedSocialPosts().map((post) => (
+                          <div
+                            key={post.id}
+                            className="bg-background-light/50 dark:bg-background-dark/50 rounded-lg p-4 border border-border-light/50 dark:border-border-dark/50"
+                          >
+                            {/* Post Header */}
+                            <div className="flex items-start justify-between mb-3">
+                              <div className="flex flex-col gap-2">
+                                <div className="flex items-center gap-2 flex-wrap">
+                                  <Badge
+                                    variant="outline"
+                                    className={
+                                      post.platform === 'facebook'
+                                        ? 'border-blue-500 text-blue-500'
+                                        : post.platform === 'instagram'
+                                        ? 'border-pink-500 text-pink-500'
+                                        : 'border-sky-500 text-sky-500'
+                                    }
+                                  >
+                                    {post.platform === 'facebook' && '📘'}
+                                    {post.platform === 'instagram' && '📷'}
+                                    {post.platform === 'twitter' && '𝕏'}
+                                    {' '}
+                                    {post.platform.charAt(0).toUpperCase() + post.platform.slice(1)}
+                                  </Badge>
+                                  {post.isNewOpening && (
+                                    <Badge className="bg-green-600 hover:bg-green-700 text-white border-0">
+                                      🎉 NEW OPENING
+                                    </Badge>
+                                  )}
+                                  {post.isPromotion && (
+                                    <Badge className="bg-orange-600 hover:bg-orange-700 text-white border-0">
+                                      💰 SPECIAL OFFER
+                                    </Badge>
+                                  )}
+                                </div>
+                                <div className="flex items-center gap-2">
+                                  <span className="font-semibold">{post.businessName}</span>
+                                  {post.rating && (
+                                    <div className="flex items-center gap-1">
+                                      {renderStars(post.rating)}
+                                      <span className="text-xs text-subtle-light dark:text-subtle-dark ml-1">
+                                        {post.rating.toFixed(1)}
+                                      </span>
+                                      {post.reviewCount && (
+                                        <span className="text-xs text-subtle-light dark:text-subtle-dark">
+                                          ({post.reviewCount})
+                                        </span>
+                                      )}
+                                    </div>
+                                  )}
+                                </div>
+                              </div>
+                              <div className="flex flex-col items-end gap-1 text-xs text-subtle-light dark:text-subtle-dark">
+                                {post.location && (
+                                  <span className="flex items-center gap-1">
+                                    <span className="material-symbols-outlined text-xs">location_on</span>
+                                    {post.location.distance}km
+                                  </span>
+                                )}
+                                <span>{formatRelativeTime(post.timestamp)}</span>
+                                {post.checkInCount && (
+                                  <span className="flex items-center gap-1">
+                                    <span className="material-symbols-outlined text-xs">person_pin_circle</span>
+                                    {post.checkInCount.toLocaleString()} check-ins
+                                  </span>
+                                )}
+                              </div>
+                            </div>
+
+                            {/* Post Content */}
+                            <p className="text-sm mb-3">{post.content}</p>
+
+                            {/* Post Media */}
+                            {post.media.length > 0 && (
+                              <div className="mb-3 rounded-lg overflow-hidden">
+                                <img
+                                  src={post.media[0].url}
+                                  alt="Post media"
+                                  className="w-full h-48 object-cover"
+                                  onError={(e) => {
+                                    (e.target as HTMLImageElement).style.display = 'none';
+                                  }}
+                                />
+                              </div>
+                            )}
+
+                            {/* Offer Expiration */}
+                            {post.isPromotion && post.offerExpiration && (
+                              <div className="mb-3 p-2 bg-orange-100 dark:bg-orange-900/20 rounded-lg border border-orange-300 dark:border-orange-700">
+                                <div className="flex items-center gap-2 text-sm text-orange-700 dark:text-orange-400">
+                                  <span className="material-symbols-outlined text-base">schedule</span>
+                                  <span className="font-semibold">{formatOfferExpiration(post.offerExpiration)}</span>
+                                </div>
+                              </div>
+                            )}
+
+                            {/* Engagement Metrics */}
+                            <div className="flex items-center gap-4 text-sm text-subtle-light dark:text-subtle-dark mb-3">
+                              <span className="flex items-center gap-1">
+                                <span className="material-symbols-outlined text-base">favorite</span>
+                                {post.engagement.likes}
+                              </span>
+                              <span className="flex items-center gap-1">
+                                <span className="material-symbols-outlined text-base">comment</span>
+                                {post.engagement.comments}
+                              </span>
+                              <span className="flex items-center gap-1">
+                                <span className="material-symbols-outlined text-base">share</span>
+                                {post.engagement.shares}
+                              </span>
+                            </div>
+
+                            {/* Reviews Section */}
+                            {post.reviews && post.reviews.length > 0 && (
+                              <div className="mb-3">
+                                <button
+                                  onClick={() => toggleReviews(post.id)}
+                                  className="flex items-center gap-2 text-sm font-semibold text-teal-500 hover:text-teal-600 mb-2"
+                                >
+                                  <span className="material-symbols-outlined text-base">
+                                    {expandedReviews.has(post.id) ? 'expand_less' : 'expand_more'}
+                                  </span>
+                                  {expandedReviews.has(post.id) ? 'Hide' : 'Show'} Reviews ({post.reviews.length})
+                                </button>
+
+                                {expandedReviews.has(post.id) && (
+                                  <div className="space-y-2 pl-4 border-l-2 border-teal-500/30">
+                                    {post.reviews.map((review) => (
+                                      <div key={review.id} className="text-sm">
+                                        <div className="flex items-center gap-2 mb-1">
+                                          <span className="font-semibold">{review.author}</span>
+                                          <div className="flex items-center">
+                                            {renderStars(review.rating)}
+                                          </div>
+                                          <span className="text-xs text-subtle-light dark:text-subtle-dark">
+                                            {formatRelativeTime(review.timestamp)}
+                                          </span>
+                                        </div>
+                                        <p className="text-subtle-light dark:text-subtle-dark">{review.text}</p>
+                                      </div>
+                                    ))}
+                                  </div>
+                                )}
+                              </div>
+                            )}
+
+                            {/* View Original Button */}
+                            <Button
+                              variant="outline"
+                              size="sm"
+                              className="w-full text-teal-500 border-teal-500 hover:bg-teal-500/10"
+                              onClick={() => window.open(post.link, '_blank')}
+                            >
+                              <span className="material-symbols-outlined text-base mr-1">open_in_new</span>
+                              View Original
+                            </Button>
+                          </div>
+                        ))}
+                      </div>
+                    ) : (
+                      <div className="text-center py-12">
+                        <span className="material-symbols-outlined text-6xl text-subtle-light dark:text-subtle-dark mb-4">
+                          social_distance
+                        </span>
+                        <p className="text-subtle-light dark:text-subtle-dark">
+                          No social media content available
+                        </p>
+                      </div>
+                    )}
+
+                    {/* Events Section */}
+                    <div className="mt-6 pt-6 border-t border-border-light/50 dark:border-border-dark/50">
+                      <h3 className="text-lg font-bold mb-4 flex items-center gap-2">
+                        <span className="material-symbols-outlined text-teal-500">event</span>
+                        Upcoming Events
+                      </h3>
+
+                      {eventsLoading ? (
+                        <div className="flex items-center justify-center py-8">
+                          <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-teal-500"></div>
+                        </div>
+                      ) : events.length > 0 ? (
+                        <div className="space-y-3 max-h-[400px] overflow-y-auto">
+                          {events.slice(0, 10).map((event) => (
+                            <div
+                              key={event.id}
+                              className="bg-background-light/50 dark:bg-background-dark/50 rounded-lg p-3 border border-border-light/50 dark:border-border-dark/50"
+                            >
+                              <div className="flex items-start gap-3">
+                                {event.coverImage && (
+                                  <img
+                                    src={event.coverImage}
+                                    alt={event.name}
+                                    className="w-20 h-20 rounded-lg object-cover"
+                                    onError={(e) => {
+                                      (e.target as HTMLImageElement).style.display = 'none';
+                                    }}
+                                  />
+                                )}
+                                <div className="flex-1">
+                                  <div className="flex items-start justify-between mb-1">
+                                    <h4 className="font-semibold text-sm">{event.name}</h4>
+                                    {event.isFree && (
+                                      <Badge variant="outline" className="text-xs border-green-500 text-green-500">
+                                        FREE
+                                      </Badge>
+                                    )}
+                                  </div>
+                                  <p className="text-xs text-subtle-light dark:text-subtle-dark mb-2">
+                                    {formatEventDate(event.startTime, event.endTime)}
+                                  </p>
+                                  <div className="flex items-center gap-2 text-xs text-subtle-light dark:text-subtle-dark mb-2">
+                                    <span className="material-symbols-outlined text-xs">location_on</span>
+                                    <span>{event.location.name} • {event.location.distance}km</span>
+                                  </div>
+                                  {event.attendeeCount > 0 && (
+                                    <div className="flex items-center gap-1 text-xs text-subtle-light dark:text-subtle-dark mb-2">
+                                      <span className="material-symbols-outlined text-xs">group</span>
+                                      <span>{event.attendeeCount} attending</span>
+                                    </div>
+                                  )}
+                                  {event.link && event.link !== '#' ? (
+                                    <Button
+                                      variant="outline"
+                                      size="sm"
+                                      className="text-xs text-teal-500 border-teal-500 hover:bg-teal-500/10"
+                                      onClick={() => window.open(event.link, '_blank')}
+                                    >
+                                      View Event
+                                    </Button>
+                                  ) : (
+                                    <Badge variant="outline" className="text-xs border-amber-500 text-amber-500">
+                                      Sample Event
+                                    </Badge>
+                                  )}
+                                </div>
+                              </div>
+                            </div>
+                          ))}
+                        </div>
+                      ) : (
+                        <div className="text-center py-8">
+                          <span className="material-symbols-outlined text-4xl text-subtle-light dark:text-subtle-dark mb-2">
+                            event_busy
+                          </span>
+                          <p className="text-sm text-subtle-light dark:text-subtle-dark">
+                            No upcoming events found
+                          </p>
+                        </div>
+                      )}
+                    </div>
+                  </>
+                )}
+              </div>
+            </div>
+          )}
+
+          {/* Notification Preferences */}
+          <div className="px-6 pb-6">
+            <div className="bg-card-light dark:bg-card-dark rounded-xl p-6 shadow-md frosted-glass border border-white/30 dark:border-white/10">
+              <h2 className="text-xl font-bold mb-4 flex items-center gap-2">
+                <span className="material-symbols-outlined text-teal-500">notifications</span>
+                Smart Notifications
+              </h2>
+              <p className="text-sm text-subtle-light dark:text-subtle-dark mb-4">
+                Get notified about new places, events, and offers in your area
+              </p>
+              <div className="space-y-4">
+                {notifications.map((notif) => (
+                  <div
+                    key={notif.id}
+                    className="flex items-center justify-between p-3 rounded-lg bg-background-light/50 dark:bg-background-dark/50"
+                  >
+                    <div className="flex-1">
+                      <h3 className="font-semibold text-sm">{notif.title}</h3>
+                      <p className="text-xs text-subtle-light dark:text-subtle-dark">
+                        {notif.message}
+                      </p>
+                    </div>
+                    <Switch
+                      checked={notif.enabled}
+                      onCheckedChange={() => toggleNotification(notif.id)}
+                    />
+                  </div>
+                ))}
+              </div>
+              <div className="mt-4 pt-4 border-t border-border-light/50 dark:border-border-dark/50">
+                <p className="text-xs text-subtle-light dark:text-subtle-dark">
+                  💡 Tip: Enable notifications to stay updated about new places and events near you
+                </p>
+              </div>
+            </div>
+          </div>
+        </main>
+
+        <VoiceAssistantWrapper />
+        <BottomNav />
+      </div>
+
+      {/* Store Offers Modal */}
+      {selectedStoreId && (
+        <StoreOffersModal
+          isOpen={showOffersModal}
+          onClose={handleCloseOffersModal}
+          storeId={selectedStoreId}
+          storeName={selectedStoreName}
+        />
+      )}
+    </>
+  );
+}
+
