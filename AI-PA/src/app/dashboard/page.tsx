@@ -1,4 +1,3 @@
-
 "use client";
 
 import { Button } from "@/components/ui/button";
@@ -16,6 +15,8 @@ import { useEffect, useState } from "react";
 import { generatePersonalizedDailyPlan } from "@/ai/openai-client";
 import { VoiceAssistantWrapper } from "@/components/layout/VoiceAssistantWrapper";
 import { supabase } from "@/lib/supabaseClient";
+import { WeatherScheduler } from "@/components/WeatherScheduler";
+import { getUser } from "@/lib/services/userService";
 
 type DailyPlan = {
   morning: string;
@@ -25,26 +26,46 @@ type DailyPlan = {
 };
 
 export default function DashboardPage() {
-  const userImage = "https://lh3.googleusercontent.com/aida-public/AB6AXuCdo5G2NLz9RtwbAmMqs7lY-7i-pNnVm7svrNO_NONAWCfV4_jKBt9TpRQ6ax2CrE7TmEjwpxKxElhGNTMT8xonP_6l9MBrylDCWqv3vzEdIP8OFS4aBovtRD6YNqqBzDCGWPerfGuY9rzgrPXub2X0RWaauN61CiScUSEMYF1RGmiQR1mg_7jq4Z_ndznMN08npc2BdCJqG5B69C3OLpt0d1r68vETYgDwSBXh3nQgTx7iawsGUYI4T2LJTEWNV6fvvK8AEFDEYw";
+  const userImage =
+    "https://lh3.googleusercontent.com/aida-public/AB6AXuCdo5G2NLz9RtwbAmMqs7lY-7i-pNnVm7svrNO_NONAWCfV4_jKBt9TpRQ6ax2CrE7TmEjwpxKxElhGNTMT8xonP_6l9MBrylDCWqv3vzEdIP8OFS4aBovtRD6YNqqBzDCGWPerfGuY9rzgrPXub2X0RWaauN61CiScUSEMYF1RGmiQR1mg_7jq4Z_ndznMN08npc2BdCJqG5B69C3OLpt0d1r68vETYgDwSBXh3nQgTx7iawsGUYI4T2LJTEWNV6fvvK8AEFDEYw";
 
   const [dailyPlan, setDailyPlan] = useState<DailyPlan | null>(null);
   const [loading, setLoading] = useState(true);
+  const [userName, setUserName] = useState<string>("User");
 
-  // Get authenticated user ID from Supabase and store in localStorage
+  // Get authenticated user ID from Supabase and fetch user name
   useEffect(() => {
     const getAuthenticatedUser = async () => {
       try {
-        const { data: { user }, error } = await supabase.auth.getUser();
+        const {
+          data: { user },
+          error,
+        } = await supabase.auth.getUser();
         if (error) {
-          console.error('Error getting user:', error);
+          console.error("Error getting user:", error);
           return;
         }
         if (user) {
           // Store in localStorage for other components (including VoiceAssistantWrapper)
-          localStorage.setItem('userId', user.id);
+          localStorage.setItem("userId", user.id);
+
+          // Fetch user profile to get the name
+          try {
+            const userProfile = await getUser(user.id);
+            if (userProfile && userProfile.name) {
+              setUserName(userProfile.name);
+            } else {
+              // Fallback to "User" if name is not available
+              setUserName("User");
+            }
+          } catch (error) {
+            console.error("Error fetching user profile:", error);
+            // Keep the default "User" fallback
+            setUserName("User");
+          }
         }
       } catch (error) {
-        console.error('Error fetching authenticated user:', error);
+        console.error("Error fetching authenticated user:", error);
       }
     };
 
@@ -58,9 +79,12 @@ export default function DashboardPage() {
         // In a real app, you'd fetch this data from a user's profile
         const mockData = {
           name: "User",
-          pastActivities: "Completed project proposal, attended team meeting, went for a run.",
-          preferences: "Prefers focused work in the morning, enjoys listening to podcasts during breaks.",
-          upcomingDeadlines: "Finalize Project Phoenix report due today at 4 PM.",
+          pastActivities:
+            "Completed project proposal, attended team meeting, went for a run.",
+          preferences:
+            "Prefers focused work in the morning, enjoys listening to podcasts during breaks.",
+          upcomingDeadlines:
+            "Finalize Project Phoenix report due today at 4 PM.",
         };
 
         const result = await generatePersonalizedDailyPlan(mockData);
@@ -70,9 +94,11 @@ export default function DashboardPage() {
         // Set a fallback plan in case of an error
         setDailyPlan({
           morning: "Start your day with focused work on your top priority.",
-          afternoon: "Take a break for lunch and continue with collaborative tasks.",
+          afternoon:
+            "Take a break for lunch and continue with collaborative tasks.",
           evening: "Review your progress and plan for tomorrow.",
-          message: "You're most productive in the morning. Schedule deep work before lunch."
+          message:
+            "You're most productive in the morning. Schedule deep work before lunch.",
         });
       } finally {
         setLoading(false);
