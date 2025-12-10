@@ -105,17 +105,24 @@ export function WeatherScheduler() {
   };
 
   // Fetch weather data
-  const fetchWeather = async (coords: GeolocationCoordinates) => {
+  const fetchWeather = async (coords: GeolocationCoordinates | null) => {
     try {
       console.log("🌤️ Fetching weather data...");
+      
+      // Use provided coordinates or fallback to default location (San Francisco)
+      const lat = coords?.latitude ?? 37.7749;
+      const lon = coords?.longitude ?? -122.4194;
+      
+      console.log(`📍 Using coordinates: lat=${lat}, lon=${lon}`);
+      
       const response = await fetch("/api/weather", {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
         },
         body: JSON.stringify({
-          lat: coords.latitude,
-          lon: coords.longitude,
+          lat,
+          lon,
         }),
       });
 
@@ -162,16 +169,10 @@ export function WeatherScheduler() {
       const coords = await requestGeolocation();
 
       if (!coords) {
-        setError("Unable to get location. Please enable geolocation.");
-        toast({
-          title: "📍 Location Error",
-          description: "Unable to get location. Please enable geolocation.",
-          variant: "destructive",
-        });
-        return;
+        console.warn("⚠️ Geolocation not available, using fallback location");
       }
 
-      // Fetch weather immediately
+      // Fetch weather immediately (with fallback location if needed)
       await fetchWeather(coords);
 
       // Set up interval to fetch weather every 4 hours

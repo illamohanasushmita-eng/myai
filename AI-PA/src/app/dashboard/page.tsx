@@ -338,9 +338,9 @@ export default function DashboardPage() {
               </Link>
               <Link
                 href="/healthcare"
-                className="bg-card-light dark:bg-card-dark p-4 rounded-xl shadow-sm flex flex-col items-start text-left cursor-pointer hover:shadow-md transition-shadow duration-300 frosted-glass border border-white/30 dark:border-white/10 col-span-2"
+                className="bg-card-light dark:bg-card-dark p-4 rounded-xl shadow-sm flex flex-col items-start text-left cursor-pointer hover:shadow-md transition-shadow duration-300 frosted-glass border border-white/30 dark:border-white/10 "
               >
-                <div className="flex items-center gap-3">
+                
                   <div className="w-12 h-12 flex-shrink-0 bg-red-100 dark:bg-red-900/50 rounded-full flex items-center justify-center">
                     <span className="material-symbols-outlined text-red-500 dark:text-red-400 text-2xl">
                       health_and_safety
@@ -354,7 +354,24 @@ export default function DashboardPage() {
                       Appointments, fitness
                     </p>
                   </div>
-                </div>
+                
+              </Link>
+              <Link href="/ai-local-discovery" className="bg-card-light dark:bg-card-dark p-4 rounded-xl shadow-sm flex flex-col items-start text-left cursor-pointer hover:shadow-md transition-shadow duration-300 frosted-glass border border-white/30 dark:border-white/10 ">
+                
+                  <div className="w-12 h-12 flex-shrink-0 bg-teal-100 dark:bg-teal-900/50 rounded-full flex items-center justify-center">
+                    <span className="material-symbols-outlined text-teal-500 dark:text-teal-400 text-2xl">
+                      explore
+                    </span>
+                  </div>
+                  <div>
+                    <h3 className="font-bold text-base text-foreground-light dark:text-foreground-dark">
+                      AI Local Discovery
+                    </h3>
+                    <p className="text-xs text-subtle-light dark:text-subtle-dark">
+                      Discover nearby places and services
+                    </p>
+                  </div>
+                
               </Link>
             </div>
           </div>
