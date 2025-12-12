@@ -43,12 +43,12 @@ export default function AddTaskPage() {
       const userId = localStorage.getItem("userId");
       if (!userId) {
         setError("User not authenticated");
+        setLoading(false);
         return;
       }
 
-      // Optimistic navigation - redirect immediately for better UX
-      // The task will be created in the background
-      const taskPromise = createTask(userId, {
+      // Create the task and wait for it to complete
+      await createTask(userId, {
         title,
         description,
         due_date: date ? date.toISOString() : undefined,
@@ -59,11 +59,8 @@ export default function AddTaskPage() {
         ai_generated: false,
       });
 
-      // Navigate immediately for perceived speed improvement
-      router.push("/tasks");
-
-      // Wait for the task to be created
-      await taskPromise;
+      // Navigate to tasks page with refresh parameter to trigger refetch
+      router.push("/tasks?refresh=true");
     } catch (err) {
       setError(err instanceof Error ? err.message : "Failed to create task");
       setLoading(false);

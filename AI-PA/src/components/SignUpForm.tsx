@@ -57,16 +57,24 @@ export default function SignUpForm() {
     try {
       const result = await signUp(email, password, name, phone);
 
-      // Store user ID in localStorage for later use
-      if (result.user) {
-        localStorage.setItem("userId", result.user.id);
-        localStorage.setItem("userEmail", result.user.email || "");
-      }
+      // If signup returned a user/session the user is authenticated immediately.
+      // Otherwise, the signup was initiated and the user must confirm via email.
+      if (result?.user) {
+        try {
+          localStorage.setItem("userId", result.user.id);
+          localStorage.setItem("userEmail", result.user.email || "");
+        } catch (e) {
+          console.warn("Failed to store user info locally:", e);
+        }
 
-      setMessageType("success");
-      setMessage(
-        "✅ Signup successful! Check your email for a confirmation link to verify your account.",
-      );
+        setMessageType("success");
+        setMessage("✅ Signup successful! You are signed in.");
+      } else {
+        setMessageType("success");
+        setMessage(
+          "✅ Signup initiated! Check your email for a confirmation link to verify your account.",
+        );
+      }
 
       // Clear form
       setEmail("");
