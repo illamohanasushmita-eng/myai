@@ -59,30 +59,49 @@ export async function getUserByEmail(email: string): Promise<User | null> {
 
 // Create a new user
 export async function createUser(
-  userData: Omit<User, "created_at"> | Omit<User, "user_id" | "created_at">,
+  userData: Partial<User> & { email: string; user_id?: string },
 ): Promise<User> {
   try {
     console.log("[USER-SERVICE] Creating user with email:", userData.email);
 
-    const { data, error } = await supabase
-      .from("users")
-      .insert([userData])
-      .select()
-      .single();
+    // Use upsert to avoid duplicate-key errors when a profile already exists.
+    // Prefer updating existing record if `user_id` is provided.
+    try {
+      const { data, error } = await supabase
+        .from("users")
+        .upsert(userData, { onConflict: "user_id" })
+        .select()
+        .single();
 
-    if (error) {
-      const errorDetails = {
-        code: error.code,
-        message: error.message,
-        status: (error as any).status,
-        details: (error as any).details,
-      };
-      console.error("[USER-SERVICE] Error creating user:", errorDetails);
-      throw error;
+      if (error) {
+        const errorDetails = {
+          code: error.code,
+          message: error.message,
+          status: (error as any).status,
+          details: (error as any).details,
+        };
+        console.error("[USER-SERVICE] Error upserting user:", errorDetails);
+        throw error;
+      }
+
+      console.log("[USER-SERVICE] User upserted successfully");
+      return data;
+    } catch (e: any) {
+      // If upsert isn't supported or still errors due to unique constraint,
+      // fall back to returning the existing record when possible.
+      if (e?.code === "23505") {
+        console.warn("[USER-SERVICE] Duplicate user detected, fetching existing record");
+        try {
+          const existing = await getUserByEmail(userData.email as string);
+          if (existing) return existing;
+        } catch (fetchErr) {
+          console.error("[USER-SERVICE] Failed to fetch existing user after duplicate error:", fetchErr);
+        }
+      }
+      const errorMsg = e instanceof Error ? e.message : JSON.stringify(e);
+      console.error("[USER-SERVICE] Exception in createUser:", errorMsg);
+      throw e;
     }
-
-    console.log("[USER-SERVICE] User created successfully");
-    return data;
   } catch (error) {
     const errorMsg =
       error instanceof Error ? error.message : JSON.stringify(error);

@@ -116,8 +116,6 @@ export default function ProfilePage() {
           return;
         }
 
-        console.log("Authenticated user ID:", user.id);
-
         // Fetch user profile from users table using userService
         try {
           let userProfile = await getUser(user.id);
@@ -160,10 +158,7 @@ export default function ProfilePage() {
               });
 
               if (newProfile) {
-                console.log(
-                  "Default profile created successfully:",
-                  newProfile,
-                );
+                console.log("Default profile created successfully:", newProfile);
                 setProfile(newProfile);
                 const avatarUrl = newProfile.avatar_url || "";
                 setProfileImage(avatarUrl);
@@ -375,14 +370,38 @@ export default function ProfilePage() {
       if (imageChanged) {
         if (profileImage && profileImage.startsWith("data:")) {
           console.log(
-            "[PROFILE] Profile image is data URL, adding to updateData",
+            "[PROFILE] Profile image is data URL, uploading via server API",
           );
-          // For now, we'll store the data URL directly
-          // In production, upload to Supabase Storage and get a public URL
-          updateData.avatar_url = profileImage;
-          console.log(
-            "[PROFILE] Updated avatar_url in updateData with data URL",
-          );
+          try {
+            // Generate a file name and post base64 payload to server-side upload endpoint
+            const mimeMatch = profileImage.match(/^data:(.+);base64,/);
+            const mime = mimeMatch ? mimeMatch[1] : "image/png";
+            const fileExt = mime.split("/")[1] || "png";
+            const fileName = `${profile.user_id}_${Date.now()}.${fileExt}`;
+
+            const resp = await fetch("/api/upload-avatar", {
+              method: "POST",
+              headers: { "Content-Type": "application/json" },
+              body: JSON.stringify({
+                userId: profile.user_id,
+                fileName,
+                base64: profileImage,
+              }),
+            });
+
+            const json = await resp.json();
+            if (!resp.ok || !json.publicUrl) {
+              console.error("[PROFILE] Server upload failed:", json);
+              throw new Error(json.error || "Server upload failed");
+            }
+
+            updateData.avatar_url = json.publicUrl;
+            console.log("[PROFILE] Uploaded avatar via server API, publicUrl:", json.publicUrl);
+          } catch (e) {
+            console.error("[PROFILE] Failed to upload profile image via server API:", e);
+            // Fallback: keep the data URL so user sees preview but warn
+            updateData.avatar_url = profileImage;
+          }
         } else if (profileImage && !profileImage.startsWith("data:")) {
           console.log("[PROFILE] Profile image is external URL, updating");
           updateData.avatar_url = profileImage;
@@ -535,12 +554,12 @@ export default function ProfilePage() {
                 );
               } else if (profileImage && !profileImage.startsWith("data:")) {
                 console.log("[PROFILE-DISPLAY] Rendering external URL image");
+                // Use plain <img> for external/public URLs to avoid Next.js image domain restrictions
                 return (
-                  <Image
+                  <img
                     src={profileImage}
                     alt="User profile picture"
-                    fill
-                    className="rounded-full object-cover"
+                    className="w-full h-full rounded-full object-cover"
                   />
                 );
               } else {
@@ -565,16 +584,16 @@ export default function ProfilePage() {
                   <DialogTitle>Update Profile Picture</DialogTitle>
                 </DialogHeader>
                 <div className="flex flex-col gap-4">
-                  <DialogClose asChild>
+                  <div className="flex gap-2">
                     <Button onClick={() => fileInputRef.current?.click()}>
                       Upload from device
                     </Button>
-                  </DialogClose>
-                  <DialogClose asChild>
-                    <Button onClick={() => setShowCamera(true)}>
-                      Take a photo
-                    </Button>
-                  </DialogClose>
+                    <DialogClose asChild>
+                      <Button onClick={() => setShowCamera(true)}>
+                        Take a photo
+                      </Button>
+                    </DialogClose>
+                  </div>
                 </div>
                 <input
                   type="file"

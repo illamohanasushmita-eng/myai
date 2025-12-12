@@ -12,10 +12,12 @@ import {
   DialogTrigger,
 } from "@/components/ui/dialog";
 import { useEffect, useState } from "react";
-import { generatePersonalizedDailyPlan } from "@/ai/openai-client";
+// generatePersonalizedDailyPlan replaced by server-side /api/daily-briefing
 import { VoiceAssistantWrapper } from "@/components/layout/VoiceAssistantWrapper";
 import { supabase } from "@/lib/supabaseClient";
 import { WeatherScheduler } from "@/components/WeatherScheduler";
+import dynamic from "next/dynamic";
+const WeatherWidget = dynamic(() => import("@/components/WeatherWidget"), { ssr: false });
 import { getUser } from "@/lib/services/userService";
 
 type DailyPlan = {
@@ -32,6 +34,7 @@ export default function DashboardPage() {
   const [dailyPlan, setDailyPlan] = useState<DailyPlan | null>(null);
   const [loading, setLoading] = useState(true);
   const [userName, setUserName] = useState<string>("User");
+  const [userAvatar, setUserAvatar] = useState<string | null>(null);
 
   // Get authenticated user ID from Supabase and fetch user name
   useEffect(() => {
@@ -54,6 +57,7 @@ export default function DashboardPage() {
             const userProfile = await getUser(user.id);
             if (userProfile && userProfile.name) {
               setUserName(userProfile.name);
+              setUserAvatar(userProfile.avatar_url || null);
             } else {
               // Fallback to "User" if name is not available
               setUserName("User");
@@ -76,19 +80,32 @@ export default function DashboardPage() {
     const fetchDailyPlan = async () => {
       try {
         setLoading(true);
-        // In a real app, you'd fetch this data from a user's profile
-        const mockData = {
-          name: "User",
-          pastActivities:
-            "Completed project proposal, attended team meeting, went for a run.",
-          preferences:
-            "Prefers focused work in the morning, enjoys listening to podcasts during breaks.",
-          upcomingDeadlines:
-            "Finalize Project Phoenix report due today at 4 PM.",
-        };
+        // Get authenticated user id
+        const { data: { user }, error } = await supabase.auth.getUser();
+        const userId = user?.id || localStorage.getItem("userId");
 
-        const result = await generatePersonalizedDailyPlan(mockData);
-        setDailyPlan(result);
+        if (!userId) {
+          throw new Error("No authenticated user");
+        }
+
+        const resp = await fetch("/api/daily-briefing", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ userId }),
+        });
+
+        const json = await resp.json();
+        if (!resp.ok) {
+          throw new Error(json.error || "Failed to fetch daily briefing");
+        }
+
+        // Expecting { morning, afternoon, evening, message }
+        setDailyPlan({
+          morning: json.morning || "",
+          afternoon: json.afternoon || "",
+          evening: json.evening || "",
+          message: json.message || "",
+        });
       } catch (error) {
         console.error("Failed to generate daily plan:", error);
         // Set a fallback plan in case of an error
@@ -126,7 +143,7 @@ export default function DashboardPage() {
               </Link>
             </Button>
             <div className="flex flex-col items-center">
-              <h1 className="text-lg font-bold">Hello, Alex!</h1>
+              <h1 className="text-lg font-bold">{`Hello, ${userName}!`}</h1>
               <p className="text-sm text-subtle-light dark:text-subtle-dark">
                 Let's make today productive.
               </p>
@@ -134,13 +151,23 @@ export default function DashboardPage() {
             <Dialog>
               <DialogTrigger asChild>
                 <div className="w-12 h-12 rounded-full overflow-hidden cursor-pointer">
-                  {<Image
-                    src={userImage}
-                    alt="User profile picture"
-                    width={48}
-                    height={48}
-                    className="object-cover"
-                  />}
+                  {userAvatar ? (
+                    <img
+                      src={userAvatar}
+                      alt="User profile picture"
+                      width={48}
+                      height={48}
+                      className="object-cover w-full h-full"
+                    />
+                  ) : (
+                    <img
+                      src={userImage}
+                      alt="User profile picture"
+                      width={48}
+                      height={48}
+                      className="object-cover w-full h-full"
+                    />
+                  )}
                 </div>
               </DialogTrigger>
               <DialogContent className="p-0 bg-transparent border-none max-w-sm w-full">
@@ -156,7 +183,7 @@ export default function DashboardPage() {
               </DialogContent>
             </Dialog>
           </div>
-          <div className="p-4">
+           {/* <div className="p-4">
             <div className="relative">
               <span className="material-symbols-outlined absolute left-3 top-1/2 -translate-y-1/2 text-subtle-light dark:text-subtle-dark">
                 search
@@ -167,7 +194,7 @@ export default function DashboardPage() {
                 type="text"
               />
             </div>
-          </div>
+          </div>  */}
         </header>
         <main className="flex-1 overflow-y-auto pb-28">
           <div className="p-6 pt-0">
@@ -260,6 +287,9 @@ export default function DashboardPage() {
                 Categorized Dashboard
               </h2>
             </div>
+            <div className="mb-4">
+              <WeatherWidget />
+            </div>
             <div className="grid grid-cols-2 gap-4">
               <Link href="/at-home" className="bg-card-light dark:bg-card-dark p-4 rounded-xl shadow-sm flex flex-col items-start text-left cursor-pointer hover:shadow-md transition-shadow duration-300 frosted-glass border border-white/30 dark:border-white/10">
                 <div className="w-12 h-12 flex-shrink-0 bg-blue-100 dark:bg-blue-900/50 rounded-full flex items-center justify-center mb-3">
@@ -313,9 +343,9 @@ export default function DashboardPage() {
                   Maintenance, trips
                 </p>
               </Link>
-              <Link href="/healthcare" className="bg-card-light dark:bg-card-dark p-4 rounded-xl shadow-sm flex flex-col items-start text-left cursor-pointer hover:shadow-md transition-shadow duration-300 frosted-glass border border-white/30 dark:border-white/10 col-span-2">
-                <div className="flex items-center gap-3">
-                  <div className="w-12 h-12 flex-shrink-0 bg-red-100 dark:bg-red-900/50 rounded-full flex items-center justify-center">
+              <Link href="/healthcare" className="bg-card-light dark:bg-card-dark p-4 rounded-xl shadow-sm flex flex-col items-start text-left cursor-pointer hover:shadow-md transition-shadow duration-300 frosted-glass border border-white/30 dark:border-white/10">
+                {/* <div className="flex items-center gap-3"> */}
+                  <div className="w-12 h-12 flex-shrink-0 bg-red-100 dark:bg-red-900/50 rounded-full flex items-center justify-center mb-3">
                     <span className="material-symbols-outlined text-red-500 dark:text-red-400 text-2xl">
                       health_and_safety
                     </span>
@@ -328,11 +358,11 @@ export default function DashboardPage() {
                       Appointments, fitness
                     </p>
                   </div>
-                </div>
+                {/* </div> */}
               </Link>
-              <Link href="/ai-local-discovery" className="bg-card-light dark:bg-card-dark p-4 rounded-xl shadow-sm flex flex-col items-start text-left cursor-pointer hover:shadow-md transition-shadow duration-300 frosted-glass border border-white/30 dark:border-white/10 col-span-2">
-                <div className="flex items-center gap-3">
-                  <div className="w-12 h-12 flex-shrink-0 bg-teal-100 dark:bg-teal-900/50 rounded-full flex items-center justify-center">
+              <Link href="/ai-local-discovery" className="bg-card-light dark:bg-card-dark p-4 rounded-xl shadow-sm flex flex-col items-start text-left cursor-pointer hover:shadow-md transition-shadow duration-300 frosted-glass border border-white/30 dark:border-white/10">
+                {/* <div className="flex items-center gap-3"> */}
+                  <div className="w-12 h-12 flex-shrink-0 bg-teal-100 dark:bg-teal-900/50 rounded-full flex items-center justify-center mb-3">
                     <span className="material-symbols-outlined text-teal-500 dark:text-teal-400 text-2xl">
                       explore
                     </span>
@@ -345,7 +375,7 @@ export default function DashboardPage() {
                       Discover nearby places and services
                     </p>
                   </div>
-                </div>
+                {/* </div> */}
               </Link>
             </div>
           </div>
