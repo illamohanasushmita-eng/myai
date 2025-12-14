@@ -7,9 +7,29 @@ import BottomNav from "@/components/layout/bottom-nav";
 import { useEffect, useState } from "react";
 import { Switch } from "@/components/ui/switch";
 import { VoiceAssistantWrapper } from "@/components/layout/VoiceAssistantWrapper";
+import { getUser } from "@/lib/services/userService";
+
+// Default avatar component - shows initials or icon
+const DefaultAvatar = ({ name }: { name?: string }) => {
+  const initials =
+    name
+      ?.split(" ")
+      .map((n) => n[0])
+      .join("")
+      .toUpperCase()
+      .slice(0, 2) || "U";
+
+  return (
+    <div className="w-full h-full flex items-center justify-center bg-gradient-to-br from-primary/20 to-primary/10 rounded-full">
+      <span className="text-xl font-bold text-primary">{initials}</span>
+    </div>
+  );
+};
 
 export default function SettingsPage() {
   const [isDark, setIsDark] = useState(false);
+  const [userAvatar, setUserAvatar] = useState<string | null>(null);
+  const [userName, setUserName] = useState<string | null>(null);
 
   useEffect(() => {
     const isDarkMode = localStorage.getItem("theme") === "dark";
@@ -17,6 +37,24 @@ export default function SettingsPage() {
     if (isDarkMode) {
       document.documentElement.classList.add("dark");
     }
+
+    // Fetch user profile data
+    const fetchUserProfile = async () => {
+      try {
+        const userId = localStorage.getItem("userId");
+        if (userId) {
+          const user = await getUser(userId);
+          if (user) {
+            setUserAvatar(user.avatar_url || null);
+            setUserName(user.name || null);
+          }
+        }
+      } catch (error) {
+        console.error("Error fetching user profile:", error);
+      }
+    };
+
+    fetchUserProfile();
   }, []);
 
   const handleThemeChange = (checked: boolean) => {
@@ -65,12 +103,15 @@ export default function SettingsPage() {
                     className="flex items-center gap-4 p-4"
                   >
                     <div className="relative h-14 w-14 flex-shrink-0 rounded-full bg-cover bg-center">
-                      <Image
-                        src="https://lh3.googleusercontent.com/aida-public/AB6AXuCdo5G2NLz9RtwbAmMqs7lY-7i-pNnVm7svrNO_NONAWCfV4_jKBt9TpRQ6ax2CrE7TmEjwpxKxElhGNTMT8xonP_6l9MBrylDCWqv3vzEdIP8OFS4aBovtRD6YNqqBzDCGWPerfGuY9rzgrPXub2X0RWaauN61CiScUSEMYF1RGmiQR1mg_7jq4Z_ndznMN08npc2BdCJqG5B69C3OLpt0d1r68vETYgDwSBXh3nQgTx7iawsGUYI4T2LJTEWNV6fvvK8AEFDEYw"
-                        alt="User profile picture"
-                        fill
-                        className="rounded-full"
-                      />
+                      {userAvatar ? (
+                        <img
+                          src={userAvatar}
+                          alt="User profile picture"
+                          className="w-full h-full rounded-full object-cover"
+                        />
+                      ) : (
+                        <DefaultAvatar name={userName || undefined} />
+                      )}
                     </div>
                     <div className="flex-1">
                       <p className="font-medium text-gray-900 dark:text-white">
@@ -175,29 +216,6 @@ export default function SettingsPage() {
                       </p>
                       <p className="text-sm text-gray-500 dark:text-gray-400">
                         Adjust notification settings
-                      </p>
-                    </div>
-                    <span className="material-symbols-outlined text-gray-400 dark:text-gray-500">
-                      arrow_forward_ios
-                    </span>
-                  </Link>
-                </li>
-                <li className="border-t border-gray-200/50 dark:border-gray-700/50">
-                  <Link
-                    href="/settings/voice"
-                    className="flex items-center gap-4 p-4"
-                  >
-                    <div className="flex h-12 w-12 flex-shrink-0 items-center justify-center rounded-lg bg-primary/10 text-primary">
-                      <span className="material-symbols-outlined text-2xl">
-                        mic
-                      </span>
-                    </div>
-                    <div className="flex-1">
-                      <p className="font-medium text-gray-900 dark:text-white">
-                        Voice Commands
-                      </p>
-                      <p className="text-sm text-gray-500 dark:text-gray-400">
-                        Manage voice command settings
                       </p>
                     </div>
                     <span className="material-symbols-outlined text-gray-400 dark:text-gray-500">

@@ -12,9 +12,16 @@ import {
 import { useState, useEffect } from "react";
 import { cn } from "@/lib/utils";
 import { AddGoalModal } from "@/components/modals/AddGoalModal";
-import { getUserGrowthGoals } from "@/lib/services/habitService";
-import { GrowthGoal } from "@/lib/types/database";
+import {
+  getUserGrowthGoals,
+  updateGrowthGoal,
+  deleteGrowthGoal,
+  getActiveHabits,
+  getUserLearningModules,
+} from "@/lib/services/habitService";
+import { GrowthGoal, Habit, LearningModule } from "@/lib/types/database";
 import { VoiceAssistantWrapper } from "@/components/layout/VoiceAssistantWrapper";
+import { useRouter } from "next/navigation";
 
 const initialHabitState = {
   Mon: true,
@@ -27,39 +34,109 @@ const initialHabitState = {
 };
 
 export default function PersonalGrowthPage() {
+  const router = useRouter();
   const [habitCompletion, setHabitCompletion] = useState(initialHabitState);
   const [isAddGoalOpen, setIsAddGoalOpen] = useState(false);
   const [goals, setGoals] = useState<GrowthGoal[]>([]);
+  const [habits, setHabits] = useState<Habit[]>([]);
+  const [learningModules, setLearningModules] = useState<LearningModule[]>([]);
   const [isLoading, setIsLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
 
   const toggleHabit = (day: keyof typeof initialHabitState) => {
     setHabitCompletion((prev) => ({ ...prev, [day]: !prev[day] }));
   };
 
-  // Load goals from database
-  const loadGoals = async () => {
+  // Load all data from database
+  const loadData = async () => {
     try {
       setIsLoading(true);
+      setError(null);
       const userId = localStorage.getItem("userId");
-      if (userId) {
-        const fetchedGoals = await getUserGrowthGoals(userId);
-        setGoals(fetchedGoals);
+      if (!userId) {
+        setError("User not authenticated");
+        return;
       }
+
+      // Fetch all data in parallel
+      const [fetchedGoals, fetchedHabits, fetchedModules] = await Promise.all([
+        getUserGrowthGoals(userId),
+        getActiveHabits(userId),
+        getUserLearningModules(userId),
+      ]);
+
+      setGoals(fetchedGoals);
+      setHabits(fetchedHabits);
+      setLearningModules(fetchedModules);
     } catch (error) {
-      console.error("Error loading goals:", error);
+      console.error("Error loading personal growth data:", error);
+      setError("Failed to load data. Please try again.");
     } finally {
       setIsLoading(false);
     }
   };
 
-  // Load goals on mount
+  // Load data on mount
   useEffect(() => {
-    loadGoals();
+    loadData();
   }, []);
 
   // Handle goal added
   const handleGoalAdded = () => {
-    loadGoals();
+    loadData();
+  };
+
+  // Handle goal progress update
+  const handleUpdateProgress = async (goalId: string, newProgress: number) => {
+    try {
+      // Optimistic update
+      setGoals((prevGoals) =>
+        prevGoals.map((goal) =>
+          goal.goal_id === goalId
+            ? { ...goal, progress_percentage: newProgress }
+            : goal
+        )
+      );
+
+      // Update in database
+      await updateGrowthGoal(goalId, {
+        progress_percentage: newProgress,
+        status: newProgress >= 100 ? "completed" : "active",
+      });
+
+      // Reload data to ensure consistency
+      loadData();
+    } catch (error) {
+      console.error("Error updating goal progress:", error);
+      // Revert optimistic update on error
+      loadData();
+    }
+  };
+
+  // Handle goal status toggle (mark as complete/incomplete)
+  const handleToggleGoalStatus = async (goalId: string, currentProgress: number) => {
+    const newProgress = currentProgress >= 100 ? 0 : 100;
+    await handleUpdateProgress(goalId, newProgress);
+  };
+
+  // Handle edit goal
+  const handleEditGoal = (goalId: string) => {
+    router.push(`/personal-growth/edit/${goalId}`);
+  };
+
+  // Handle delete goal
+  const handleDeleteGoal = async (goalId: string) => {
+    if (!confirm("Are you sure you want to delete this goal?")) {
+      return;
+    }
+
+    try {
+      await deleteGrowthGoal(goalId);
+      loadData();
+    } catch (error) {
+      console.error("Error deleting goal:", error);
+      setError("Failed to delete goal. Please try again.");
+    }
   };
 
   // Helper function to get category icon and color
@@ -110,6 +187,13 @@ export default function PersonalGrowthPage() {
     }
   };
 
+  // Calculate real-time statistics
+  const activeGoalsCount = goals.filter((g) => g.status === "active").length;
+  const skillsDevelopingCount = learningModules.filter(
+    (m) => m.status === "in_progress" || m.status === "not_started"
+  ).length;
+  const habitsTrackedCount = habits.length;
+
   return (
     <>
       <div className="flex flex-col min-h-screen">
@@ -145,29 +229,68 @@ export default function PersonalGrowthPage() {
           </div>
         </header>
         <main className="flex-1 overflow-y-auto pb-28">
+          {/* Error Message */}
+          {error && (
+            <div className="mx-6 mt-6 p-4 bg-red-100 dark:bg-red-900/30 border border-red-300 dark:border-red-700 rounded-lg text-sm text-red-700 dark:text-red-300">
+              {error}
+              <Button
+                onClick={loadData}
+                variant="outline"
+                size="sm"
+                className="ml-4"
+              >
+                Retry
+              </Button>
+            </div>
+          )}
+
+          {/* Progress Section */}
           <div className="p-6">
             <div className="bg-card-light dark:bg-card-dark rounded-xl p-6 shadow-md frosted-glass border border-white/30 dark:border-white/10">
               <h2 className="text-2xl font-bold mb-4">Your Progress</h2>
-              <div className="grid grid-cols-3 gap-4 text-center">
-                <div>
-                  <p className="text-3xl font-bold text-primary">3</p>
-                  <p className="text-sm text-subtle-light dark:text-subtle-dark">
-                    Goals in Progress
-                  </p>
+              {isLoading ? (
+                <div className="grid grid-cols-3 gap-4 text-center">
+                  <div className="animate-pulse">
+                    <div className="h-10 bg-gray-200 dark:bg-gray-700 rounded mb-2"></div>
+                    <div className="h-4 bg-gray-200 dark:bg-gray-700 rounded"></div>
+                  </div>
+                  <div className="animate-pulse">
+                    <div className="h-10 bg-gray-200 dark:bg-gray-700 rounded mb-2"></div>
+                    <div className="h-4 bg-gray-200 dark:bg-gray-700 rounded"></div>
+                  </div>
+                  <div className="animate-pulse">
+                    <div className="h-10 bg-gray-200 dark:bg-gray-700 rounded mb-2"></div>
+                    <div className="h-4 bg-gray-200 dark:bg-gray-700 rounded"></div>
+                  </div>
                 </div>
-                <div>
-                  <p className="text-3xl font-bold text-primary">5</p>
-                  <p className="text-sm text-subtle-light dark:text-subtle-dark">
-                    Skills Developing
-                  </p>
+              ) : (
+                <div className="grid grid-cols-3 gap-4 text-center">
+                  <div>
+                    <p className="text-3xl font-bold text-primary">
+                      {activeGoalsCount}
+                    </p>
+                    <p className="text-sm text-subtle-light dark:text-subtle-dark">
+                      Goals in Progress
+                    </p>
+                  </div>
+                  <div>
+                    <p className="text-3xl font-bold text-primary">
+                      {skillsDevelopingCount}
+                    </p>
+                    <p className="text-sm text-subtle-light dark:text-subtle-dark">
+                      Skills Developing
+                    </p>
+                  </div>
+                  <div>
+                    <p className="text-3xl font-bold text-primary">
+                      {habitsTrackedCount}
+                    </p>
+                    <p className="text-sm text-subtle-light dark:text-subtle-dark">
+                      Habits Tracked
+                    </p>
+                  </div>
                 </div>
-                <div>
-                  <p className="text-3xl font-bold text-primary">8</p>
-                  <p className="text-sm text-subtle-light dark:text-subtle-dark">
-                    Habits Tracked
-                  </p>
-                </div>
-              </div>
+              )}
             </div>
           </div>
           <div className="px-6 mt-2">
@@ -184,22 +307,78 @@ export default function PersonalGrowthPage() {
             </div>
             <div className="space-y-4">
               {isLoading ? (
-                <div className="p-4 text-center text-subtle-light dark:text-subtle-dark">
-                  Loading goals...
+                <div className="space-y-4">
+                  {[1, 2, 3].map((i) => (
+                    <div
+                      key={i}
+                      className="bg-card-light dark:bg-card-dark p-4 rounded-xl shadow-sm frosted-glass border border-white/30 dark:border-white/10 animate-pulse"
+                    >
+                      <div className="flex items-center mb-3">
+                        <div className="w-10 h-10 bg-gray-200 dark:bg-gray-700 rounded-full mr-3"></div>
+                        <div className="flex-1">
+                          <div className="h-4 bg-gray-200 dark:bg-gray-700 rounded w-3/4 mb-2"></div>
+                          <div className="h-3 bg-gray-200 dark:bg-gray-700 rounded w-1/2"></div>
+                        </div>
+                      </div>
+                      <div className="h-2 bg-gray-200 dark:bg-gray-700 rounded"></div>
+                    </div>
+                  ))}
                 </div>
               ) : goals.length === 0 ? (
-                <div className="p-4 text-center text-subtle-light dark:text-subtle-dark">
-                  No goals yet. Create your first one!
+                <div className="bg-card-light dark:bg-card-dark p-8 rounded-xl shadow-sm frosted-glass border border-white/30 dark:border-white/10 text-center">
+                  <span className="material-symbols-outlined text-6xl text-subtle-light dark:text-subtle-dark mb-4">
+                    flag
+                  </span>
+                  <p className="text-lg font-medium mb-2">No goals yet</p>
+                  <p className="text-sm text-subtle-light dark:text-subtle-dark mb-4">
+                    Create your first goal to start tracking your personal growth journey!
+                  </p>
+                  <Button
+                    onClick={() => setIsAddGoalOpen(true)}
+                    className="bg-primary text-white rounded-lg"
+                  >
+                    <span className="material-symbols-outlined text-base mr-2">
+                      add
+                    </span>
+                    Create Your First Goal
+                  </Button>
                 </div>
               ) : (
                 goals.map((goal) => {
                   const categoryInfo = getCategoryIcon(goal.category);
+                  const isCompleted = goal.progress_percentage >= 100;
                   return (
                     <div
                       key={goal.goal_id}
-                      className="bg-card-light dark:bg-card-dark p-4 rounded-xl shadow-sm frosted-glass border border-white/30 dark:border-white/10"
+                      className={cn(
+                        "bg-card-light dark:bg-card-dark p-4 rounded-xl shadow-sm frosted-glass border border-white/30 dark:border-white/10 transition-all",
+                        isCompleted && "opacity-75"
+                      )}
                     >
                       <div className="flex items-center mb-3">
+                        {/* Status Checkbox */}
+                        <button
+                          onClick={() =>
+                            handleToggleGoalStatus(
+                              goal.goal_id,
+                              goal.progress_percentage
+                            )
+                          }
+                          className={cn(
+                            "w-6 h-6 flex-shrink-0 rounded-full border-2 flex items-center justify-center mr-3 transition-all",
+                            isCompleted
+                              ? "bg-primary border-primary"
+                              : "border-gray-300 dark:border-gray-600 hover:border-primary"
+                          )}
+                        >
+                          {isCompleted && (
+                            <span className="material-symbols-outlined text-white text-sm">
+                              check
+                            </span>
+                          )}
+                        </button>
+
+                        {/* Category Icon */}
                         <div
                           className={`w-10 h-10 flex-shrink-0 ${categoryInfo.color} rounded-full flex items-center justify-center mr-3`}
                         >
@@ -209,20 +388,35 @@ export default function PersonalGrowthPage() {
                             {categoryInfo.icon}
                           </span>
                         </div>
-                        <div>
-                          <h3 className="font-bold text-base text-foreground-light dark:text-foreground-dark">
+
+                        {/* Goal Info */}
+                        <div className="flex-1">
+                          <h3
+                            className={cn(
+                              "font-bold text-base text-foreground-light dark:text-foreground-dark",
+                              isCompleted && "line-through"
+                            )}
+                          >
                             {goal.title}
                           </h3>
                           <p className="text-xs text-subtle-light dark:text-subtle-dark">
                             {goal.category || "Other"}
+                            {goal.target_date && (
+                              <span className="ml-2">
+                                • Due:{" "}
+                                {new Date(goal.target_date).toLocaleDateString()}
+                              </span>
+                            )}
                           </p>
                         </div>
+
+                        {/* Actions Menu */}
                         <DropdownMenu>
                           <DropdownMenuTrigger asChild>
                             <Button
                               variant="ghost"
                               size="icon"
-                              className="ml-auto w-8 h-8 flex items-center justify-center rounded-full hover:bg-black/5 dark:hover:bg-white/5"
+                              className="ml-2 w-8 h-8 flex items-center justify-center rounded-full hover:bg-black/5 dark:hover:bg-white/5"
                             >
                               <span className="material-symbols-outlined text-subtle-light dark:text-subtle-dark text-lg">
                                 more_vert
@@ -230,27 +424,89 @@ export default function PersonalGrowthPage() {
                             </Button>
                           </DropdownMenuTrigger>
                           <DropdownMenuContent align="end">
-                            <DropdownMenuItem>Edit</DropdownMenuItem>
-                            <DropdownMenuItem className="text-destructive">
+                            <DropdownMenuItem
+                              onClick={() => handleEditGoal(goal.goal_id)}
+                            >
+                              <span className="material-symbols-outlined text-sm mr-2">
+                                edit
+                              </span>
+                              Edit
+                            </DropdownMenuItem>
+                            <DropdownMenuItem
+                              onClick={() =>
+                                handleUpdateProgress(
+                                  goal.goal_id,
+                                  Math.min(goal.progress_percentage + 25, 100)
+                                )
+                              }
+                            >
+                              <span className="material-symbols-outlined text-sm mr-2">
+                                add_circle
+                              </span>
+                              Add 25% Progress
+                            </DropdownMenuItem>
+                            <DropdownMenuItem
+                              onClick={() =>
+                                handleToggleGoalStatus(
+                                  goal.goal_id,
+                                  goal.progress_percentage
+                                )
+                              }
+                            >
+                              <span className="material-symbols-outlined text-sm mr-2">
+                                {isCompleted ? "restart_alt" : "check_circle"}
+                              </span>
+                              {isCompleted
+                                ? "Mark as Incomplete"
+                                : "Mark as Complete"}
+                            </DropdownMenuItem>
+                            <DropdownMenuItem
+                              onClick={() => handleDeleteGoal(goal.goal_id)}
+                              className="text-destructive"
+                            >
+                              <span className="material-symbols-outlined text-sm mr-2">
+                                delete
+                              </span>
                               Delete
                             </DropdownMenuItem>
                           </DropdownMenuContent>
                         </DropdownMenu>
                       </div>
+
+                      {/* Description */}
                       {goal.description && (
-                        <p className="text-sm text-subtle-light dark:text-subtle-dark mb-3">
+                        <p className="text-sm text-subtle-light dark:text-subtle-dark mb-3 ml-9">
                           {goal.description}
                         </p>
                       )}
-                      <div className="relative h-2 bg-border-light dark:bg-border-dark rounded-full">
-                        <div
-                          className="absolute top-0 left-0 h-full bg-primary rounded-full"
-                          style={{ width: `${goal.progress_percentage}%` }}
-                        ></div>
+
+                      {/* Progress Bar */}
+                      <div className="ml-9">
+                        <div className="relative h-2 bg-border-light dark:bg-border-dark rounded-full overflow-hidden">
+                          <div
+                            className={cn(
+                              "absolute top-0 left-0 h-full rounded-full transition-all duration-300",
+                              isCompleted
+                                ? "bg-green-500"
+                                : "bg-primary"
+                            )}
+                            style={{ width: `${goal.progress_percentage}%` }}
+                          ></div>
+                        </div>
+                        <div className="flex justify-between items-center mt-1">
+                          <p className="text-xs text-subtle-light dark:text-subtle-dark">
+                            {goal.progress_percentage}% Complete
+                          </p>
+                          {isCompleted && (
+                            <span className="text-xs font-medium text-green-600 dark:text-green-400 flex items-center">
+                              <span className="material-symbols-outlined text-sm mr-1">
+                                check_circle
+                              </span>
+                              Completed
+                            </span>
+                          )}
+                        </div>
                       </div>
-                      <p className="text-right text-xs mt-1 text-subtle-light dark:text-subtle-dark">
-                        {goal.progress_percentage}% Complete
-                      </p>
                     </div>
                   );
                 })
