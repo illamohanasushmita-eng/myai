@@ -187,6 +187,40 @@ export async function createGrowthGoal(
   }
 }
 
+export async function updateGrowthGoal(
+  goalId: string,
+  updates: Partial<GrowthGoal>,
+): Promise<GrowthGoal> {
+  try {
+    const { data, error } = await supabase
+      .from("growth_goals")
+      .update(updates)
+      .eq("goal_id", goalId)
+      .select()
+      .single();
+
+    if (error) throw error;
+    return data;
+  } catch (error) {
+    console.error("Error updating growth goal:", error);
+    throw error;
+  }
+}
+
+export async function deleteGrowthGoal(goalId: string): Promise<void> {
+  try {
+    const { error } = await supabase
+      .from("growth_goals")
+      .delete()
+      .eq("goal_id", goalId);
+
+    if (error) throw error;
+  } catch (error) {
+    console.error("Error deleting growth goal:", error);
+    throw error;
+  }
+}
+
 // ===== LEARNING MODULES =====
 
 export async function getUserLearningModules(

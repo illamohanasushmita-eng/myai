@@ -64,44 +64,81 @@ export async function signUp(
       throw new Error("Failed to create auth user");
     }
 
-    console.log("[SIGNUP] Auth user created successfully:", data.user.id);
+    console.log(
+      "[SIGNUP] Auth signup result: user=",
+      data?.user?.id ?? null,
+      " session=",
+      data?.session ? "present" : "absent",
+    );
 
-    // Step 3: Insert directly into users table (NO API route, NO settings creation)
-    console.log("[SIGNUP] Inserting user record for userId:", data.user.id);
-    const { error: insertError } = await supabase.from("users").insert({
-      user_id: data.user.id,
-      email,
-      name,
-      phone: phone || null,
-      password_hash: "managed_by_supabase_auth",
-      theme: "light",
-      language: "en",
-    });
+    // If Supabase returns a session, the user is immediately authenticated
+    // (email confirmations are not required). Only in that case can we
+    // safely insert into the `users` table from the client. If there is no
+    // session (common when email confirmation is required), skip the insert
+    // because client-side inserts will often be rejected by RLS policies.
+    const needsConfirmation = !data?.session;
 
-    if (insertError) {
-      // Handle duplicate user gracefully (23505 = unique constraint violation)
-      if (insertError.code === "23505") {
-        console.log(
-          "[SIGNUP] User already exists in users table, continuing...",
-        );
-        // User was created in auth but already exists in users table - this is OK
-      } else if (insertError.code === "23503") {
-        // Foreign key constraint error - suppress and continue
-        console.warn(
-          "[SIGNUP] Foreign key constraint error (expected if settings not created yet):",
-          insertError.message,
-        );
-        // This is OK - settings will be created when user visits settings page
-      } else {
-        console.error("[SIGNUP] Failed to insert user:", insertError);
-        // Return generic error message without exposing database details
-        throw new Error("Unable to complete signup. Please try again.");
+    if (!needsConfirmation && data?.user) {
+      console.log("[SIGNUP] Inserting user record for userId:", data.user.id);
+      const maxAttempts = 3;
+      let attempt = 0;
+      let inserted = false;
+      while (attempt < maxAttempts && !inserted) {
+        attempt += 1;
+        try {
+          const { error: insertError } = await supabase.from("users").insert({
+            user_id: data.user.id,
+            email,
+            name,
+            phone: phone || null,
+            password_hash: "managed_by_supabase_auth",
+            theme: "light",
+            language: "en",
+          });
+
+          if (insertError) {
+            const code = (insertError as any)?.code;
+            const message = (insertError as any)?.message || JSON.stringify(insertError);
+            console.warn(
+              `[SIGNUP] Users table insert failed (attempt ${attempt}/${maxAttempts}):`,
+              code,
+              message,
+            );
+            if (attempt < maxAttempts) {
+              // exponential backoff
+              const delayMs = 500 * Math.pow(2, attempt - 1);
+              await new Promise((res) => setTimeout(res, delayMs));
+              continue;
+            }
+          } else {
+            console.log("[SIGNUP] User record created successfully");
+            inserted = true;
+            break;
+          }
+        } catch (e) {
+          console.warn(
+            `[SIGNUP] Error inserting users record (attempt ${attempt}/${maxAttempts}):`,
+            e,
+          );
+          if (attempt < maxAttempts) {
+            const delayMs = 500 * Math.pow(2, attempt - 1);
+            await new Promise((res) => setTimeout(res, delayMs));
+            continue;
+          }
+        }
       }
+
+      if (!inserted) {
+        console.warn(
+          "[SIGNUP] Users table insert failed after retries (non-blocking). Will not block signup.",
+        );
+      }
+    } else {
+      console.log("[SIGNUP] Skipping users table insert; confirmation required or session absent");
     }
 
-    console.log("[SIGNUP] User record created successfully");
-    console.log("[SIGNUP] Signup completed successfully");
-    return data;
+    console.log("[SIGNUP] Signup completed successfully (auth created)");
+    return { user: data?.user ?? null, session: data?.session ?? null, needsConfirmation };
   } catch (error) {
     const errorMessage =
       error instanceof Error ? error.message : "Signup failed";
@@ -204,38 +241,83 @@ export async function changePassword(
   newPassword: string,
 ): Promise<void> {
   try {
-    // Get user
+    console.log("[CHANGE-PASSWORD] Starting password change for userId:", userId);
+
+    // Get user email from users table
     const { data: user, error: userError } = await supabase
       .from("users")
-      .select("*")
+      .select("email, password_hash")
       .eq("user_id", userId)
       .single();
 
     if (userError || !user) {
+      console.error("[CHANGE-PASSWORD] User not found:", userError);
       throw new Error("User not found");
     }
 
-    // Verify old password
-    const isPasswordValid = await verifyPassword(
-      oldPassword,
-      user.password_hash,
-    );
-    if (!isPasswordValid) {
-      throw new Error("Invalid password");
+    console.log("[CHANGE-PASSWORD] User found:", user.email);
+    console.log("[CHANGE-PASSWORD] Password hash type:", user.password_hash);
+
+    // Check if password is managed by Supabase Auth
+    if (user.password_hash === "managed_by_supabase_auth") {
+      console.log("[CHANGE-PASSWORD] Using Supabase Auth to change password");
+
+      // First, verify the old password by attempting to sign in
+      const { error: signInError } = await supabase.auth.signInWithPassword({
+        email: user.email,
+        password: oldPassword,
+      });
+
+      if (signInError) {
+        console.error("[CHANGE-PASSWORD] Old password verification failed:", signInError.message);
+        throw new Error("Invalid password");
+      }
+
+      console.log("[CHANGE-PASSWORD] Old password verified, updating to new password");
+
+      // Update password using Supabase Auth
+      const { error: updateError } = await supabase.auth.updateUser({
+        password: newPassword,
+      });
+
+      if (updateError) {
+        console.error("[CHANGE-PASSWORD] Failed to update password:", updateError.message);
+        throw new Error(updateError.message || "Failed to update password");
+      }
+
+      console.log("[CHANGE-PASSWORD] Password updated successfully via Supabase Auth");
+    } else {
+      // Legacy: password stored in users table (for backwards compatibility)
+      console.log("[CHANGE-PASSWORD] Using legacy password verification");
+
+      const isPasswordValid = await verifyPassword(
+        oldPassword,
+        user.password_hash,
+      );
+
+      if (!isPasswordValid) {
+        console.error("[CHANGE-PASSWORD] Invalid old password");
+        throw new Error("Invalid password");
+      }
+
+      // Hash new password
+      const newPasswordHash = await hashPassword(newPassword);
+
+      // Update password in users table
+      const { error: updateError } = await supabase
+        .from("users")
+        .update({ password_hash: newPasswordHash })
+        .eq("user_id", userId);
+
+      if (updateError) {
+        console.error("[CHANGE-PASSWORD] Failed to update password hash:", updateError);
+        throw updateError;
+      }
+
+      console.log("[CHANGE-PASSWORD] Password updated successfully in users table");
     }
-
-    // Hash new password
-    const newPasswordHash = await hashPassword(newPassword);
-
-    // Update password
-    const { error: updateError } = await supabase
-      .from("users")
-      .update({ password_hash: newPasswordHash })
-      .eq("user_id", userId);
-
-    if (updateError) throw updateError;
   } catch (error) {
-    console.error("Error changing password:", error);
+    console.error("[CHANGE-PASSWORD] Error changing password:", error);
     throw error;
   }
 }

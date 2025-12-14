@@ -1,28 +1,57 @@
 import { NextRequest, NextResponse } from "next/server";
 
-interface WeatherData {
-  main: string;
-  description: string;
-  temp: number;
-  feels_like: number;
-  humidity: number;
-  wind: number;
-  icon: string;
-}
+const OPENWEATHER_API_KEY = process.env.OPENWEATHER_API_KEY || "";
 
-interface OpenWeatherResponse {
-  weather: Array<{
-    main: string;
-    description: string;
-    icon: string;
-  }>;
-  main: {
-    temp: number;
-    feels_like: number;
-    humidity: number;
-  };
-  wind: {
-    speed: number;
+function generateMood(main: string, id?: number) {
+  const m = (main || "").toLowerCase();
+  if (m.includes("clear")) {
+    return {
+      message: "It’s brighter than your future out there! Don’t forget sunscreen 😎.",
+      suggestion: "Wear sunglasses and a light dose of confidence.",
+    };
+  }
+  if (m.includes("cloud")) {
+    return {
+      message: "Cloudy vibes ☁ — maybe take a nap or plot world domination.",
+      suggestion: "A warm drink + a short walk can help.",
+    };
+  }
+  if (m.includes("rain")) {
+    return {
+      message: "It’s raining… like your motivation! Grab that umbrella ☔.",
+      suggestion: "Listen to an upbeat playlist while you walk.",
+    };
+  }
+  if (m.includes("thunder") || m.includes("storm") || (id && id < 700 && id >= 200)) {
+    return {
+      message: "Thunderstruck! ⚡ Perfect time for indoor karaoke.",
+      suggestion: "Make a cozy playlist and stay inside.",
+    };
+  }
+  if (m.includes("snow")) {
+    return {
+      message: "Snow way! ❄ Time for a cozy drink and Netflix.",
+      suggestion: "Warm socks recommended.",
+    };
+  }
+  if (m.includes("mist") || m.includes("fog") || m.includes("haze")) {
+    return {
+      message: "Fog so thick, even Google Maps gave up. Drive safe 🚗.",
+      suggestion: "Leave earlier and use low beams.",
+    };
+  }
+  // extreme cases
+  if (m.includes("extreme") || m.includes("ash") || m.includes("squall") || m.includes("tornado") || (id && id >= 900)) {
+    return {
+      message: "Mother Nature’s angry 😬 — stay indoors, hydrate, survive.",
+      suggestion: "Follow local advisories and check emergency kits.",
+    };
+  }
+
+  // default
+  return {
+    message: "Weather's being mysterious — but you've got this!",
+    suggestion: "Dress in layers and keep a snack handy.",
   };
 }
 
@@ -30,80 +59,58 @@ export async function POST(request: NextRequest) {
   try {
     const { lat, lon } = await request.json();
 
-    // Validate coordinates
-    if (typeof lat !== "number" || typeof lon !== "number") {
-      return NextResponse.json(
-        { error: "Invalid coordinates. lat and lon must be numbers." },
-        { status: 400 },
-      );
+    // Basic validation: lat/lon present and are numbers
+    if (lat == null || lon == null) {
+      return NextResponse.json({ error: "Missing lat/lon" }, { status: 400 });
     }
 
-    // Validate latitude and longitude ranges
-    if (lat < -90 || lat > 90 || lon < -180 || lon > 180) {
-      return NextResponse.json(
-        {
-          error:
-            "Invalid coordinates. Latitude must be between -90 and 90, longitude between -180 and 180.",
-        },
-        { status: 400 },
-      );
+    const latNum = Number(lat);
+    const lonNum = Number(lon);
+    if (Number.isNaN(latNum) || Number.isNaN(lonNum)) {
+      return NextResponse.json({ error: "Invalid lat/lon" }, { status: 400 });
     }
 
-    const apiKey = process.env.OPENWEATHER_API_KEY;
-
-    if (!apiKey) {
-      console.error(
-        "❌ OPENWEATHER_API_KEY is not set in environment variables",
-      );
-      return NextResponse.json(
-        { error: "Weather API key is not configured" },
-        { status: 500 },
-      );
+    if (!OPENWEATHER_API_KEY) {
+      console.error("OPENWEATHER_API_KEY is not set");
+      return NextResponse.json({ error: "Server missing API key" }, { status: 500 });
     }
 
-    // Call OpenWeatherMap API
-    const weatherUrl = `https://api.openweathermap.org/data/2.5/weather?lat=${lat}&lon=${lon}&appid=${apiKey}&units=metric`;
+    const weatherUrl = `https://api.openweathermap.org/data/2.5/weather?lat=${encodeURIComponent(
+      latNum,
+    )}&lon=${encodeURIComponent(lonNum)}&appid=${OPENWEATHER_API_KEY}&units=metric`;
 
-    console.log(`🌤️ Fetching weather for coordinates: lat=${lat}, lon=${lon}`);
-
-    const weatherResponse = await fetch(weatherUrl, {
-      method: "GET",
-      headers: {
-        "Content-Type": "application/json",
-      },
-    });
-
+    const weatherResponse = await fetch(weatherUrl);
     if (!weatherResponse.ok) {
-      console.error(
-        `❌ OpenWeatherMap API error: ${weatherResponse.status} ${weatherResponse.statusText}`,
-      );
-      return NextResponse.json(
-        { error: `Weather API error: ${weatherResponse.statusText}` },
-        { status: weatherResponse.status },
-      );
+      const txt = await weatherResponse.text();
+      console.error("OpenWeather API error:", weatherResponse.status, txt);
+      return NextResponse.json({ error: "Failed to fetch weather" }, { status: 502 });
     }
 
-    const data: OpenWeatherResponse = await weatherResponse.json();
+    const data = await weatherResponse.json();
 
-    // Extract and format weather data
-    const weatherData: WeatherData = {
-      main: data.weather[0].main,
-      description: data.weather[0].description,
-      temp: Math.round(data.main.temp),
-      feels_like: Math.round(data.main.feels_like),
-      humidity: data.main.humidity,
-      wind: Math.round(data.wind.speed * 10) / 10, // Round to 1 decimal place
-      icon: data.weather[0].icon,
-    };
+    const main = data.weather?.[0]?.main || "";
+    const description = data.weather?.[0]?.description || "";
+    const temp = data.main?.temp ?? null;
+    const feels_like = data.main?.feels_like ?? null;
+    const humidity = data.main?.humidity ?? null;
+    const wind = data.wind || null;
+    const locationName = data.name || null;
 
-    console.log(`✅ Weather data fetched successfully:`, weatherData);
+    const mood = generateMood(main, data.weather?.[0]?.id);
 
-    return NextResponse.json(weatherData, { status: 200 });
-  } catch (error) {
-    console.error("❌ Error in weather API:", error);
-    return NextResponse.json(
-      { error: "Failed to fetch weather data" },
-      { status: 500 },
-    );
+    return NextResponse.json({
+      main,
+      description,
+      temp,
+      feels_like,
+      humidity,
+      wind,
+      locationName,
+      message: mood.message,
+      suggestion: mood.suggestion,
+    });
+  } catch (err) {
+    console.error("/api/weather error:", err);
+    return NextResponse.json({ error: "Unexpected server error" }, { status: 500 });
   }
 }

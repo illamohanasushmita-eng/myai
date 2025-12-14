@@ -80,6 +80,20 @@ export async function updateVehicle(
   }
 }
 
+export async function deleteVehicle(vehicleId: string): Promise<void> {
+  try {
+    const { error } = await supabase
+      .from("vehicles")
+      .delete()
+      .eq("vehicle_id", vehicleId);
+
+    if (error) throw error;
+  } catch (error) {
+    console.error("Error deleting vehicle:", error);
+    throw error;
+  }
+}
+
 // ===== MAINTENANCE LOGS =====
 
 export async function getVehicleMaintenanceLogs(
@@ -125,6 +139,42 @@ export async function createMaintenanceLog(
     return data;
   } catch (error) {
     console.error("Error creating maintenance log:", error);
+    throw error;
+  }
+}
+
+export async function updateMaintenanceLog(
+  maintenanceId: string,
+  updates: Partial<MaintenanceLog>,
+): Promise<MaintenanceLog> {
+  try {
+    const { data, error } = await supabase
+      .from("maintenance_logs")
+      .update(updates)
+      .eq("maintenance_id", maintenanceId)
+      .select()
+      .single();
+
+    if (error) throw error;
+    return data;
+  } catch (error) {
+    console.error("Error updating maintenance log:", error);
+    throw error;
+  }
+}
+
+export async function deleteMaintenanceLog(
+  maintenanceId: string,
+): Promise<void> {
+  try {
+    const { error } = await supabase
+      .from("maintenance_logs")
+      .delete()
+      .eq("maintenance_id", maintenanceId);
+
+    if (error) throw error;
+  } catch (error) {
+    console.error("Error deleting maintenance log:", error);
     throw error;
   }
 }
@@ -199,6 +249,20 @@ export async function updateRoute(
     return data;
   } catch (error) {
     console.error("Error updating route:", error);
+    throw error;
+  }
+}
+
+export async function deleteRoute(routeId: string): Promise<void> {
+  try {
+    const { error } = await supabase
+      .from("routes")
+      .delete()
+      .eq("route_id", routeId);
+
+    if (error) throw error;
+  } catch (error) {
+    console.error("Error deleting route:", error);
     throw error;
   }
 }

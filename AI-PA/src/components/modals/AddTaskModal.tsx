@@ -19,7 +19,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-import { createProfessionalNote } from "@/lib/services/professionalService";
+import { createTask } from "@/lib/services/taskService";
 
 interface AddTaskModalProps {
   isOpen: boolean;
@@ -40,12 +40,13 @@ export function AddTaskModal({
   isOpen,
   onClose,
   onSuccess,
-  category = "Professional",
+  category = "project",
 }: AddTaskModalProps) {
   const [title, setTitle] = useState("");
-  const [content, setContent] = useState("");
-  const [noteCategory, setNoteCategory] = useState("task");
-  const [tags, setTags] = useState("");
+  const [description, setDescription] = useState("");
+  const [taskCategory, setTaskCategory] = useState(category.toLowerCase());
+  const [priority, setPriority] = useState("medium");
+  const [dueDate, setDueDate] = useState("");
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState("");
 
@@ -54,7 +55,7 @@ export function AddTaskModal({
     setError("");
 
     if (!title.trim()) {
-      setError("Note title is required");
+      setError("Task title is required");
       return;
     }
 
@@ -66,27 +67,32 @@ export function AddTaskModal({
 
     try {
       setIsLoading(true);
-      await createProfessionalNote(userId, {
+      await createTask(userId, {
         title: title.trim(),
-        content: content.trim() || undefined,
-        category: noteCategory,
-        tags: tags.trim() || undefined,
+        description: description.trim() || undefined,
+        category: taskCategory,
+        priority: priority,
+        due_date: dueDate ? new Date(dueDate).toISOString() : undefined,
+        status: "pending",
+        ai_generated: false,
+        updated_at: new Date().toISOString(),
       });
 
       // Reset form
       setTitle("");
-      setContent("");
-      setNoteCategory("task");
-      setTags("");
+      setDescription("");
+      setTaskCategory(category.toLowerCase());
+      setPriority("medium");
+      setDueDate("");
 
       onClose();
       onSuccess?.();
     } catch (err) {
-      console.error("Error creating professional note:", err);
+      console.error("Error creating task:", err);
       setError(
         err instanceof Error
           ? err.message
-          : "Failed to create note. Please try again.",
+          : "Failed to create task. Please try again.",
       );
     } finally {
       setIsLoading(false);
@@ -96,9 +102,10 @@ export function AddTaskModal({
   const handleClose = () => {
     if (!isLoading) {
       setTitle("");
-      setContent("");
-      setNoteCategory("task");
-      setTags("");
+      setDescription("");
+      setTaskCategory(category.toLowerCase());
+      setPriority("medium");
+      setDueDate("");
       setError("");
       onClose();
     }
@@ -108,9 +115,9 @@ export function AddTaskModal({
     <Dialog open={isOpen} onOpenChange={handleClose}>
       <DialogContent className="sm:max-w-[425px]">
         <DialogHeader>
-          <DialogTitle>Add New Task</DialogTitle>
+          <DialogTitle>Add New {taskCategory === "project" ? "Project" : "Task"}</DialogTitle>
           <DialogDescription>
-            Create a new professional note or task
+            Create a new {taskCategory === "project" ? "project" : "task"} to track your work
           </DialogDescription>
         </DialogHeader>
 
@@ -127,7 +134,7 @@ export function AddTaskModal({
             </label>
             <Input
               id="title"
-              placeholder="Enter note title"
+              placeholder={taskCategory === "project" ? "Enter project name" : "Enter task title"}
               value={title}
               onChange={(e) => setTitle(e.target.value)}
               disabled={isLoading}
@@ -136,14 +143,14 @@ export function AddTaskModal({
           </div>
 
           <div>
-            <label htmlFor="content" className="block text-sm font-medium mb-1">
-              Content
+            <label htmlFor="description" className="block text-sm font-medium mb-1">
+              Description
             </label>
             <Textarea
-              id="content"
-              placeholder="Enter note content (optional)"
-              value={content}
-              onChange={(e) => setContent(e.target.value)}
+              id="description"
+              placeholder="Enter description (optional)"
+              value={description}
+              onChange={(e) => setDescription(e.target.value)}
               disabled={isLoading}
               className="rounded-lg min-h-[100px]"
             />
@@ -157,8 +164,8 @@ export function AddTaskModal({
               Category
             </label>
             <Select
-              value={noteCategory}
-              onValueChange={setNoteCategory}
+              value={taskCategory}
+              onValueChange={setTaskCategory}
               disabled={isLoading}
             >
               <SelectTrigger className="rounded-lg">
@@ -175,14 +182,34 @@ export function AddTaskModal({
           </div>
 
           <div>
-            <label htmlFor="tags" className="block text-sm font-medium mb-1">
-              Tags
+            <label htmlFor="priority" className="block text-sm font-medium mb-1">
+              Priority
+            </label>
+            <Select
+              value={priority}
+              onValueChange={setPriority}
+              disabled={isLoading}
+            >
+              <SelectTrigger className="rounded-lg">
+                <SelectValue />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="low">Low</SelectItem>
+                <SelectItem value="medium">Medium</SelectItem>
+                <SelectItem value="high">High</SelectItem>
+              </SelectContent>
+            </Select>
+          </div>
+
+          <div>
+            <label htmlFor="dueDate" className="block text-sm font-medium mb-1">
+              Due Date
             </label>
             <Input
-              id="tags"
-              placeholder="Enter tags separated by commas (optional)"
-              value={tags}
-              onChange={(e) => setTags(e.target.value)}
+              id="dueDate"
+              type="date"
+              value={dueDate}
+              onChange={(e) => setDueDate(e.target.value)}
               disabled={isLoading}
               className="rounded-lg"
             />
@@ -199,7 +226,7 @@ export function AddTaskModal({
               Cancel
             </Button>
             <Button type="submit" disabled={isLoading} className="rounded-lg">
-              {isLoading ? "Creating..." : "Create Note"}
+              {isLoading ? "Creating..." : `Create ${taskCategory === "project" ? "Project" : "Task"}`}
             </Button>
           </DialogFooter>
         </form>
