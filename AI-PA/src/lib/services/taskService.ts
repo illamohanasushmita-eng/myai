@@ -163,7 +163,7 @@ export async function getTasksByCategory(
       .from("tasks")
       .select("*")
       .eq("user_id", userId)
-      .eq("category", category)
+      .ilike("category", category)
       .order("created_at", { ascending: false });
 
     if (error) throw error;

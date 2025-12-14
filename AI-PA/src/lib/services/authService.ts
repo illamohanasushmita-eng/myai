@@ -241,38 +241,83 @@ export async function changePassword(
   newPassword: string,
 ): Promise<void> {
   try {
-    // Get user
+    console.log("[CHANGE-PASSWORD] Starting password change for userId:", userId);
+
+    // Get user email from users table
     const { data: user, error: userError } = await supabase
       .from("users")
-      .select("*")
+      .select("email, password_hash")
       .eq("user_id", userId)
       .single();
 
     if (userError || !user) {
+      console.error("[CHANGE-PASSWORD] User not found:", userError);
       throw new Error("User not found");
     }
 
-    // Verify old password
-    const isPasswordValid = await verifyPassword(
-      oldPassword,
-      user.password_hash,
-    );
-    if (!isPasswordValid) {
-      throw new Error("Invalid password");
+    console.log("[CHANGE-PASSWORD] User found:", user.email);
+    console.log("[CHANGE-PASSWORD] Password hash type:", user.password_hash);
+
+    // Check if password is managed by Supabase Auth
+    if (user.password_hash === "managed_by_supabase_auth") {
+      console.log("[CHANGE-PASSWORD] Using Supabase Auth to change password");
+
+      // First, verify the old password by attempting to sign in
+      const { error: signInError } = await supabase.auth.signInWithPassword({
+        email: user.email,
+        password: oldPassword,
+      });
+
+      if (signInError) {
+        console.error("[CHANGE-PASSWORD] Old password verification failed:", signInError.message);
+        throw new Error("Invalid password");
+      }
+
+      console.log("[CHANGE-PASSWORD] Old password verified, updating to new password");
+
+      // Update password using Supabase Auth
+      const { error: updateError } = await supabase.auth.updateUser({
+        password: newPassword,
+      });
+
+      if (updateError) {
+        console.error("[CHANGE-PASSWORD] Failed to update password:", updateError.message);
+        throw new Error(updateError.message || "Failed to update password");
+      }
+
+      console.log("[CHANGE-PASSWORD] Password updated successfully via Supabase Auth");
+    } else {
+      // Legacy: password stored in users table (for backwards compatibility)
+      console.log("[CHANGE-PASSWORD] Using legacy password verification");
+
+      const isPasswordValid = await verifyPassword(
+        oldPassword,
+        user.password_hash,
+      );
+
+      if (!isPasswordValid) {
+        console.error("[CHANGE-PASSWORD] Invalid old password");
+        throw new Error("Invalid password");
+      }
+
+      // Hash new password
+      const newPasswordHash = await hashPassword(newPassword);
+
+      // Update password in users table
+      const { error: updateError } = await supabase
+        .from("users")
+        .update({ password_hash: newPasswordHash })
+        .eq("user_id", userId);
+
+      if (updateError) {
+        console.error("[CHANGE-PASSWORD] Failed to update password hash:", updateError);
+        throw updateError;
+      }
+
+      console.log("[CHANGE-PASSWORD] Password updated successfully in users table");
     }
-
-    // Hash new password
-    const newPasswordHash = await hashPassword(newPassword);
-
-    // Update password
-    const { error: updateError } = await supabase
-      .from("users")
-      .update({ password_hash: newPasswordHash })
-      .eq("user_id", userId);
-
-    if (updateError) throw updateError;
   } catch (error) {
-    console.error("Error changing password:", error);
+    console.error("[CHANGE-PASSWORD] Error changing password:", error);
     throw error;
   }
 }
